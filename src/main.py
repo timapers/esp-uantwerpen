@@ -16,6 +16,7 @@ from src.controllers.tags import bp as tags_blueprint
 from src.controllers.cookies import bp as cookies_blueprint
 from src.controllers.profile import bp as profile_blueprint
 from src.controllers.mails import bp as mails_blueprint
+from src.controllers.careers.controller import bp as careers_blueprint
 
 app = Flask(__name__)
 app.teardown_appcontext(close_db)
@@ -31,6 +32,8 @@ app.register_blueprint(tags_blueprint)
 app.register_blueprint(cookies_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(mails_blueprint)
+
+app.register_blueprint(careers_blueprint)
 
 login_manager = LoginManager()
 login_manager.init_app(app)

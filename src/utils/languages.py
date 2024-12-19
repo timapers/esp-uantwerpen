@@ -443,6 +443,10 @@ language_dict = {
     "All Projects": {
         "en": "All Projects",
         "nl": "Alle Projecten"
+    },
+    "Career": {
+        "en": "Career",
+        "nl": "Carrière"
     }
 }
 

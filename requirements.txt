@@ -17,3 +17,5 @@ WTForms==3.0.1
 xlwt==1.3.0
 xlsxwriter
 
+## Install for the tests
+# selenium==4.27.1

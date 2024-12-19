@@ -25,6 +25,10 @@ def check_credentials(user_id, password):
     :param password: the user password
     :return: Boolean indicating if the credentials are correct
     """
+    ## TODO: Remove this after development
+    if config_data.get('dev', False):
+        return True
+
     server = get_server()
     try:
         Connection(server, user=user_id + config_data['suffix'], password=password, auto_bind=True)

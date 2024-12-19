@@ -15,3 +15,5 @@ src/static/attachments/
 *.pyc
 venv/
 */py_cache
+
+dummy

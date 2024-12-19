@@ -50,7 +50,9 @@
                 <li class="nav-item {{ nav_projects }}">
                     <a class="nav-link" href="{{ url_for("projects.projects") }}">{{ get_text("All Projects") }}</a>
                 </li>
-
+                <li class="nav-item {{ nav_careers }}">
+                    <a class="nav-link" href="{{ url_for("careers.careers") }}">{{ get_text("Career") }}</a>
+                </li>
                 {% if current_user.is_authenticated and current_user.role != "student" %}
                     <li class="nav-item {{ nav_myprojects }}">
                         <a class="nav-link" href="{{ url_for("projects.my_projects", employee=current_user.name, edit="true") }}">{{ get_text("My Projects") }}</a>
