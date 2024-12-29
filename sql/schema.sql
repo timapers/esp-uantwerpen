@@ -172,18 +172,18 @@ CREATE TABLE company
     website VARCHAR(255)
 );
 
-CREATE TABLE company_has_contact_person
-(
-    company_id INT REFERENCES Company (company_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    contact_person VARCHAR(255) REFERENCES contact_person_company (id) ON UPDATE CASCADE ON DELETE SET NULL,
-    PRIMARY KEY (company_id, contact_person)
-);
-
 CREATE TABLE contact_person_company
 (
     contact_person_id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255)
+);
+
+CREATE TABLE company_has_contact_person
+(
+    company_id INT REFERENCES Company (company_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    contact_person INT REFERENCES contact_person_company (contact_person_id) ON UPDATE CASCADE ON DELETE SET NULL,
+    PRIMARY KEY (company_id, contact_person)
 );
 
 -------------------------------------------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ CREATE TABLE internship
     view_count INT DEFAULT 0,
     creation_date DATE NOT NULL DEFAULT CURRENT_DATE,
     address VARCHAR(255),
-    contact_person VARCHAR(255) REFERENCES contact_person_company (id) ON UPDATE CASCADE ON DELETE SET NULL,
+    contact_person INT REFERENCES contact_person_company (contact_person_id) ON UPDATE CASCADE ON DELETE SET NULL,
     is_active BOOLEAN NOT NULL
 );
 
@@ -213,7 +213,7 @@ CREATE TABLE internship_has_type
     type VARCHAR(255) REFERENCES Type (type_name) ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY (internship, type)
 );
--------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
 
 CREATE MATERIALIZED VIEW search_index
 AS

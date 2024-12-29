@@ -36,13 +36,31 @@ drop table if exists research_group cascade;
 
 drop table if exists document cascade;
 
-drop table if exists tag;
+drop table if exists tag cascade;
 
-drop index if exists idx_fts_search;
+drop index if exists idx_fts_search cascade;
 
 drop type if exists employeetitle cascade;
 
 drop type if exists guidancetype cascade;
 
 drop type if exists registrationstatus cascade;
+
+-- Drop internship_has_type table
+DROP TABLE IF EXISTS internship_has_type CASCADE;
+
+-- Drop internship_has_tag table
+DROP TABLE IF EXISTS internship_has_tag CASCADE;
+
+-- Drop internship table
+DROP TABLE IF EXISTS internship CASCADE;
+
+-- Drop company_has_contact_person table
+DROP TABLE IF EXISTS company_has_contact_person CASCADE;
+
+-- Drop contact_person_company table
+DROP TABLE IF EXISTS contact_person_company CASCADE;
+
+-- Drop company table
+DROP TABLE IF EXISTS company CASCADE;
 
