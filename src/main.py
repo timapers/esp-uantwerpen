@@ -46,6 +46,13 @@ assets.register('projects', Bundle('js/projects/edit.js',
                                    'js/projects/url_params.js',
                                    output='gen/packed.js'))
 
+assets.register('internships', Bundle('js/internships/edit.js',
+                                      'js/internships/filter.js',
+                                      'js/internships/index.js',
+                                      'js/internships/url_params.js',
+                                      'js/internships/internship_list.js',
+                                      output='gen/packed.js'))
+
 
 # Injects variables and functions, so they can be used in the templates
 @app.context_processor

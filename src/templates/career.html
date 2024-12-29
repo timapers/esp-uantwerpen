@@ -4,11 +4,92 @@
 {% set nav_careers = "active" %}
 {% endif %}
 
+{% block title %}Career{% endblock %}
+
+{% block head %}
+    {% assets "internships" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
+    <script src="{{ url_for('static', filename='js/lib/bootstrap-select.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap-select.min.css') }}">
+{% endblock %}
 
 {% block content %}
-<h1>
-    Career Page
-    <p> Page is under construction</p>
-</h1>
+    <div id="container" class="container">
+        <div class="row">
+            <div class="col-md-auto">
+                <form class="form-inline col-auto w-100 p-0">
+                    {% if current_theme == "dark" %}
+                        <input class="form-control bg-dark border-secondary" type="search" placeholder="Search"
+                               aria-label="Search" id="search_text" onkeypress="searchOnEnter(event)"
+                               style="color: white; width:73% !important; margin-bottom: 2px;">
+                    {% else %}
+                        <input class="form-control" type="search" placeholder="Search" aria-label="Search"
+                               id="search_text" onkeypress="searchOnEnter(event)"
+                               style="width:73% !important; margin-bottom: 2px;">
+                    {% endif %}
+                    <button class="btn search-button-color my-sm-0" onclick="search()" id="search_submit"
+                            type="submit"
+                            style="width:25% !important; margin-left: 2% !important; margin-bottom: 2px !important;">
+                        &#x1F50D;
+                    </button>
+                </form>
+            </div>
 
+            <div class="col text-left">
+                <button id="reset-search" class="btn light-button-color" onclick="resetSearch()" style="display: none;">
+                    Reset Search
+                </button>
+                <button class="btn light-button-color" onclick="filterExtend()">Internship Filter</button>
+            </div>
+
+            <div class="col-auto text-right">
+                {% if current_user.is_authenticated and current_user.role != "student" %}
+                    <button type="submit" id="submitbutton"
+                            onclick="location.href='{{ url_for('career.internships_page') + "?new=true" }}'"
+                            class="btn light-button-color">Add Internship</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="text-center mt-3" id="filter" style="display: none;">
+            <select name="company" id="company-filter" class="selectpicker w-auto" multiple
+                    title="Choose Companies"></select>
+            <select name="type" id="type-filter" class="selectpicker w-auto" multiple
+                    title="Choose Types"></select>
+            <br>
+            <input type="checkbox" id="live-filter" onchange="onChangeLiveInternshipsFilter(this)">
+            <label for="live-filter">Only Live Internships</label>
+        </div>
+
+        <div id="loading-spinner" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col" id="navigatorcol"></div>
+            <div class="col-auto">
+                <select class="form-control" id="amount-selector" onchange="selectorOnClick(this)">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="75">75</option>
+                    <option value="All">All</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <select class="form-control w-auto float-right" id='orderBy' name='orderBy' onchange="filterInternships()">
+                    <option value="popular">Most Popular</option>
+                    <option value="AZ">A - Z</option>
+                    <option value="ZA">Z - A</option>
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="accordion" class="accordion"></div>
+    </div>
 {% endblock %}
