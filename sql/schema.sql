@@ -190,6 +190,7 @@ CREATE TABLE company_has_contact_person
 CREATE TABLE internship
 (
     internship_id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
     max_students INT NOT NULL,
     description_id INT NOT NULL REFERENCES Document (document_id) ON UPDATE CASCADE ON DELETE SET NULL,
     company_id INT NOT NULL REFERENCES Company (company_id) ON UPDATE CASCADE ON DELETE CASCADE,

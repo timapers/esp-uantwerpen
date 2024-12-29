@@ -5,21 +5,38 @@ class Internship:
     """
     Internship model class
     """
-
-    def __init__(self, in_id, title, max_students, description_id, view_count, start_date, end_date, company_id, address, is_active):
+    def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active):
 
         self.internship_id = in_id
         self.title = title
         self.max_students = max_students
         self.description_id = description_id
-        self.view_count = view_count
         self.company_id = company_id
+        self.view_count = view_count
+        self.creation_date = creation_date
         self.address = address
+        self.contact_person = contact_person
         self.is_active = is_active
         """
         Other tables
         """
         self.types = None
+        self.tags = None
+
+    def to_dict(self):
+        return {
+            'internship_id': self.internship_id,
+            'title': self.title,
+            'max_students': self.max_students,
+            'description_id': self.description_id,
+            'company_id': self.company_id,
+            'view_count': self.view_count,
+            'creation_date': self.creation_date,
+            'address': self.address,
+            'contact_person': self.contact_person,
+            'is_active': self.is_active
+        }
+
 
 class InternshipDataAccess:
     """
@@ -55,7 +72,6 @@ class InternshipDataAccess:
         internships = list()
         for internship_id in self.get_internship_ids(active_only):
             internships.append(self.get_internship(internship_id, active_only))
-
         return internships
 
 
@@ -66,7 +82,7 @@ class InternshipDataAccess:
         :return: The internship object.
         """
         cursor = self.dbconnect.get_cursor()
-        cursor.execute('SELECT internship_id, title, max_students, description_id, view_count, start_date, end_date, company_id, address, is_active FROM internship WHERE internship_id = %s', (internship_id,))
+        cursor.execute('SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active FROM internship WHERE internship_id = %s', (internship_id,))
         row = cursor.fetchone()
         return Internship(*row)
 
@@ -77,7 +93,7 @@ class InternshipDataAccess:
         :return: A list with all the internship objects.
         """
         cursor = self.dbconnect.get_cursor()
-        cursor.execute('SELECT internship_id, title, max_students, description_id, view_count, start_date, end_date, company_id, address, is_active FROM internship WHERE company_id = %s', (company_id,))
+        cursor.execute('SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active FROM internship WHERE company_id = %s', (company_id,))
         internships = list()
         for row in cursor:
             internships.append(Internship(*row))
@@ -91,8 +107,8 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         try:
-            cursor.execute('INSERT INTO internship(title, max_students, description_id, view_count, start_date, end_date, company_id, address, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                           (obj.title, obj.max_students, obj.description_id, obj.view_count, obj.start_date, obj.end_date, obj.company_id, obj.address, obj.is_active))
+            cursor.execute('INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                           (obj.title, obj.max_students, obj.description_id, obj.company_id, obj.view_count, obj.creation_date, obj.address, obj.contact_person, obj.is_active))
             cursor.execute('SELECT LASTVAL()')
             iden = cursor.fetchone()[0]
             obj.internship_id = iden
@@ -214,6 +230,23 @@ class InternshipDataAccess:
         cursor = self.dbconnect.get_cursor()
         try:
             cursor.execute('DELETE FROM internship_has_type WHERE internship = %s AND internship_type = %s', (internship_id, internship_type))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def add_view_count(self, internship_id, amount):
+        """
+        Adds a view count to an internship.
+        :param internship_id: The ID of the internship.
+        :param amount: The amount to add.
+        :raise: Exception if the database has to roll back.
+        """
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT view_count FROM internship WHERE internship_id = %s', (internship_id,))
+        view_count = cursor.fetchone()[0] + amount
+        try:
+            cursor.execute('UPDATE internship SET view_count = view_count + %s WHERE internship_id = %s', (view_count, internship_id))
             self.dbconnect.commit()
         except:
             self.dbconnect.rollback()
