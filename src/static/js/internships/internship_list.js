@@ -97,6 +97,65 @@ function refreshNavigation() {
     let bottomNav = createNav(true);
     document.getElementById("container").appendChild(bottomNav);
 }
+
+/**
+ * Sets the right element in the navigation/pagination to active
+ * @param number the element that should be active
+ */
+function setActiveNavElement(number) {
+    let darkThemeClasses = "";
+    if (theme === "dark") {
+        darkThemeClasses = "bg-dark border-secondary text-white";
+    }
+
+    // Set previous classname of both top and bottom nav
+    if (number !== 0) {
+        document.getElementById("nav-bottom-previous").className = "page-item";
+        document.getElementById("nav-top-previous").className = "page-item";
+    } else {
+        document.getElementById("nav-bottom-previous").className = "page-item disabled";
+        document.getElementById("nav-top-previous").className = "page-item disabled";
+    }
+
+    // Reset each item
+    for (let i = 0; i < getPages(); i++) {
+        let navBottomElem = document.getElementById("nav-bottom-" + i);
+        let navTopElem = document.getElementById("nav-top-" + i);
+        navBottomElem.className = "page-item";
+        navBottomElem.firstChild.innerHTML = i.toString();
+        navBottomElem.firstChild.className = "page-link " + darkThemeClasses;
+        navTopElem.className = "page-item";
+        navTopElem.firstChild.innerHTML = i.toString();
+        navTopElem.firstChild.className = "page-link " + darkThemeClasses;
+    }
+
+    // Set next classname of both top and bottom nav
+    if (number < getPages() - 1) {
+        document.getElementById("nav-bottom-next").className = "page-item";
+        document.getElementById("nav-top-next").className = "page-item";
+    } else {
+        document.getElementById("nav-bottom-next").className = "page-item disabled";
+        document.getElementById("nav-top-next").className = "page-item disabled";
+    }
+
+
+    // Highlight selected
+    let navBottomElem = document.getElementById("nav-bottom-" + number);
+    let navTopElem = document.getElementById("nav-top-" + number);
+
+    if (! navBottomElem) {
+        return;
+    }
+
+    navBottomElem.className = "page-item active";
+    navBottomElem.firstChild.innerHTML = number.toString() + "<span class=\"sr-only\">(current)</span>";
+    navBottomElem.firstChild.className = "page-link";
+    navTopElem.className = "page-item active";
+    navTopElem.firstChild.innerHTML = number.toString() + "<span class=\"sr-only\">(current)</span>";
+    navTopElem.firstChild.className = "page-link";
+
+}
+
 /**
  * Fills a card with an internship
  * @param {number} number the unique ID of the card
