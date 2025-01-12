@@ -35,7 +35,7 @@ $(function () {
     $("#error").hide();
 
     $.ajax({
-        url: "internships-page-additional",
+        url: "events-page-additional",
         success: function (result) {
             EMPLOYEES = result["employees"];
             TYPES = result["types"];

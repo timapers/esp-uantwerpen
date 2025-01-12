@@ -34,7 +34,7 @@ class Internship:
             'creation_date': self.creation_date,
             'address': self.address,
             'contact_person': self.contact_person,
-            'is_active': self.is_active
+            'is_active': self.is_active,
         }
 
 

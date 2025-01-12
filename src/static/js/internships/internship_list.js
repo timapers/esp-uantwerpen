@@ -26,7 +26,7 @@ function getInternshipAtCard(number) {
 function refreshInternshipsData(callback = null) {
     // Get all the internships, show them when arrived
     $.ajax({
-        url: "get-all-internships-data",
+        url: "get-all-events-data",
         success: function (result) {
             ALL_INTERNSHIPS = result;
             filterInternships();
@@ -164,13 +164,13 @@ function setActiveNavElement(number) {
 function fillCard(number, internship) {
     // Set title and link
     let title = internship["title"];
-    $("#card-title" + number).html(title).attr("href", 'internship-page?internship_id=' + internship["internship_id"]);
+    $("#card-title" + number).html(title).attr("href", 'event-page?event_id=' + internship["internship_id"]);
 
     // Set the content preview
     let content = internship["description"] || "No description available.";
     $("#card-text" + number).html(content);
     $("#link" + number).click(function () {
-        window.location.href = '/internship-page?internship_id=' + internship["internship_id"];
+        window.location.href = '/event-page?event_id=' + internship["internship_id"];
     });
 
     $(`#card-collapse${number}`).collapse('hide');

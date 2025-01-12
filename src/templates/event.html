@@ -1,0 +1,184 @@
+{% extends "layout.html" %}
+
+{% block title %}event{% endblock %}
+
+{% block head %}
+
+    <script src="{{ url_for('static', filename='js/lib/dropzone.js') }}"></script>
+    <script src='{{ url_for('static', filename='js/event.js') }}'></script>
+    <script src="{{ url_for('static', filename='js/lib/ckeditor/ckeditor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/bootstrap-tagsinput.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/bootstrap3-typeahead.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/bootstrap4-toggle.min.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap-tagsinput.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap4-toggle.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/dropzone.css') }}">
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container" id="content">
+
+        <!-- Option buttons -->
+        <div class="text-center" id="buttons">
+            <button type="button" class="btn default-color my-2" id="modify-btn"
+                    style="display: none;">{{ get_text("Modify") }}</button>
+            <button type="button" class="btn default-color my-2" id="generate-tags-btn"
+                    style="display: none;">Generate tags from description
+            </button>
+            <button type="button" class="btn default-color my-2" id="external-employee-btn"
+                    style="display: none;">Add a new (external) person
+            </button>
+            <button type="button" id="active-btn"
+                    style="display: none;" disabled></button>
+        </div>
+
+        <div class="alert alert-success" id="success" role="alert" style="display: none;">
+            event Successfully Saved!
+        </div>
+
+        <div class="alert alert-danger" id="error" role="alert" style="display: none;">
+            An error occurred while saving!
+        </div>
+
+        <h1 class="title text-center" id="title"></h1>
+
+        <!-- Badges -->
+        <div class="text-center" id="badges"></div>
+
+        <div class="text-center" id="edit-options" style="display: none;">
+
+            <div class="event-input">
+                Students:
+                <input id="edit-students" class="no-border" type="number" min="1" step="1" max="30"
+                       onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 3em;">
+            </div>
+
+            <select name="research" id="edit-research-group" class="selectpicker"
+                    title="{{ get_text("Choose-Research-Group") }}"></select>
+            <select name="type" id="edit-type" class="selectpicker" multiple
+                    title="{{ get_text("Choose-Types") }}"></select>
+
+            <br>
+
+            <input id="edit-tags" class="border border-secondary" type="text" data-role="tagsinput"
+                   placeholder="Add a tag">
+
+        </div>
+
+        <!-- Extra Info -->
+        <div class="text-center" id="extra-info"></div>
+
+        <!-- Option buttons -->
+        <div class="text-center" id="buttons">
+
+            {% if current_user.is_authenticated and current_user.role == "student" %}
+                <div class="dropdown">
+                    <button class="btn default-color dropdown-toggle" type="button" id="registration-btn"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ get_text("Register") }}
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="registration-btn" id="registration-options">
+                    </div>
+                </div>
+                <button type="button" class="btn default-color" id="like-btn"
+                        onclick="change_like('{{ get_text("Like") }}', '{{ get_text("Unlike") }}')"></button>
+            {% endif %}
+
+
+        </div>
+
+        <div class="description mt-2" id="description"></div>
+
+        <div class="card" id="attachments" style="display: none;">
+            <div class="card-body">
+                Attachments &nbsp;
+                <ul class="list-unstyled d-inline" id="attachments-list">
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- Supervisors -->
+        <div class="my-4 text-center card-deck justify-content-center" id="supervisors">
+
+            <div class="card" id="company" style="display: none;">
+                <div class="card-header"><h4 class="my-0">company</h4></div>
+                <div class="card-body">
+                    <ul class="list-unstyled" id="companys-list"></ul>
+                    <input type="text" id="companys-input" style="display: none; margin-top: 1em;"
+                           placeholder="Add a company"
+                           data-provide="typeahead">
+                </div>
+            </div>
+
+
+            <div class="card" id="contact_person" style="display: none; ">
+                <div class="card-header"><h4 class="my-0">contact_persons</h4></div>
+                <div class="card-body">
+                    <ul class="list-unstyled" id="contact_persons-list"></ul>
+                    <input type="text" id="contact_persons-input" style="display: none; margin-top: 1em;"
+                           placeholder="Add an employee"
+                           data-provide="typeahead">
+                </div>
+            </div>
+
+        </div>
+
+        <form action="{{ url_for('careers.save_attachment') }}"
+              class="dropzone mb-4"
+              id="dropzone"
+              style="display: none;"></form>
+
+        <div class="container" id="registrations" style="display: none;">
+            <h3 class="text-center">Registrations</h3>
+            <table id="registrations-table" class="table table-hover col-xl" style="width:100%"></table>
+        </div>
+
+        <div class="text-center" id="recommendations-title">
+            <br>
+            <h3>Recommendations</h3>
+            <hr>
+        </div>
+
+        <div class="card-columns mb-3 text-center" id="recommendations"></div>
+
+
+        <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog" role="document">
+
+                {% if current_theme == "dark" %}
+                    <div class="modal-content bg-dark">
+                {% else %}
+                    <div class="modal-content">
+                {% endif %}
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" id="modal-body">
+
+                </div>
+
+                <div class="modal-footer">
+                    <span id="modal-info"></span>
+                    <button type="button" class="btn light-button-color blacktext" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveChangesButton">Save changes</button>
+                </div>
+
+                </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}
