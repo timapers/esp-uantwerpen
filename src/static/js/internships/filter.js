@@ -8,7 +8,7 @@ function resetSearch() {
     refreshInternshipsData();
 }
 
-function onChangeAvailableInternshipsFilter(element) {
+function onChangeLiveEventFilter(element) {
     setParam('available', element.checked);
     filterInternships();
 }
@@ -154,30 +154,51 @@ function filterInternships() {
 
 /**
  * This function filters internships based on companies.
- * @param {array} internships_filter_prev array with internships to be filtered
+ * @param {array} event_filter_prev array with internships to be filtered
  * @return {array} filtered internships array
  */
-function filter_companies(internships_filter_prev) {
-    const company_text = $("#search_company").val() || "";
-    if (company_text.length === 0) return internships_filter_prev;
+function filter_companies(event_filter_prev) {
+    const companies = $("#company-filter").selectpicker("val");
+    if (companies.length === 0) return event_filter_prev;
 
-    return internships_filter_prev.filter(internship => internship["company_name"].includes(company_text));
+    let filtered_events = [];
+    console.log(event_filter_prev);
+    for (const event of event_filter_prev) {
+        if (event['company_name'].includes(companies)) {
+            filtered_events.push(event);
+        }
+    }
+    return filtered_events;
+
+
+
 }
 
 /**
  * This function filters internships based on types.
- * @param {array} current_internships array with internships to be filtered
+ * @param {array} current_events array with internships to be filtered
  * @return {array} filtered internships array
  */
-function filter_types(current_internships) {
+function filter_types(current_events) {
     const types = $("#type-filter").selectpicker("val");
     if (types.length === 0) {
-        return current_internships;
+        return current_events;
     }
 
-    return current_internships.filter(internship =>
-        types.some(type => internship['types'].includes(type))
-    );
+    let filtered_events = [];
+
+    for (const event of current_events) {
+        // Checks if one of the types picked is present in the project
+        const intersect = types.some(function (type) {
+            return event['types'].includes(type);
+        });
+
+        if (intersect) {
+            filtered_events.push(event);
+        }
+    }
+
+    return filtered_events;
 }
 
 /**
@@ -211,18 +232,18 @@ function is_occupied(internship) {
     return internship['max_students'] <= students;
 }
 
-/**
- * This function initializes the company filter with values.
- */
-function init_company_filter() {
-    const list = document.getElementById('companies-list');
-
-    COMPANIES.forEach(function (item) {
-        const option = document.createElement('option');
-        option.value = item;
-        list.appendChild(option);
-    });
-}
+// /**
+//  * This function initializes the company filter with values.
+//  */
+// function init_company_filter() {
+//     const list = document.getElementById('companies-list');
+//
+//     COMPANIES.forEach(function (item) {
+//         const option = document.createElement('option');
+//         option.value = item;
+//         list.appendChild(option);
+//     });
+// }
 
 /**
  * This function initializes the type filter with values.
@@ -245,4 +266,24 @@ function init_type_select() {
         filterInternships();
     })
         .selectpicker('refresh');
+}
+
+function init_company_select() {
+    let elem = $("#company-filter");
+    elem.html(
+        COMPANIES.map(function (company) {
+            return `<option value='${company}'>${company}</option>`
+        }).join(""));
+
+    let param = getURLParams().get('company');
+    if (param) {
+        let comps = param.split(',');
+        elem.selectpicker('val', comps);
+    }
+
+    elem.on('changed.bs.select', function () {
+        setParam('company', $(this).val());
+        filterInternships();
+    })
+    .selectpicker('refresh');
 }

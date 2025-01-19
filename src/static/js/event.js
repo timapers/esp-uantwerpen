@@ -620,7 +620,7 @@ function construct_event() {
         group.setAttribute("class", "badge research-group-bg-color");
         group.setAttribute("id", "rg-badge");
         console.log(event);
-        group.innerHTML = event['company_id'];
+        group.innerHTML = event['company_name'];
         make_comp_popover(group);
     }
     badges.appendChild(document.createElement("br"));
@@ -662,10 +662,12 @@ function construct_event() {
 
     const attachments = $("#attachments-list");
     let attachment_present;
+    if (event['attachments']) {
     for (const attachment of event['attachments']) {
         attachment_present = true;
         attachments.append($(`<a href="get-attachment/${attachment['file_location']}"><span class="badge type-bg-color mr-1">${attachment['name']}</span></a>`));
     }
+}
 
     if (attachment_present) {
         $("#attachments").show();
@@ -701,13 +703,13 @@ function construct_event() {
 
 
     // Change the badge color if the event has reached the max students
-    if (registered_students >= event['max_students']) {
-        nr_students_badge.setAttribute("class", "badge danger-color");
-        //Check if user is a student id
-        if (role === "student") {
-            document.getElementById("registration-btn").disabled = true;
-        }
-    }
+    // if (registered_students >= event['max_students']) {
+    //     nr_students_badge.setAttribute("class", "badge danger-color");
+    //     //Check if user is a student id
+    //     if (role === "student") {
+    //         document.getElementById("registration-btn").disabled = true;
+    //     }
+    // }
 
     // Registrations
     if (edit_permissions) {

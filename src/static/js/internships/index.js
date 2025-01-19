@@ -2,7 +2,7 @@ let ALL_INTERNSHIPS = null;
 let INTERNSHIPS = null;
 let TYPES = [];
 let EMPLOYEES = [];
-let GROUPS = [];
+let COMPANIES = [];
 let CONTACT_PERSONS = [];
 
 // Enum used in the function addEditEntry
@@ -37,13 +37,11 @@ $(function () {
     $.ajax({
         url: "events-page-additional",
         success: function (result) {
-            EMPLOYEES = result["employees"];
+            // = result["employees"];
             TYPES = result["types"];
-            GROUPS = result["groups"];
-            CONTACT_PERSONS = result["contact_persons"];
+            COMPANIES = result["companies"];
             init_type_select();
-            init_research_select();
-            init_employee_filter();
+            init_company_select();
             setModalGroupSelector();
         }
     });

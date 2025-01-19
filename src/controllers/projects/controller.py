@@ -325,6 +325,7 @@ def project_page():
     Increases link strength upon a click.
     :return: render project page
     """
+    print(request.args, flush=True)
     if "from" in request.args and "project_id" in request.args:
         LinkDataAccess(get_db()).update_match_percent(request.args["from"], request.args["project_id"], 0.05)
 

@@ -86,8 +86,8 @@ def get_internship_data(event_id):
 
     return jsonify(internship.to_dict())
 
-@bp.route('/event-page-additional', methods=['GET'])
-def get_internships_page_additional_data():
+@bp.route('/events-page-additional', methods=['GET'])
+def get_events_page_additional_data():
     """
     Provides additional metadata for the internships page, such as companies, tags, and types.
     :return: JSON containing metadata.
@@ -95,12 +95,13 @@ def get_internships_page_additional_data():
     connection = get_db()
     active_only = True
 
-    companies = CompanyDataAccess(connection).get_companies()
+    companies = CompanyDataAccess(connection).get_all_company_names()
+
     tags = TagDataAccess(connection).get_tags()
     types = TypeDataAccess(connection).get_types(active_only)
 
     result = {
-        "companies": [company.to_dict() for company in companies],
+        "companies": [company for company in companies],
         # "tags": [tag for tag in tags],
         "types": [type.type_name for type in types],
     }
@@ -120,7 +121,7 @@ def add_view_to_internship(internship_id):
         return jsonify({'success': False, 'message': str(e)}), 400
 
 @bp.route('/event-page')
-def project_page():
+def event_page():
     """
     Increases link strength upon a click.
     :return: render project page

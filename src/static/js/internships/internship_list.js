@@ -187,11 +187,11 @@ function fillCard(number, internship) {
         badges.append(inactive_badge);
     }
 
-    if (internship["company_id"]) {
+    if (internship["company_name"]) {
         let company_badge = document.createElement("span");
         company_badge.setAttribute("class", "badge badge-success");
-        company_badge.innerHTML = internship["company_id"];
-        company_badge.style = "margin-right: 10px";
+        company_badge.innerHTML = internship["company_name"];
+        company_badge.style = "m<<argin-right: 10px";
         badges.append(company_badge);
     }
 

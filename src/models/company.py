@@ -34,6 +34,20 @@ class CompanyDataAccess:
         row = cursor.fetchone()
         return Company(*row)
 
+    def get_company_name(self, company_id):
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT name FROM company WHERE company_id = %s', (company_id,))
+        row = cursor.fetchone()
+        return row[0]
+
+    def get_all_company_names(self):
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT name FROM company')
+        companies = list()
+        for row in cursor:
+            companies.append(row[0])
+        return companies
+
 class Contact_person_company:
     def __init__(self, contact_person_id, company_id, name, email):
         self.contact_person_id = contact_person_id
@@ -59,3 +73,4 @@ class Contact_person_companyDataAccess:
         cursor.execute('SELECT contact_person_id, company_id, name, email FROM contact_person_company WHERE contact_person_id = %s', (contact_person_id,))
         row = cursor.fetchone()
         return Contact_person_company(*row)
+

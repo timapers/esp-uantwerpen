@@ -4,7 +4,7 @@
 function setModalGroupSelector() {
     $("#edit-group-selector").html(
         `<option value="Don't change">Don't change</option>` +
-        GROUPS.map(function (group) {
+        COMPANIES.map(function (group) {
             return `<option value=${group}>${group}</option>`
         }).join("")
     ).selectpicker("refresh");

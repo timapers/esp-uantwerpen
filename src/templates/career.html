@@ -47,7 +47,7 @@
             <div class="col-auto text-right">
                 {% if current_user.is_authenticated and current_user.role != "student" %}
                     <button type="submit" id="submitbutton"
-                            onclick="location.href='{{ url_for('career.internships_page') + "?new=true" }}'"
+                            onclick="location.href='{{ url_for('careers.event_page') + "?new=true" }}'"
                             class="btn light-button-color">Add Internship</button>
                 {% endif %}
             </div>
@@ -59,8 +59,8 @@
             <select name="type" id="type-filter" class="selectpicker w-auto" multiple
                     title="Choose Types"></select>
             <br>
-            <input type="checkbox" id="live-filter" onchange="onChangeLiveInternshipsFilter(this)">
-            <label for="live-filter">Only Live Internships</label>
+{#            <input type="checkbox" id="live-filter" onchange="onChangeLiveEventFilter(this)">#}
+{#            <label for="live-filter">Only Live Internships</label>#}
         </div>
 
         <div id="loading-spinner" class="text-center">
