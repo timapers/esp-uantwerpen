@@ -74,18 +74,18 @@
         <!-- Option buttons -->
         <div class="text-center" id="buttons">
 
-            {% if current_user.is_authenticated and current_user.role == "student" %}
-                <div class="dropdown">
-                    <button class="btn default-color dropdown-toggle" type="button" id="registration-btn"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {{ get_text("Register") }}
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="registration-btn" id="registration-options">
-                    </div>
-                </div>
-                <button type="button" class="btn default-color" id="like-btn"
-                        onclick="change_like('{{ get_text("Like") }}', '{{ get_text("Unlike") }}')"></button>
-            {% endif %}
+{#            {% if current_user.is_authenticated and current_user.role == "student" %}#}
+{#                <div class="dropdown">#}
+{#                    <button class="btn default-color dropdown-toggle" type="button" id="registration-btn"#}
+{#                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
+{#                        {{ get_text("Register") }}#}
+{#                    </button>#}
+{#                    <div class="dropdown-menu" aria-labelledby="registration-btn" id="registration-options">#}
+{#                    </div>#}
+{#                </div>#}
+{#                <button type="button" class="btn default-color" id="like-btn"#}
+{#                        onclick="change_like('{{ get_text("Like") }}', '{{ get_text("Unlike") }}')"></button>#}
+{#            {% endif %}#}
 
 
         </div>
@@ -101,31 +101,21 @@
         </div>
 
 
-        <!-- Supervisors -->
-        <div class="my-4 text-center card-deck justify-content-center" id="supervisors">
-
-            <div class="card" id="company" style="display: none;">
-                <div class="card-header"><h4 class="my-0">company</h4></div>
-                <div class="card-body">
-                    <ul class="list-unstyled" id="companys-list"></ul>
-                    <input type="text" id="companys-input" style="display: none; margin-top: 1em;"
-                           placeholder="Add a company"
-                           data-provide="typeahead">
-                </div>
-            </div>
-
+        <!-- Contact Person -->
+        <div class="my-4 text-center card-deck justify-content-center" id="contact_person_company">
 
             <div class="card" id="contact_person" style="display: none; ">
-                <div class="card-header"><h4 class="my-0">contact_persons</h4></div>
+                <div class="card-header"><h4 class="my-0">Contact Person</h4></div>
                 <div class="card-body">
                     <ul class="list-unstyled" id="contact_persons-list"></ul>
                     <input type="text" id="contact_persons-input" style="display: none; margin-top: 1em;"
-                           placeholder="Add an employee"
+                           placeholder="Add a CP"
                            data-provide="typeahead">
                 </div>
             </div>
 
         </div>
+
 
         <form action="{{ url_for('careers.save_attachment') }}"
               class="dropzone mb-4"

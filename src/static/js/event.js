@@ -119,15 +119,15 @@ function new_event() {
  */
 function fetch_additional_data(callback) {
     $.ajax({
-        url: "event-page-additional",
+        url: "events-page-additional",
         success: function (result) {
             types = result["types"];
             groups = result["groups"];
-
+            contact_persons = result["contact_persons"];
             // TODO: DOuble check this
-            init_supervisors_input(true);
-            init_supervisors_input(false);
-            init_selectpickers();
+            // init_supervisors_input(true);
+            // init_supervisors_input(false);
+            // init_selectpickers();
 
             if (callback) {
                 callback();
@@ -167,7 +167,7 @@ function init_description_toggle() {
  * This function provides functionality for the tag generator.
  */
 function init_tag_generator() {
-    $('#generate-tags-btn').click(function() {
+    $('#generate-tags-btn').click(function () {
         let both_descriptions = "";
         let title = event["title"]
         const english = $("#description-toggle").prop('checked');
@@ -223,7 +223,7 @@ function init_supervisors_input(contact_person) {
         supervisors_input = $("#contact_person input");
         list_source = contact_persons;
 
-        supervisors_input.on('itemAdded', function(event) {
+        supervisors_input.on('itemAdded', function (event) {
             if (name === event.item) {
                 is_contact_person = true;
             } else {
@@ -231,7 +231,7 @@ function init_supervisors_input(contact_person) {
             }
             refresh_active_button();
         });
-        supervisors_input.on('beforeItemRemove', function(event) {
+        supervisors_input.on('beforeItemRemove', function (event) {
             if (confirm("Removing the company will automatically set the event to inactive. Are you sure you want to continue?")) {
                 event["is_active"] = false;
                 is_contact_person = false;
@@ -311,6 +311,21 @@ function init_supervisors_input(contact_person) {
         .css("box-shadow", "none");
 }
 
+function construct_contact_person() {
+    // let contact_person = event['contact_person_name_email'];
+    // if (contact_person) {
+    //     let name = contact_person['name'];
+    //     let email = contact_person['email'];
+    //     let contact_persons_div = $("#contact_person");
+    //
+    //     let badge = $(`<span class="badge employee-bg-color">${name}</span>`);
+    //     contact_persons_div.append(badge);
+    // } else {
+    //     $("#contact_person").hide();
+    // }
+
+}
+
 
 /**
  * This function fetches all event data for a certain event.
@@ -324,11 +339,13 @@ function fetch_event() {
             event = data["event_data"];
             company = data["company"];
             links = data["links"];
-            is_contact_person = data["contact_person"]
+            is_contact_person = data["contact_person_name_email"] // Format dict with "name" : name, "email" : email
+
 
             construct_event();
             construct_description();
-            create_recommendations();
+            // create_recommendations();
+            // construct_contact_person();
 
             if (role === "student") {
                 update_user_behaviour();
@@ -435,13 +452,13 @@ function edit_event() {
  * @param {boolean} description_warning toggles the description warnings
  * @param {boolean} type_warning toggles the event type warning
  */
-function save_event(description_warning=true, type_warning=true, active_warning=true) {
-    event["title"] =  $('#title').text();
+function save_event(description_warning = true, type_warning = true, active_warning = true) {
+    event["title"] = $('#title').text();
 
     let description = CKEDITOR.instances["description"].getData();
 
     if (description == "") {
-         event["html_content_eng"] = "No description given";
+        event["html_content_eng"] = "No description given";
     } else {
         event["html_content_eng"] = description;
     }
@@ -451,7 +468,8 @@ function save_event(description_warning=true, type_warning=true, active_warning=
     if (english_too_short && description_warning) {
         const confirm_button = $(`<button class="btn btn-outline-success ml-2">Yes</button>`)
             .click(function () {
-                save_event(false)});
+                save_event(false)
+            });
 
         $("#error")
             .show()
@@ -485,18 +503,18 @@ function save_event(description_warning=true, type_warning=true, active_warning=
     }
 
     let active_types = type_still_active(event['types']);
-    if(active_types.length > 0 && type_warning){
+    if (active_types.length > 0 && type_warning) {
         console.log("in ")
         let err_text;
-        if(active_types.length === 1){
+        if (active_types.length === 1) {
             err_text = 'Type: \"' + active_types.join() + '\" is still used by a registration. The registration type for those registrations need to be changed by you. Are you sure you want to continue?'
-        }
-        else {
+        } else {
             err_text = 'Types: ' + active_types.join() + '  are still used by a registration. The registration types for those registrations need to be changed by you. Are you sure you want to continue?'
         }
         const confirm_button = $(`<button class="btn btn-outline-success ml-2">Yes</button>`)
             .click(function () {
-                save_event(description_warning, false)});
+                save_event(description_warning, false)
+            });
 
         $("#error")
             .show()
@@ -513,7 +531,8 @@ function save_event(description_warning=true, type_warning=true, active_warning=
     if (!event['is_active'] && active_warning) {
         const confirm_button = $(`<button class="btn btn-outline-success ml-2">Yes</button>`)
             .click(function () {
-                save_event(description_warning,type_warning, active_warning=false)});
+                save_event(description_warning, type_warning, active_warning = false)
+            });
 
         $("#error")
             .show()
@@ -601,8 +620,7 @@ function construct_event() {
         type_badge.setAttribute("style", "margin-right: 5px;");
         type_badge.innerHTML = "No type";
         badges.appendChild(type_badge);
-    }
-    else{
+    } else {
         for (let i = 0; i < event['types'].length; i++) {
             let type_badge = document.createElement("span");
             type_badge.setAttribute("class", "badge type-bg-color");
@@ -633,15 +651,14 @@ function construct_event() {
         tag_badge.setAttribute("style", "margin-right: 5px;");
         tag_badge.innerHTML = "No tags";
         badges.appendChild(tag_badge);
-    }
-    else{
+    } else {
         for (let i = 0; i < event['tags'].length; i++) {
-        let tag_badge = document.createElement("span");
-        tag_badge.setAttribute("class", "badge tag-bg-color");
-        tag_badge.setAttribute("style", "margin-right: 5px;");
-        tag_badge.innerHTML = event['tags'][i];
-        badges.appendChild(tag_badge);
-    }
+            let tag_badge = document.createElement("span");
+            tag_badge.setAttribute("class", "badge tag-bg-color");
+            tag_badge.setAttribute("style", "margin-right: 5px;");
+            tag_badge.innerHTML = event['tags'][i];
+            badges.appendChild(tag_badge);
+        }
     }
 
 
@@ -663,11 +680,11 @@ function construct_event() {
     const attachments = $("#attachments-list");
     let attachment_present;
     if (event['attachments']) {
-    for (const attachment of event['attachments']) {
-        attachment_present = true;
-        attachments.append($(`<a href="get-attachment/${attachment['file_location']}"><span class="badge type-bg-color mr-1">${attachment['name']}</span></a>`));
+        for (const attachment of event['attachments']) {
+            attachment_present = true;
+            attachments.append($(`<a href="get-attachment/${attachment['file_location']}"><span class="badge type-bg-color mr-1">${attachment['name']}</span></a>`));
+        }
     }
-}
 
     if (attachment_present) {
         $("#attachments").show();
@@ -676,7 +693,16 @@ function construct_event() {
     let edit_permissions = role === "admin";
 
 
-    // Contact Person
+    const cp_name = event['contact_person_name_email']['name'];
+    const cp_email = event['contact_person_name_email']['email'];
+    const html = $(`<li><a><span class="badge employee-bg-color bigoverflow">${cp_name}</span></></a></li>`);
+
+    $("#contact_persons-list").append(html);
+    $("#contact_person").css("display", "block");
+
+
+    fill_cp_popover(html.children().first()[0], event['contact_person_name_email']);
+
 
     // for (const employee of event["employees"]) {
     //
@@ -702,18 +728,9 @@ function construct_event() {
     // }
 
 
-    // Change the badge color if the event has reached the max students
-    // if (registered_students >= event['max_students']) {
-    //     nr_students_badge.setAttribute("class", "badge danger-color");
-    //     //Check if user is a student id
-    //     if (role === "student") {
-    //         document.getElementById("registration-btn").disabled = true;
-    //     }
-    // }
-
     // Registrations
     if (edit_permissions) {
-        construct_registrations();
+        // construct_registrations();
         document.getElementById("modify-btn").setAttribute("style", "display: true;");
     }
 
@@ -749,43 +766,20 @@ function construct_description() {
 /**
  * Fills the popover with the data of the employee.
  * @param popover Popover element
- * @param employee Employee data
- * @param tags Employee tags
+ * @param cp Contact Person data
  */
-function fill_employee_popover(popover, employee, tags) {
-    popover.href = "#employee-popover";
+function fill_cp_popover(popover, cp) {
+    popover.href = "#contact_person-popover";
     popover.setAttribute("data-toggle", "popover");
-
+    let cp_email = cp['email'];
     // Popover title
-    const status = employee["is_external"] ? "External" : "Internal";
-    const title = employee["title"] ? employee["title"] + " " : "";
-    const popover_title = `${title}${employee['name']} (${status})`;
+    const popover_title = `Contact Information`;
     popover.setAttribute("data-original-title", popover_title);
-
-    const img = employee['picture_location'] ?
-        `<div class='col-12 col-sm-4 text-center' id='employee_image'>
-                <img src=${employee['picture_location']} alt="No image found" width='100px' height='100px'>
-        </div>`
-        : "";
-    const email = employee["email"] ? `Email: <a href='mailto:${employee["email"]}'>${employee["email"]}</a><br>` : "";
-    const office = employee["office"] ? `Office: ${employee['office']}<br>` : "";
-    const extra_info = employee["extra_info"] ? `Extra Info: ${employee["extra_info"]}<br>` : "";
-    const research_group = employee["research_group"] ? `Research Group: ${employee["research_group"]}<br>` : "";
-    const tags_html = tags.slice(0, 3).map(function (tag) {
-        return `<span class='badge tag-bg-color mr-1'>${tag}</span>`
-    }).join("");
-
+    const email = cp["email"] ? `Email: <a href='mailto:${cp_email}'>${cp_email}</a><br>` : "";
     let html = `
         <div class='row'>
-            ${img}
-            <div class='col-sm-8' id='employee_info'>
+            <div class='col-sm-auto' id='cp_info'>
                 ${email}
-                ${office}                
-                ${extra_info}
-                ${research_group}
-                <div>
-                    ${tags_html}            
-                </div>
             </div>
         </div>
     `;
@@ -802,9 +796,9 @@ function fill_employee_popover(popover, employee, tags) {
 /**
  * This function provides employee popovers with data
  * @param popover Popover element
- * @param employee Employee data
+ * @param cp Contact Person data
  */
-function init_employee_popover(popover, employee) {
+function init_cp_popover(popover, cp) {
     $.ajax({
         url: "get-employee-tags/" + employee["e_id"],
         type: "GET",
@@ -899,47 +893,47 @@ function register_for_event(type) {
 
 }
 
-/**
- * Constructs all the registration info for the event.
- */
-function construct_registrations() {
-    const registration_div = $("#registrations");
-    if (event['registrations'].length === 0) {
-        return;
-    }
-    registration_div.show();
-
-    const registrations = $("#registrations-table");
-
-    for (const registration of event['registrations']) {
-        let row = `
-            <tr>
-                <td><a href="mailto:${registration['student_nr']}@ad.ua.ac.be">${registration['name']}</a></td>
-                <td class="text-center">${registration['student_nr']}</td>
-                <td class="type">
-                    <select>
-                        ${event['types'].map(function (type) {return `<option value="${type}">${type}</option>`}).join('')}
-                    </select>
-                </td>
-                <td class="status" align="right">
-                    <span id="status"></span>
-                    <select>
-                        <option value="Pending">Pending</option>
-                        <option value="Accepted">Accepted</option>
-                        <option value="Denied">Denied</option>
-                        <option value="Acknowledged">Acknowledged</option>
-                    </select>
-                </td>
-            </tr>
-        `;
-
-        const elem = $(row);
-        elem.find('.type select').val(registration['type']).on('change', function () {
-            update_registration(registration, null, this.value)});
-        elem.find(".status select").val(registration['status']).on("change", function () { update_registration(registration, this.value, null) });
-        registrations.append(elem);
-    }
-}
+// /**
+//  * Constructs all the registration info for the event.
+//  */
+// function construct_registrations() {
+//     const registration_div = $("#registrations");
+//     if (event['registrations'].length === 0) {
+//         return;
+//     }
+//     registration_div.show();
+//
+//     const registrations = $("#registrations-table");
+//
+//     for (const registration of event['registrations']) {
+//         let row = `
+//             <tr>
+//                 <td><a href="mailto:${registration['student_nr']}@ad.ua.ac.be">${registration['name']}</a></td>
+//                 <td class="text-center">${registration['student_nr']}</td>
+//                 <td class="type">
+//                     <select>
+//                         ${event['types'].map(function (type) {return `<option value="${type}">${type}</option>`}).join('')}
+//                     </select>
+//                 </td>
+//                 <td class="status" align="right">
+//                     <span id="status"></span>
+//                     <select>
+//                         <option value="Pending">Pending</option>
+//                         <option value="Accepted">Accepted</option>
+//                         <option value="Denied">Denied</option>
+//                         <option value="Acknowledged">Acknowledged</option>
+//                     </select>
+//                 </td>
+//             </tr>
+//         `;
+//
+//         const elem = $(row);
+//         elem.find('.type select').val(registration['type']).on('change', function () {
+//             update_registration(registration, null, this.value)});
+//         elem.find(".status select").val(registration['status']).on("change", function () { update_registration(registration, this.value, null) });
+//         registrations.append(elem);
+//     }
+// }
 
 function update_registration(registration, new_status, new_type) {
     const data = {
@@ -1009,14 +1003,14 @@ function create_recommendations() {
  * Increments the view counter.
  */
 function add_view() {
-    $.returnValues("/add-view/" + event["event_id"]);
+    $.returnValues("/add-view/" + event["internship_id"]);
 }
 
 /**
  * Updates the clicks and view for a event and user.
  */
 function update_user_behaviour() {
-    $.returnValues("/register-user-data/" + event["event_id"]);
+    $.returnValues("/register-user-data/" + event["internship_id"]);
 }
 
 /**
@@ -1097,7 +1091,7 @@ function addModal() {
  * This function provides default edit html.
  */
 function getEditHTML() {
-        return `
+    return `
             <div class="row">
                 <div class="col">
                     Name
@@ -1130,9 +1124,9 @@ function getEditHTML() {
                     <select style='width: 100%; max-width: 150px;' id="research-group-input">
 
                         ${`<option value="">None</option>` +
-                        groups.map(function (group) {
-                            return `<option value="${group}">${group}</option>`;
-                        }).join("")}
+    groups.map(function (group) {
+        return `<option value="${group}">${group}</option>`;
+    }).join("")}
 
                     </select>                
                 </div>
@@ -1157,15 +1151,15 @@ function getEditHTML() {
  */
 function getEditData() {
     let data = {};
-        data["object"] = "employee";
-        data["name"] = $("#name-input").val();
-        data["email"] = $("#email-input").val();
-        data["office"] = $("#office-input").val();
-        data["research_group"] = $("#research-group-input").val();
-        data["is_external"] = true;
-        data["extra_info"] = "";
-        data["title"] = null;
-        data["guidance"] = $("#guidance-input").val();
+    data["object"] = "employee";
+    data["name"] = $("#name-input").val();
+    data["email"] = $("#email-input").val();
+    data["office"] = $("#office-input").val();
+    data["research_group"] = $("#research-group-input").val();
+    data["is_external"] = true;
+    data["extra_info"] = "";
+    data["title"] = null;
+    data["guidance"] = $("#guidance-input").val();
     return data;
 }
 

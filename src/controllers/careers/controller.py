@@ -6,7 +6,7 @@ This package processes all routing requests.
 from flask import Blueprint, request, jsonify, render_template, current_app, send_from_directory, session
 from flask_login import current_user
 from src.models.internship import InternshipDataAccess
-from src.models.company import CompanyDataAccess
+from src.models.company import CompanyDataAccess, Contact_person_companyDataAccess
 from src.models.tag import TagDataAccess
 from src.models.type import TypeDataAccess
 from src.models.db import get_db
@@ -100,10 +100,13 @@ def get_events_page_additional_data():
     tags = TagDataAccess(connection).get_tags()
     types = TypeDataAccess(connection).get_types(active_only)
 
+    # contact_person = Contact_person_companyDataAccess(connection).get_contact_person_companies()
+
     result = {
         "companies": [company for company in companies],
         # "tags": [tag for tag in tags],
         "types": [type.type_name for type in types],
+        # "contact_person": [contact_person for contact_person in contact_person]
     }
     return jsonify(result)
 
@@ -179,6 +182,7 @@ def get_all_event_data(e_id):
     active_only = not session["archive"]
     event_access = InternshipDataAccess(get_db())
     e_data = event_access.get_internship(e_id, active_only)
+
     # if current_user.is_authenticated:
     #     is_company = event_access.is_company(e_id, current_user.user_id)
     # else:

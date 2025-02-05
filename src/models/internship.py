@@ -30,6 +30,7 @@ class Internship:
         self.html_content_eng = None
         self.html_content_nl = None
         self.company_name = None
+        self.contact_person_name_email = None
 
     def to_dict(self):
         value = vars(self)
@@ -113,6 +114,11 @@ class InternshipDataAccess:
         """Company Name"""
         cursor.execute('SELECT name FROM company WHERE company_id = %s', (event.company_id,))
         event.company_name = cursor.fetchone()[0]
+
+        """Contact Person name:email"""
+        cursor.execute('SELECT name, email FROM contact_person_company WHERE contact_person_id = %s', (event.contact_person,))
+        row = cursor.fetchone()
+        event.contact_person_name_email = {'name': row[0], 'email': row[1]}
         return event
 
     def get_internships_by_company(self, company_id):
