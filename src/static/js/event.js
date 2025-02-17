@@ -51,10 +51,11 @@ $(function () {
         $("#success").show();
     }
 
-    if ($.urlParam("new")) {
-        new_event();
-        fetch_additional_data(edit_event);
-    } else {
+    // if ($.urlParam("new")) {
+    //     new_event();
+    //     fetch_additional_data(edit_event);
+    // }
+    else {
         fetch_event();
         fetch_additional_data();
     }

@@ -48,29 +48,23 @@ class CompanyDataAccess:
             companies.append(row[0])
         return companies
 
-class Contact_person_company:
-    def __init__(self, contact_person_id, company_id, name, email):
-        self.contact_person_id = contact_person_id
-        self.company_id = company_id
-        self.name = name
-        self.email = email
-
-class Contact_person_companyDataAccess:
-    def __init__(self, dbconnect):
-        self.dbconnect = dbconnect
-
-    def get_contact_person_companies(self):
+    def get_company_by_name(self, name):
         cursor = self.dbconnect.get_cursor()
-        cursor.execute('SELECT contact_person_id, company_id, name, email FROM contact_person_company')
-        contact_person_companies = list()
-        for row in cursor:
-            contact_person_company = Contact_person_company(*row)
-            contact_person_companies.append(contact_person_company)
-        return contact_person_companies
-
-    def get_contact_person_company(self, contact_person_id):
-        cursor = self.dbconnect.get_cursor()
-        cursor.execute('SELECT contact_person_id, company_id, name, email FROM contact_person_company WHERE contact_person_id = %s', (contact_person_id,))
+        cursor.execute('SELECT company_id, name, website FROM company WHERE name = %s', (name,))
         row = cursor.fetchone()
-        return Contact_person_company(*row)
+        if row is None:
+            return None
+        return Company(*row)
 
+    def create_company(self, obj):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('INSERT INTO company(name, website) VALUES(%s, %s)', (obj.name, obj.website))
+            self.dbconnect.commit()
+            cursor.execute('SELECT LASTVAL()')
+            iden = cursor.fetchone()[0]
+            obj.company_id = iden
+            return obj
+        except:
+            self.dbconnect.rollback()
+            raise

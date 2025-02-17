@@ -6,7 +6,7 @@ This package processes all routing requests.
 from flask import Blueprint, request, jsonify, render_template, current_app, send_from_directory, session
 from flask_login import current_user
 from src.models.internship import InternshipDataAccess
-from src.models.company import CompanyDataAccess, Contact_person_companyDataAccess
+from src.models.company import CompanyDataAccess
 from src.models.tag import TagDataAccess
 from src.models.type import TypeDataAccess
 from src.models.db import get_db
@@ -219,3 +219,38 @@ def get_all_event_data(e_id):
 
     print(e_data.to_dict(), flush=True)
     return jsonify({"event_data": e_data.to_dict()})
+
+
+@bp.route('/create_event', methods=['GET', 'POST'])
+def create_event():
+    """
+    Handles the GET and POST requests to '/create_event'.
+    :return: Json with success/failure status.
+    """
+    if request.method == 'GET':
+        return render_template('create_event.html')
+
+    data = request.json
+    connection = get_db()
+    event_access = InternshipDataAccess(connection)
+
+    try:
+        event_access.create_event(data)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 400
+
+@bp.route('/create_internship', methods=['GET', 'POST'])
+def create_internship():
+    if request.method == 'GET':
+        return render_template('create_internship.html')
+
+    data = request.form
+    connection = get_db()
+    event_access = InternshipDataAccess(connection)
+
+    try:
+        event_access.create_internship(data)
+        return render_template('create_internship.html', success=True)
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 400

@@ -98,3 +98,33 @@ class Contact_person_companyDataAccess:
         except:
             self.dbconnect.rollback()
             raise
+
+    def get_contact_person_by_email(self, email):
+        """
+        Fetchs the contact person by email.
+        """
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT contact_person_id, name, email FROM contact_person_company WHERE email = %s', (email,))
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return Contact_person_company(row[0], row[1], row[2])
+
+    def link_comp_to_person(self, comp_id, person_id):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('INSERT INTO company_has_contact_person(company_id, contact_person) VALUES(%s,%s)',
+                           (comp_id, person_id))
+            self.dbconnect.commit()
+        except Exception as e:
+            self.dbconnect.rollback()
+            print(e)
+            raise
+
+    def if_exsists(self, comp_id, cp_id):
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT * FROM company_has_contact_person WHERE company_id = %s AND contact_person = %s',
+                       (comp_id, cp_id))
+        if cursor.fetchone() is None:
+            return False
+        return True

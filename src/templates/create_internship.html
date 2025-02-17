@@ -29,17 +29,17 @@
 
     <nav></nav>
     <div class="container" id="content">
-        <h1 class="title text-center">Create New Event</h1>
+        <h1 class="title text-center">Create Internship Application</h1>
 
-        <form method="POST" action="{{ url_for('careers.create_event') }}" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="event-title">Event Title</label>
-                <input type="text" class="form-control" id="event-title" name="title" required>
-            </div>
+        <form method="POST" action="{{ url_for('careers.create_internship') }}" enctype="multipart/form-data">
+{#            <div class="form-group">#}
+{#                <label for="event-title">Event Title</label>#}
+{#                <input type="text" class="form-control" id="event-title" name="title" required>#}
+{#            </div>#}
 
             <div class="form-group">
                 <label for="company_name">Company Name</label>
-                <input type="tel" class="form-control" id="company_name" name="company_name" required>
+                <input type="text" class="form-control" id="company_name" name="company_name" required>
             </div>
 
             <div class="form-group">
@@ -62,16 +62,16 @@
                 <input type="text" class="form-control" id="address" name="address" required>
             </div>
 
-            <div class="form-group">
-                <label for="event-type">Event Type</label>
-                <select name="type" id="event-type" class="selectpicker" title="Choose Event Type">
-                    <!-- Placeholders -->
-                    <option value="internship">Internship</option>
-                    <option value="job_fair">Job Fair</option>
-                    <option value="conference">Conference</option>
-                    <!-- Placeholders -->
-                </select>
-            </div>
+{#            <div class="form-group">#}
+{#                <label for="event-type">Event Type</label>#}
+{#                <select name="type" id="event-type" class="selectpicker" title="Choose Event Type">#}
+{#                    <!-- Placeholders -->#}
+{#                    <option value="internship">Internship</option>#}
+{#                    <option value="job_fair">Job Fair</option>#}
+{#                    <option value="conference">Conference</option>#}
+{#                    <!-- Placeholders -->#}
+{#                </select>#}
+{#            </div>#}
 
             <div class="form-group">
                 <label for="event-description">Description</label>
@@ -79,12 +79,12 @@
                 <script>CKEDITOR.replace('event-description');</script>
             </div>
 
-            <div class="form-group">
-                <!-- HIER MOET DUIDELIJK MEER UITLEG -->
-                <label for="event-tags">Tags</label>
-                <input id="event-tags" class="border border-secondary" type="text" name="tags" data-role="tagsinput"
-                       placeholder="Add a tag">
-            </div>
+{#            <div class="form-group">#}
+{#                <!-- HIER MOET DUIDELIJK MEER UITLEG -->#}
+{#                <label for="event-tags">Tags</label>#}
+{#                <input id="event-tags" class="border border-secondary" type="text" name="tags" data-role="tagsinput"#}
+{#                       placeholder="Add a tag">#}
+{#            </div>#}
 
             {#            <div class="form-group">#}
             {#                <label>Upload Attachments</label>#}

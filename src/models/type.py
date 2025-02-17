@@ -110,3 +110,11 @@ class TypeDataAccess:
         except:
             self.dbconnect.rollback()
             raise
+
+    def if_exsists(self, type):
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT type_name FROM type WHERE type_name = %s', (type,))
+        row = cursor.fetchone()
+        if row:
+            return True
+        return False

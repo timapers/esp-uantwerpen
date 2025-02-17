@@ -1,6 +1,10 @@
+import datetime
 from platform import mac_ver
-from src.models.type import Type
-from src.models.company import CompanyDataAccess
+from src.models.type import Type, TypeDataAccess
+from src.models.company import CompanyDataAccess, Company
+from src.models.contact_person_company import Contact_person_companyDataAccess, Contact_person_company
+from src.models.document import Document, DocumentDataAccess
+
 
 class Internship:
     """
@@ -320,3 +324,79 @@ class InternshipDataAccess:
         for row in cursor:
             tags.append(row[0])
         return tags
+
+    def create_event(self, data):
+        """
+        Creates an event in the database.
+        :param data: The data to create the event with.
+        :return: The created event.
+        """
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                       (data['title'], data['max_students'], data['description_id'], data['company_id'], data['view_count'], data['creation_date'], data['address'], data['contact_person'], data['is_active']))
+        cursor.execute('SELECT LASTVAL()')
+        iden = cursor.fetchone()[0]
+        self.dbconnect.commit()
+        return iden
+
+    def link_internship_to_type(self, internship_id, type_name):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('INSERT INTO internship_has_type(internship, type) VALUES(%s,%s)',
+                           (internship_id, type_name))
+            self.dbconnect.commit()
+        except:
+            raise
+
+    def create_internship(self, data):
+        """
+        Creates an internship in the database.
+        :param data: The data to create the internship with.
+        :return: The created internship.
+        """
+        cursor = self.dbconnect.get_cursor()
+        from src.models.document import DocumentDataAccess
+        # Document Handling
+        # Copy doc twice in obj with html_content_eng and html_content_nl
+        doc_obj = Document(None, data['description'], data['description'])
+        doc = DocumentDataAccess(self.dbconnect).add_document(doc_obj)
+        doc_id = doc.document_id
+        # Company Handling
+        # Check if company already in db
+        company = CompanyDataAccess(self.dbconnect).get_company_by_name(data['company_name'])
+        if company is None:
+            company = CompanyDataAccess(self.dbconnect).create_company(Company(None, data['company_name'], data['website']))
+        comp_id = company.company_id
+        # Contact Person Handling
+        # Check if contact person already in db
+        cp = Contact_person_companyDataAccess(self.dbconnect).get_contact_person_by_email(data['contact_email'])
+        if cp is None:
+            obj = Contact_person_company(None, data['contact_person'], data['contact_email'])
+            cp = Contact_person_companyDataAccess(self.dbconnect).add_contact_person_company(obj)
+        cp_id = cp.contact_person_id
+
+        # Link company to contact person
+        # Check if combo exists
+        cpc = Contact_person_companyDataAccess(self.dbconnect).if_exsists(comp_id, cp_id)
+        if not cpc:
+            Contact_person_companyDataAccess(self.dbconnect).link_comp_to_person(comp_id, cp_id)
+
+        i_id = None
+        type = 'internship'
+
+        if not TypeDataAccess(self.dbconnect).if_exsists(type):
+            TypeDataAccess(self.dbconnect).add_type(Type(type, True))
+
+        try:
+            cursor.execute('INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                           ('TITLE', 0, doc_id, comp_id, 0, datetime.date.today(), data['address'], cp_id, True))
+            cursor.execute('SELECT LASTVAL()')
+            iden = cursor.fetchone()
+            i_id = iden[0]
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+        self.link_internship_to_type(i_id, type)
+        return iden
+

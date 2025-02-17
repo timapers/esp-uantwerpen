@@ -176,7 +176,7 @@ CREATE TABLE contact_person_company
 (
     contact_person_id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255)
+    email VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE company_has_contact_person
