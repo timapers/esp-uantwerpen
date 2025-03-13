@@ -30,7 +30,10 @@ def get_all_internships_data():
     """
     connection = get_db()
     active_only = True  # Fetch only active internships
-    internships = InternshipDataAccess(connection).get_internships(active_only)
+    if not current_user.is_authenticated or current_user.role != "admin":
+        internships = InternshipDataAccess(connection).get_internships(active_only, reviewed_only=True)
+    else:
+        internships = InternshipDataAccess(connection).get_internships(active_only, reviewed_only=False)
     return jsonify([internship.to_dict() for internship in internships])
 
 @bp.route('/like-internship', methods=['POST'])
@@ -71,20 +74,20 @@ def unlike_internship():
     InternshipDataAccess(connection).unlike_internship(current_user.user_id, internship_id)
     return jsonify({'success': True})
 
-@bp.route('/get-event/<int:event_id>', methods=['GET'])
-def get_internship_data(event_id):
-    """
-    Fetches data for a specific internship.
-    :param internship_id: ID of the internship.
-    :return: JSON containing internship details.
-    """
-    connection = get_db()
-    internship = InternshipDataAccess(connection).get_internship(event_id)
-
-    if not internship:
-        return jsonify({'success': False, 'message': 'Internship not found.'}), 404
-
-    return jsonify(internship.to_dict())
+# @bp.route('/get-event/<int:event_id>', methods=['GET'])
+# def get_internship_data(event_id):
+#     """
+#     Fetches data for a specific internship.
+#     :param internship_id: ID of the internship.
+#     :return: JSON containing internship details.
+#     """
+#     connection = get_db()
+#     internship = InternshipDataAccess(connection).get_internship(event_id)
+#
+#     if not internship:
+#         return jsonify({'success': False, 'message': 'Internship not found.'}), 404
+#
+#     return jsonify(internship.to_dict())
 
 @bp.route('/events-page-additional', methods=['GET'])
 def get_events_page_additional_data():
@@ -175,7 +178,7 @@ def get_attachment(filename):
 @bp.route('/get-all-event-data/<int:e_id>', methods=['GET'])
 def get_all_event_data(e_id):
     """
-    Handles the GET request to '/get-all-project-data/<int:p_id>'.
+    Handles the GET request to '/get-all-event-data/<int:p_id>'.
     :param e_id: event id
     :return: Json with all project data, the research group and links.
     """

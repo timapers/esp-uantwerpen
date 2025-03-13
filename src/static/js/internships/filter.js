@@ -8,8 +8,8 @@ function resetSearch() {
     refreshInternshipsData();
 }
 
-function onChangeLiveEventFilter(element) {
-    setParam('available', element.checked);
+function onChangeReviewedEventFilter(element) {
+    setParam('reviewed-filter', element.checked);
     filterInternships();
 }
 
@@ -134,6 +134,7 @@ function filterInternships() {
     filtered_internships = filter_liked_internships(filtered_internships);
     filtered_internships = filter_companies(filtered_internships);
     filtered_internships = filter_types(filtered_internships);
+    filtered_internships = filter_reviewed_internships(filtered_internships);
     filtered_internships = filter_full(filtered_internships);
 
     const order_by = $("#orderBy").val();
@@ -172,6 +173,19 @@ function filter_companies(event_filter_prev) {
 
 
 
+}
+function filter_reviewed_internships(event_filter_prev) {
+    const reviewed = $("#reviewed-filter").is(":checked");
+    if (!reviewed) return event_filter_prev;
+
+    let filtered_events = [];
+    for (const event of event_filter_prev) {
+        if (!event['is_reviewed']) {
+            filtered_events.push(event);
+        }
+    }
+
+    return filtered_events;
 }
 
 /**

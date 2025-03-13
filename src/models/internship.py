@@ -11,18 +11,19 @@ class Internship:
     Internship model class
     """
 
-    def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, address,
-                 contact_person, is_active):
+    def __init__(self, in_id, title, description_id, company_id, creation_date, address,
+                 contact_person, is_active, is_reviewed):
         self.internship_id = in_id
         self.title = title
-        self.max_students = max_students
+        # self.max_students = max_students
         self.description_id = description_id
         self.company_id = company_id
-        self.view_count = view_count
+        # self.view_count = view_count
         self.creation_date = creation_date
         self.address = address
         self.contact_person = contact_person
         self.is_active = is_active
+        self.is_reviewed = is_reviewed
         ### TODO: Add Last Updated ###
         self.last_updated = None
         """
@@ -67,7 +68,7 @@ class InternshipDataAccess:
             cursor.execute('SELECT internship_id FROM internship')
         return [row[0] for row in cursor]
 
-    def get_internships(self, active_only, details=False):
+    def get_internships(self, active_only, reviewed_only):
         """
         Fetches all the internships from the database.
         :param active_only: Fetch only active internships.
@@ -76,7 +77,11 @@ class InternshipDataAccess:
         """
         internships = list()
         for internship_id in self.get_internship_ids(active_only):
-            internships.append(self.get_internship(internship_id, active_only))
+            i = self.get_internship(internship_id, active_only)
+            if reviewed_only and not i.is_reviewed:
+                continue
+            else:
+                internships.append(i)
         return internships
 
     def get_internship(self, internship_id, active_only):
@@ -87,7 +92,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active FROM internship WHERE internship_id = %s',
+            'SELECT internship_id, title, description_id, company_id, creation_date, address, contact_person, is_active, is_reviewed FROM internship WHERE internship_id = %s',
             (internship_id,))
         row = cursor.fetchone()
         event = Internship(*row)
@@ -133,7 +138,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active FROM internship WHERE company_id = %s',
+            'SELECT internship_id, title, description_id, company_id, creation_date, address, contact_person, is_active, is_reviewed FROM internship WHERE company_id = %s',
             (company_id,))
         internships = list()
         for row in cursor:
@@ -149,8 +154,8 @@ class InternshipDataAccess:
         cursor = self.dbconnect.get_cursor()
         try:
             cursor.execute(
-                'INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                (obj.title, obj.max_students, obj.description_id, obj.company_id, obj.view_count, obj.creation_date,
+                'INSERT INTO internship(title, description_id, company_id, creation_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                (obj.title, obj.description_id, obj.company_id, obj.creation_date,
                  obj.address, obj.contact_person, obj.is_active))
             cursor.execute('SELECT LASTVAL()')
             iden = cursor.fetchone()[0]
@@ -388,8 +393,8 @@ class InternshipDataAccess:
             TypeDataAccess(self.dbconnect).add_type(Type(type, True))
 
         try:
-            cursor.execute('INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                           ('TITLE', 0, doc_id, comp_id, 0, datetime.date.today(), data['address'], cp_id, True))
+            cursor.execute('INSERT INTO internship(title, description_id, company_id, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s)',
+                           ('Internship at ' + company.name, doc_id, comp_id, data['address'], cp_id, True))
             cursor.execute('SELECT LASTVAL()')
             iden = cursor.fetchone()
             i_id = iden[0]

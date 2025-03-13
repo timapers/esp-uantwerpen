@@ -43,14 +43,13 @@
                 </button>
                 <button class="btn light-button-color" onclick="filterExtend()">Internship Filter</button>
             </div>
+        </div>
 
-            <div class="col-auto text-right">
-                {% if current_user.is_authenticated and current_user.role != "student" %}
-                    <button type="submit" id="submitbutton"
-                            onclick="location.href='{{ url_for('careers.event_page') + "?new=true" }}'"
-                            class="btn light-button-color">Add Internship</button>
+        <div class="text-center mt-3">
+            {% if current_user.is_authenticated and current_user.role == "admin" %}
+                ADMIN IS ONLINE
                 {% endif %}
-            </div>
+
         </div>
 
         <div class="text-center mt-3" id="filter" style="display: none;">
@@ -59,8 +58,11 @@
             <select name="type" id="type-filter" class="selectpicker w-auto" multiple
                     title="Choose Types"></select>
             <br>
-{#            <input type="checkbox" id="live-filter" onchange="onChangeLiveEventFilter(this)">#}
-{#            <label for="live-filter">Only Live Internships</label>#}
+            {% if current_user.is_authenticated and current_user.role == "admin" %}
+            <input type="checkbox" id="reviewed-filter" onchange="onChangeReviewedEventFilter(this)">
+            <label for="reviewed-filter">Show only NOT Reviewed Internships</label>
+            {% endif %}
+
         </div>
 
         <div id="loading-spinner" class="text-center">

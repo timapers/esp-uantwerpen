@@ -191,14 +191,15 @@ CREATE TABLE internship
 (
     internship_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    max_students INT NOT NULL,
+--     max_students INT NOT NULL,
     description_id INT NOT NULL REFERENCES Document (document_id) ON UPDATE CASCADE ON DELETE SET NULL,
     company_id INT NOT NULL REFERENCES Company (company_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    view_count INT DEFAULT 0,
+--     view_count INT DEFAULT 0,
     creation_date DATE NOT NULL DEFAULT CURRENT_DATE,
     address VARCHAR(255),
     contact_person INT REFERENCES contact_person_company (contact_person_id) ON UPDATE CASCADE ON DELETE SET NULL,
-    is_active BOOLEAN NOT NULL
+    is_active BOOLEAN NOT NULL,
+    is_reviewed BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE internship_has_tag
