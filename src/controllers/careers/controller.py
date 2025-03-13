@@ -257,3 +257,23 @@ def create_internship():
         return render_template('create_internship.html', success=True)
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 400
+
+@bp.route('/review-internship', methods=['POST'])
+def review_internship():
+    """
+    Handles the POST request to review an internship.
+    :return: Json with success/failure status.
+    """
+    if not current_user.is_authenticated or current_user.role != "admin":
+        return jsonify({'success': False, 'message': 'Authentication required.'}), 401
+
+    data = request.json
+    internship_id = data.get('internship_id')
+    approved = data.get('action')
+
+    if not internship_id:
+        return jsonify({'success': False, 'message': 'Internship ID is required.'}), 400
+
+    connection = get_db()
+    InternshipDataAccess(connection).review_internship(internship_id, approved)
+    return jsonify({'success': True, 'message': 'Internship review updated successfully.'})

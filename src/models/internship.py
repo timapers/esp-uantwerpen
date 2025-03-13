@@ -405,3 +405,17 @@ class InternshipDataAccess:
         self.link_internship_to_type(i_id, type)
         return iden
 
+    def review_internship(self, internship_id, approved):
+        if approved:
+            self.set_internship_reviewed(internship_id, True)
+        else:
+            self.remove_internship(internship_id)
+
+    def set_internship_reviewed(self, internship_id, reviewed):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET is_reviewed = %s WHERE internship_id = %s', (reviewed, internship_id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise

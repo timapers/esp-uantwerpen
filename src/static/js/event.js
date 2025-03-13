@@ -51,9 +51,9 @@ $(function () {
         $("#success").show();
     }
 
-    // if ($.urlParam("new")) {
-    //     new_event();
-    //     fetch_additional_data(edit_event);
+        // if ($.urlParam("new")) {
+        //     new_event();
+        //     fetch_additional_data(edit_event);
     // }
     else {
         fetch_event();
@@ -662,83 +662,93 @@ function construct_event() {
         }
     }
 
-
-    // Extra info
-    let info_div = document.getElementById("extra-info");
-
-    // // Last Updated
-    // let last_updated = document.createElement("span");
-    // info_div.appendChild(last_updated);
-    // last_updated.setAttribute("class", "extra_info_element");
-    // last_updated.innerHTML = "Last Updated: " + timestampToString(event['last_updated']) + "  |  ";
-
-    // Views
-    let views = document.createElement("span");
-    info_div.appendChild(views);
-    views.setAttribute("class", "extra_info_element");
-    views.innerHTML = "x" + event['view_count'] + " times viewed";
-
-    const attachments = $("#attachments-list");
-    let attachment_present;
-    if (event['attachments']) {
-        for (const attachment of event['attachments']) {
-            attachment_present = true;
-            attachments.append($(`<a href="get-attachment/${attachment['file_location']}"><span class="badge type-bg-color mr-1">${attachment['name']}</span></a>`));
-        }
-    }
-
-    if (attachment_present) {
-        $("#attachments").show();
-    }
-
-    let edit_permissions = role === "admin";
-
-
-    const cp_name = event['contact_person_name_email']['name'];
-    const cp_email = event['contact_person_name_email']['email'];
-    const html = $(`<li><a><span class="badge employee-bg-color bigoverflow">${cp_name}</span></></a></li>`);
-
-    $("#contact_persons-list").append(html);
-    $("#contact_person").css("display", "block");
-
-
-    fill_cp_popover(html.children().first()[0], event['contact_person_name_email']);
-
-
-    // for (const employee of event["employees"]) {
-    //
-    //     const type = employee["guidance_type"];
-    //     const title = employee["employee"]["title"] ? employee["employee"]["title"] : "";
-    //     const employee_name = employee["employee"]["name"];
-    //     const html = $(`<li><a><span class="badge employee-bg-color bigoverflow">${title} ${employee_name}</span></></a></li>`);
-    //
-    //
-    //     if (role === "employee" && name === employee_name) {
-    //         edit_permissions = true;
-    //     }
-    //
-    //     if (type === "Promotor") {
-    //         $("#promotors-list").append(html);
-    //         $("#promotors").css("display", "block");
-    //     } else if (type === "Mentor") {
-    //         $("#mentors-list").append(html);
-    //         $("#mentors").css("display", "block");
-    //     }
-    //
-    //     init_employee_popover(html.children().first()[0], employee["employee"])
-    // }
-
-
-    // Registrations
-    if (edit_permissions) {
-        // construct_registrations();
-        document.getElementById("modify-btn").setAttribute("style", "display: true;");
-    }
-
-    if (role === 'student') {
-        fill_register_dropdown();
+    //Reviewed
+    if (event['is_reviewed'] == false) {
+        $("#not-reviewed").show();
+        $("#already-reviewed").hide();
+    } else {
+        $("#not-reviewed").hide();
+        $("#already-reviewed").show();
     }
 }
+
+
+// Extra info
+let info_div = document.getElementById("extra-info");
+
+// // Last Updated
+// let last_updated = document.createElement("span");
+// info_div.appendChild(last_updated);
+// last_updated.setAttribute("class", "extra_info_element");
+// last_updated.innerHTML = "Last Updated: " + timestampToString(event['last_updated']) + "  |  ";
+
+// Views
+let views = document.createElement("span");
+info_div.appendChild(views);
+views.setAttribute("class", "extra_info_element");
+views.innerHTML = "x" + event['view_count'] + " times viewed";
+
+const attachments = $("#attachments-list");
+let attachment_present;
+if (event['attachments']) {
+    for (const attachment of event['attachments']) {
+        attachment_present = true;
+        attachments.append($(`<a href="get-attachment/${attachment['file_location']}"><span class="badge type-bg-color mr-1">${attachment['name']}</span></a>`));
+    }
+}
+
+if (attachment_present) {
+    $("#attachments").show();
+}
+
+let edit_permissions = role === "admin";
+
+
+const cp_name = event['contact_person_name_email']['name'];
+const cp_email = event['contact_person_name_email']['email'];
+const html = $(`<li><a><span class="badge employee-bg-color bigoverflow">${cp_name}</span></></a></li>`);
+
+$("#contact_persons-list").append(html);
+$("#contact_person").css("display", "block");
+
+
+fill_cp_popover(html.children().first()[0], event['contact_person_name_email']);
+
+
+// for (const employee of event["employees"]) {
+//
+//     const type = employee["guidance_type"];
+//     const title = employee["employee"]["title"] ? employee["employee"]["title"] : "";
+//     const employee_name = employee["employee"]["name"];
+//     const html = $(`<li><a><span class="badge employee-bg-color bigoverflow">${title} ${employee_name}</span></></a></li>`);
+//
+//
+//     if (role === "employee" && name === employee_name) {
+//         edit_permissions = true;
+//     }
+//
+//     if (type === "Promotor") {
+//         $("#promotors-list").append(html);
+//         $("#promotors").css("display", "block");
+//     } else if (type === "Mentor") {
+//         $("#mentors-list").append(html);
+//         $("#mentors").css("display", "block");
+//     }
+//
+//     init_employee_popover(html.children().first()[0], employee["employee"])
+// }
+
+
+// Registrations
+if (edit_permissions) {
+    // construct_registrations();
+    document.getElementById("modify-btn").setAttribute("style", "display: true;");
+}
+
+if (role === 'student') {
+    fill_register_dropdown();
+}
+
 
 
 function fill_register_dropdown() {
@@ -1164,3 +1174,24 @@ function getEditData() {
     return data;
 }
 
+function reviewInternship(action) {
+    fetch('/review-internship', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({action: action, internship_id: event.internship_id}),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Internship review updated successfully.');
+                window.location.href = '/careers';
+            } else {
+                alert('Failed to update internship review: ' + data.message);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}

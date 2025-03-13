@@ -20,7 +20,21 @@
 {% block content %}
 
     <div class="container" id="content">
-
+        <div class="text-center" id="not-reviewed" style="display: none;">
+            {% if current_user.is_authenticated and current_user.role == "admin" %}
+                After reviewing the internship, please click one of the buttons below.
+                <br>
+            <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept</button>
+            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny</button>
+                {% endif %}
+        </div>
+        <div class="text-center" id="already-reviewed" style="display: none;">
+            {% if current_user.is_authenticated and current_user.role == "admin" %}
+                This internship has already been reviewed.
+                <br>
+                <button class="btn btn-primary" id="delete-button" type="button" onclick="reviewInternship(false)">Remove Internship</button>
+            {% endif %}
+        </div>
         <!-- Option buttons -->
 
         <h1 class="title text-center" id="title"></h1>
@@ -28,44 +42,13 @@
         <!-- Badges -->
         <div class="text-center" id="badges"></div>
 
-        <div class="text-center" id="edit-options" style="display: none;">
 
-            <div class="event-input">
-                Students:
-                <input id="edit-students" class="no-border" type="number" min="1" step="1" max="30"
-                       onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 3em;">
-            </div>
-
-            <select name="research" id="edit-research-group" class="selectpicker"
-                    title="{{ get_text("Choose-Research-Group") }}"></select>
-            <select name="type" id="edit-type" class="selectpicker" multiple
-                    title="{{ get_text("Choose-Types") }}"></select>
-
-            <br>
-
-            <input id="edit-tags" class="border border-secondary" type="text" data-role="tagsinput"
-                   placeholder="Add a tag">
-
-        </div>
 
         <!-- Extra Info -->
         <div class="text-center" id="extra-info"></div>
 
         <!-- Option buttons -->
         <div class="text-center" id="buttons">
-
-{#            {% if current_user.is_authenticated and current_user.role == "student" %}#}
-{#                <div class="dropdown">#}
-{#                    <button class="btn default-color dropdown-toggle" type="button" id="registration-btn"#}
-{#                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
-{#                        {{ get_text("Register") }}#}
-{#                    </button>#}
-{#                    <div class="dropdown-menu" aria-labelledby="registration-btn" id="registration-options">#}
-{#                    </div>#}
-{#                </div>#}
-{#                <button type="button" class="btn default-color" id="like-btn"#}
-{#                        onclick="change_like('{{ get_text("Like") }}', '{{ get_text("Unlike") }}')"></button>#}
-{#            {% endif %}#}
 
 
         </div>
