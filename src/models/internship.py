@@ -4,6 +4,7 @@ from src.models.type import Type, TypeDataAccess
 from src.models.company import CompanyDataAccess, Company
 from src.models.contact_person_company import Contact_person_companyDataAccess, Contact_person_company
 from src.models.document import Document, DocumentDataAccess
+from src.models.internship_registration import InternshipRegistration, InternshipRegistrationsDataAccess
 
 
 class Internship:
@@ -11,14 +12,14 @@ class Internship:
     Internship model class
     """
 
-    def __init__(self, in_id, title, description_id, company_id, creation_date, address,
+    def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, address,
                  contact_person, is_active, is_reviewed):
         self.internship_id = in_id
         self.title = title
-        # self.max_students = max_students
+        self.max_students = max_students
         self.description_id = description_id
         self.company_id = company_id
-        # self.view_count = view_count
+        self.view_count = view_count
         self.creation_date = creation_date
         self.address = address
         self.contact_person = contact_person
@@ -36,6 +37,7 @@ class Internship:
         self.html_content_nl = None
         self.company_name = None
         self.contact_person_name_email = None
+        self.registrations = None
 
     def to_dict(self):
         value = vars(self)
@@ -92,7 +94,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, description_id, company_id, creation_date, address, contact_person, is_active, is_reviewed FROM internship WHERE internship_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed FROM internship WHERE internship_id = %s',
             (internship_id,))
         row = cursor.fetchone()
         event = Internship(*row)
@@ -128,6 +130,12 @@ class InternshipDataAccess:
         cursor.execute('SELECT name, email FROM contact_person_company WHERE contact_person_id = %s', (event.contact_person,))
         row = cursor.fetchone()
         event.contact_person_name_email = {'name': row[0], 'email': row[1]}
+        """Registrations"""
+        cursor.execute('SELECT student,name, internship, type, status, date FROM internship_registration JOIN student s on internship_registration.student = s.student_id WHERE internship = %s', (internship_id,))
+        registrations = list()
+        for row in cursor:
+            registrations.append({"student": row[0], "name": row[1], "internship": row[2], "type": row[3], "status": row[4], "date": row[5]})
+        event.registrations = registrations
         return event
 
     def get_internships_by_company(self, company_id):
@@ -138,7 +146,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, description_id, company_id, creation_date, address, contact_person, is_active, is_reviewed FROM internship WHERE company_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed FROM internship WHERE company_id = %s',
             (company_id,))
         internships = list()
         for row in cursor:
@@ -154,9 +162,9 @@ class InternshipDataAccess:
         cursor = self.dbconnect.get_cursor()
         try:
             cursor.execute(
-                'INSERT INTO internship(title, description_id, company_id, creation_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                (obj.title, obj.description_id, obj.company_id, obj.creation_date,
-                 obj.address, obj.contact_person, obj.is_active))
+                'INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                (obj.title, obj.max_students, obj.description_id, obj.company_id, obj.view_count, obj.creation_date,
+                    obj.address, obj.contact_person, obj.is_active, obj.is_reviewed))
             cursor.execute('SELECT LASTVAL()')
             iden = cursor.fetchone()[0]
             obj.internship_id = iden
@@ -336,6 +344,7 @@ class InternshipDataAccess:
         :param data: The data to create the event with.
         :return: The created event.
         """
+        # TODO: Implement this method
         cursor = self.dbconnect.get_cursor()
         cursor.execute('INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                        (data['title'], data['max_students'], data['description_id'], data['company_id'], data['view_count'], data['creation_date'], data['address'], data['contact_person'], data['is_active']))
@@ -393,8 +402,8 @@ class InternshipDataAccess:
             TypeDataAccess(self.dbconnect).add_type(Type(type, True))
 
         try:
-            cursor.execute('INSERT INTO internship(title, description_id, company_id, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s)',
-                           ('Internship at ' + company.name, doc_id, comp_id, data['address'], cp_id, True))
+            cursor.execute('INSERT INTO internship(title, description_id, max_students, company_id, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s)',
+                           ('Internship at ' + company.name, doc_id, int(data['max_students']), comp_id, data['address'], cp_id, True))
             cursor.execute('SELECT LASTVAL()')
             iden = cursor.fetchone()
             i_id = iden[0]
@@ -409,7 +418,9 @@ class InternshipDataAccess:
         if approved:
             self.set_internship_reviewed(internship_id, True)
         else:
-            self.remove_internship(internship_id)
+            if self.get_internship(internship_id, False).is_reviewed:
+                self.remove_internship(internship_id)
+
 
     def set_internship_reviewed(self, internship_id, reviewed):
         cursor = self.dbconnect.get_cursor()

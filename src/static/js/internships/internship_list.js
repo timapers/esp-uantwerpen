@@ -179,6 +179,13 @@ function fillCard(number, internship) {
     let badges = $("#card-badges" + number);
     badges.children().remove();
 
+    if (is_occupied(internship)) {
+            badges.append($(`
+                <span class="badge badge-danger" style="margin-right: 10px">
+                    ${language === 'en' ? 'Occupied' : 'Volzet'}
+                </span>
+            `))
+        }
     if (internship["is_active"] !== undefined && !internship["is_active"]) {
         let inactive_badge = document.createElement("span");
         inactive_badge.setAttribute("class", "badge badge-info");

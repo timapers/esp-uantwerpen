@@ -214,12 +214,12 @@ def add_registration():
     """
     if current_user.is_authenticated and current_user.role == "student":
         try:
-            project_id = request.form['data']
+            i_id = request.form['data']
             type = request.form['type']
-            registration = Registration(current_user.user_id, project_id, type, "Pending")
+            registration = Registration(current_user.user_id, i_id, type, "Pending")
             RegistrationDataAccess(get_db()).add_registration(registration)
 
-            project = ProjectDataAccess(get_db()).get_project(project_id, False)
+            project = ProjectDataAccess(get_db()).get_project(i_id, False)
             if not project.is_active:
                 raise Exception()
 

@@ -21,11 +21,14 @@ CREATE TABLE company_has_contact_person (
     PRIMARY KEY (company_id, contact_person)
 );
 
--- Create internship table
-CREATE TABLE internship (
+CREATE TABLE internship
+(
     internship_id SERIAL PRIMARY KEY,
-    description_id INT NOT NULL REFERENCES document (document_id) ON UPDATE CASCADE ON DELETE SET NULL,
-    company_id INT NOT NULL REFERENCES company (company_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    max_students INT NOT NULL,
+    description_id INT NOT NULL REFERENCES Document (document_id) ON UPDATE CASCADE ON DELETE SET NULL,
+    company_id INT NOT NULL REFERENCES Company (company_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    view_count INT DEFAULT 0,
     creation_date DATE NOT NULL DEFAULT CURRENT_DATE,
     address VARCHAR(255),
     contact_person INT REFERENCES contact_person_company (contact_person_id) ON UPDATE CASCADE ON DELETE SET NULL,
@@ -45,4 +48,14 @@ CREATE TABLE internship_has_type (
     internship INT REFERENCES internship (internship_id) ON UPDATE CASCADE ON DELETE CASCADE,
     type VARCHAR(255) REFERENCES type (type_name) ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY (internship, type)
+);
+
+CREATE TABLE internship_registration
+(
+  student       VARCHAR(8)          REFERENCES Student (student_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  internship    INT                 REFERENCES internship (internship_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  type          VARCHAR(255)        REFERENCES Type (type_name) ON UPDATE CASCADE ON DELETE CASCADE,
+  status        RegistrationStatus  DEFAULT 'Pending',
+  date          date                NOT NULL DEFAULT CURRENT_DATE,
+  PRIMARY KEY (student, internship)
 );

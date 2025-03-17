@@ -242,8 +242,13 @@ function filter_full(current_internships) {
 }
 
 function is_occupied(internship) {
-    const students = internship['registrations'].filter(registration => registration['status'] === "Accepted").length;
-    return internship['max_students'] <= students;
+    let students = 0;
+    for (let registration of internship['registrations']) {
+        if (registration['status'] === "Accepted") {
+            students += 1;
+        }
+    }
+    return internship['max_students'] <= students
 }
 
 // /**

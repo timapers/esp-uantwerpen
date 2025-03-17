@@ -350,7 +350,7 @@ function fetch_event() {
 
             if (role === "student") {
                 update_user_behaviour();
-                update_like_status("Like", "Unlike")
+                // update_like_status("Like", "Unlike")
             } else {
                 add_view();
             }
@@ -588,16 +588,16 @@ function enablePopovers() {
  */
 function construct_event() {
     // Calculate registered students
-    // let registered_students = 0;
-    // for (let i = 0; i < event['registrations'].length; i++) {
-    //     if (event['registrations'][i]['status'] === "Accepted") {
-    //         registered_students += 1;
-    //     }
-    //     if (role === "student" && event['registrations'][i]['student_nr'] === userid) {
-    //         document.getElementById("registration-btn").disabled = true;
-    //         document.getElementById("registration-btn").innerHTML = event['registrations'][i]['status'];
-    //     }
-    // }
+    let registered_students = 0;
+    for (let i = 0; i < event['registrations'].length; i++) {
+        if (event['registrations'][i]['status'].toLowerCase() === "accepted") {
+            registered_students += 1;
+        }
+        if (role === "student" && event['registrations'][i]['student_nr'] === userid) {
+            document.getElementById("registration-btn").disabled = true;
+            document.getElementById("registration-btn").innerHTML = event['registrations'][i]['status'];
+        }
+    }
 
     // Title
     let title = document.getElementById("title");
@@ -607,12 +607,12 @@ function construct_event() {
     let badges = document.getElementById("badges");
 
     // Number of students
-    // let nr_students_badge = document.createElement("span");
-    // nr_students_badge.setAttribute("class", "badge success-color");
-    // nr_students_badge.setAttribute("style", "margin-right: 5px;");
-    // nr_students_badge.setAttribute("id", "nr_students_badge");
-    // nr_students_badge.innerHTML = "Students: " + registered_students + "/" + event['max_students'];
-    // badges.appendChild(nr_students_badge);
+    let nr_students_badge = document.createElement("span");
+    nr_students_badge.setAttribute("class", "badge success-color");
+    nr_students_badge.setAttribute("style", "margin-right: 5px;");
+    nr_students_badge.setAttribute("id", "nr_students_badge");
+    nr_students_badge.innerHTML = "Students: " + registered_students + "/" + event['max_students'];
+    badges.appendChild(nr_students_badge);
 
     //Type
     if (event['types'] === null || event['types'] === undefined || event['types'].length === 0) {
@@ -670,93 +670,61 @@ function construct_event() {
         $("#not-reviewed").hide();
         $("#already-reviewed").show();
     }
-}
 
 
-// Extra info
-let info_div = document.getElementById("extra-info");
+    // Extra info
+    let info_div = document.getElementById("extra-info");
 
-// // Last Updated
-// let last_updated = document.createElement("span");
-// info_div.appendChild(last_updated);
-// last_updated.setAttribute("class", "extra_info_element");
-// last_updated.innerHTML = "Last Updated: " + timestampToString(event['last_updated']) + "  |  ";
+    // // Last Updated
+    // let last_updated = document.createElement("span");
+    // info_div.appendChild(last_updated);
+    // last_updated.setAttribute("class", "extra_info_element");
+    // last_updated.innerHTML = "Last Updated: " + timestampToString(event['last_updated']) + "  |  ";
 
-// Views
-let views = document.createElement("span");
-info_div.appendChild(views);
-views.setAttribute("class", "extra_info_element");
-views.innerHTML = "x" + event['view_count'] + " times viewed";
+    // Views
+    let views = document.createElement("span");
+    info_div.appendChild(views);
+    views.setAttribute("class", "extra_info_element");
+    views.innerHTML = "x" + event['view_count'] + " times viewed";
 
-const attachments = $("#attachments-list");
-let attachment_present;
-if (event['attachments']) {
-    for (const attachment of event['attachments']) {
-        attachment_present = true;
-        attachments.append($(`<a href="get-attachment/${attachment['file_location']}"><span class="badge type-bg-color mr-1">${attachment['name']}</span></a>`));
+    const attachments = $("#attachments-list");
+    let attachment_present;
+    if (event['attachments']) {
+        for (const attachment of event['attachments']) {
+            attachment_present = true;
+            attachments.append($(`<a href="get-attachment/${attachment['file_location']}"><span class="badge type-bg-color mr-1">${attachment['name']}</span></a>`));
+        }
     }
-}
 
-if (attachment_present) {
-    $("#attachments").show();
-}
+    if (attachment_present) {
+        $("#attachments").show();
+    }
 
-let edit_permissions = role === "admin";
-
-
-const cp_name = event['contact_person_name_email']['name'];
-const cp_email = event['contact_person_name_email']['email'];
-const html = $(`<li><a><span class="badge employee-bg-color bigoverflow">${cp_name}</span></></a></li>`);
-
-$("#contact_persons-list").append(html);
-$("#contact_person").css("display", "block");
+    let edit_permissions = role === "admin";
 
 
-fill_cp_popover(html.children().first()[0], event['contact_person_name_email']);
+    const cp_name = event['contact_person_name_email']['name'];
+    const cp_email = event['contact_person_name_email']['email'];
+    const html = $(`<li><a><span class="badge employee-bg-color bigoverflow">${cp_name}</span></></a></li>`);
+
+    $("#contact_persons-list").append(html);
+    $("#contact_person").css("display", "block");
 
 
-// for (const employee of event["employees"]) {
-//
-//     const type = employee["guidance_type"];
-//     const title = employee["employee"]["title"] ? employee["employee"]["title"] : "";
-//     const employee_name = employee["employee"]["name"];
-//     const html = $(`<li><a><span class="badge employee-bg-color bigoverflow">${title} ${employee_name}</span></></a></li>`);
-//
-//
-//     if (role === "employee" && name === employee_name) {
-//         edit_permissions = true;
-//     }
-//
-//     if (type === "Promotor") {
-//         $("#promotors-list").append(html);
-//         $("#promotors").css("display", "block");
-//     } else if (type === "Mentor") {
-//         $("#mentors-list").append(html);
-//         $("#mentors").css("display", "block");
-//     }
-//
-//     init_employee_popover(html.children().first()[0], employee["employee"])
-// }
+    fill_cp_popover(html.children().first()[0], event['contact_person_name_email']);
 
 
 // Registrations
-if (edit_permissions) {
-    // construct_registrations();
-    document.getElementById("modify-btn").setAttribute("style", "display: true;");
-}
+    if (edit_permissions) {
+        construct_registrations();
+        // document.getElementById("modify-btn").setAttribute("style", "display: true;");
+    }
 
-if (role === 'student') {
-    fill_register_dropdown();
-}
-
-
-
-function fill_register_dropdown() {
-    let container = $('#registration-options');
-    for (let type of event['types']) {
-        container.append($(`<a class="dropdown-item" href="#" onclick="register_for_event('${type}')">${type}</a>`))
+    if (role === 'student') {
+        fill_register_dropdown();
     }
 }
+
 
 function fill_register_dropdown() {
     let container = $('#registration-options');
@@ -880,9 +848,9 @@ function make_comp_popover(popover) {
  */
 function register_for_event(type) {
     $.ajax({
-        url: 'add-registration',
+        url: 'add-internship-registration',
         type: 'POST',
-        data: {data: event['event_id'], type: type},
+        data: {event: event['internship_id'], type: type},
         dataType: 'json',
         success: function () {
             const alert = $(`<div class="alert alert-success alert-dismissible fade show">
@@ -904,52 +872,52 @@ function register_for_event(type) {
 
 }
 
-// /**
-//  * Constructs all the registration info for the event.
-//  */
-// function construct_registrations() {
-//     const registration_div = $("#registrations");
-//     if (event['registrations'].length === 0) {
-//         return;
-//     }
-//     registration_div.show();
-//
-//     const registrations = $("#registrations-table");
-//
-//     for (const registration of event['registrations']) {
-//         let row = `
-//             <tr>
-//                 <td><a href="mailto:${registration['student_nr']}@ad.ua.ac.be">${registration['name']}</a></td>
-//                 <td class="text-center">${registration['student_nr']}</td>
-//                 <td class="type">
-//                     <select>
-//                         ${event['types'].map(function (type) {return `<option value="${type}">${type}</option>`}).join('')}
-//                     </select>
-//                 </td>
-//                 <td class="status" align="right">
-//                     <span id="status"></span>
-//                     <select>
-//                         <option value="Pending">Pending</option>
-//                         <option value="Accepted">Accepted</option>
-//                         <option value="Denied">Denied</option>
-//                         <option value="Acknowledged">Acknowledged</option>
-//                     </select>
-//                 </td>
-//             </tr>
-//         `;
-//
-//         const elem = $(row);
-//         elem.find('.type select').val(registration['type']).on('change', function () {
-//             update_registration(registration, null, this.value)});
-//         elem.find(".status select").val(registration['status']).on("change", function () { update_registration(registration, this.value, null) });
-//         registrations.append(elem);
-//     }
-// }
+/**
+ * Constructs all the registration info for the event.
+ */
+function construct_registrations() {
+    const registration_div = $("#registrations");
+    if (event['registrations'].length === 0) {
+        return;
+    }
+    registration_div.show();
+
+    const registrations = $("#registrations-table");
+
+    for (const registration of event['registrations']) {
+        let row = `
+            <tr>
+                <td><a href="mailto:${registration['student']}@ad.ua.ac.be">${registration['name']}</a></td>
+                <td class="text-center">${registration['student']}</td>
+                <td class="type">
+                    <select>
+                        ${event['types'].map(function (type) {return `<option value="${type}">${type}</option>`}).join('')}
+                    </select>
+                </td>
+                <td class="status" align="right">
+                    <span id="status"></span>
+                    <select>
+                        <option value="Pending">Pending</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Denied">Denied</option>
+                        <option value="Acknowledged">Acknowledged</option>
+                    </select>
+                </td>
+            </tr>
+        `;
+
+        const elem = $(row);
+        elem.find('.type select').val(registration['type']).on('change', function () {
+            update_registration(registration, null, this.value)});
+        elem.find(".status select").val(registration['status']).on("change", function () { update_registration(registration, this.value, null) });
+        registrations.append(elem);
+    }
+}
 
 function update_registration(registration, new_status, new_type) {
     const data = {
-        student_id: registration['student_nr'],
-        event_id: event['event_id'],
+        student_id: registration['student'],
+        internship_id: event['internship_id'],
         status: new_status,
         type: new_type
     };
@@ -958,7 +926,7 @@ function update_registration(registration, new_status, new_type) {
     status.text("Saving..");
 
     $.ajax({
-        url: "handle-registration",
+        url: "handle-internship-registration",
         method: "POST",
         data: JSON.stringify(data),
         contentType: 'application/json',
@@ -1024,19 +992,19 @@ function update_user_behaviour() {
     $.returnValues("/register-user-data/" + event["internship_id"]);
 }
 
-/**
- * Gets the like status and changes the button accordingly.
- * @param like_text Text used for inside button.
- * @param unlike_text Text used for inside button.
- */
-function update_like_status(like_text, unlike_text) {
-    let btn = document.getElementById("like-btn");
-    if (event['liked']) {
-        btn.innerHTML = unlike_text;
-    } else {
-        btn.innerHTML = like_text;
-    }
-}
+// /**
+//  * Gets the like status and changes the button accordingly.
+//  * @param like_text Text used for inside button.
+//  * @param unlike_text Text used for inside button.
+//  */
+// function update_like_status(like_text, unlike_text) {
+//     let btn = document.getElementById("like-btn");
+//     if (event['liked']) {
+//         btn.innerHTML = unlike_text;
+//     } else {
+//         btn.innerHTML = like_text;
+//     }
+// }
 
 /**
  * Changes the like status.

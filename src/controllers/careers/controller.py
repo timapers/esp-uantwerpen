@@ -7,10 +7,12 @@ from flask import Blueprint, request, jsonify, render_template, current_app, sen
 from flask_login import current_user
 from src.models.internship import InternshipDataAccess
 from src.models.company import CompanyDataAccess
+from src.models.internship_registration import InternshipRegistration, InternshipRegistrationsDataAccess
 from src.models.tag import TagDataAccess
 from src.models.type import TypeDataAccess
 from src.models.db import get_db
 from werkzeug.utils import secure_filename
+from datetime import date
 import os
 bp = Blueprint('careers', __name__)
 
@@ -185,42 +187,6 @@ def get_all_event_data(e_id):
     active_only = not session["archive"]
     event_access = InternshipDataAccess(get_db())
     e_data = event_access.get_internship(e_id, active_only)
-
-    # if current_user.is_authenticated:
-    #     is_company = event_access.is_company(e_id, current_user.user_id)
-    # else:
-    #     is_company = False
-
-    # if current_user.is_authenticated and current_user.role == "student":
-    #     e_data.liked = LikeDataAccess(get_db()).is_liked(e_data.project_id, current_user.user_id)
-
-    # Add linked projects
-    # linked_projects = LinkDataAccess(get_db()).get_links_for_project(p_id)
-    # linked_projects_data = set()
-    # for link in linked_projects:
-    #     linked_project = event_access.get_project(link.project_2, active_only)
-    #     if len(linked_projects_data) >= 4:
-    #         break
-    #     if not linked_project.is_active:
-    #         continue
-    #     linked_projects_data.add(linked_project)
-
-    # Fill linked projects list with most viewed projects
-    # if len(linked_projects_data) < 4:
-    #     projects_most_views = event_access.get_most_viewed_projects(8, active_only)
-    #     if len(projects_most_views) >= 4:
-    #         i = 0
-    #         while len(linked_projects_data) < 4:
-    #             if not projects_most_views[i].project_id == p_id:
-    #                 linked_projects_data.add(projects_most_views[i])
-    #             i += 1
-
-    # try:
-    #     research_group = ResearchGroupDataAccess(get_db()).get_research_group(e_data.research_group).to_dict()
-    # except:
-    #     research_group = None
-
-    print(e_data.to_dict(), flush=True)
     return jsonify({"event_data": e_data.to_dict()})
 
 
@@ -277,3 +243,86 @@ def review_internship():
     connection = get_db()
     InternshipDataAccess(connection).review_internship(internship_id, approved)
     return jsonify({'success': True, 'message': 'Internship review updated successfully.'})
+
+@bp.route('/add-internship-registration', methods=['POST'])
+def add_registration():
+    """
+    Handles the POST request to '/project-editor'.
+    :return: Json with success/failure status.
+    """
+    if current_user.is_authenticated and current_user.role == "student":
+        try:
+            internship_id = request.form['event']
+            type = request.form['type']
+            registration = InternshipRegistration(current_user.user_id, internship_id, type, "Pending", date=date.today().strftime("%Y-%m-%d"))
+            InternshipRegistrationsDataAccess(get_db()).add_internship_registration(registration)
+
+            internship = InternshipDataAccess(get_db()).get_internship(internship_id, False)
+            if not internship.is_active:
+                raise Exception()
+
+            # msg = f"You registered for project {internship.title}!\n" \
+            #     f"You'll be notified when one of the supervisors changes your registration status.\n" \
+            #     f"Best of luck!"
+            #
+            # send_mail(current_user.user_id + "@ad.ua.ac.be", "ESP Registration", msg)
+            #
+            # msg_employees = f"Student {current_user.name} ({current_user.user_id}) has registered for your project {project.title}.\n" \
+            #     f"To change the registration status please visit the ESP site." \
+
+            # guides = GuideDataAccess(get_db()).get_guides_for_project(project_id)
+            # employee_access = EmployeeDataAccess(get_db())
+            # guides_with_info = [employee_access.get_employee(x.employee) for x in guides]
+            #
+            # for guide in guides_with_info:
+            #     if guide.email:
+            #         send_mail(guide.email, "ESP Registration", msg_employees)
+
+            return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
+        except Exception as e:
+            print(e, flush=True)
+            return jsonify({'success': False, "message": "Failed to add a new registration!"}), 400, {
+                'ContentType': 'application/json'}
+
+
+@bp.route('/handle-internship-registration', methods=['POST'])
+def handle_registration():
+    """
+    Handles the POST request to '/handle-registration'.
+    :return: Json with success/failure status. / redirects to login
+    """
+    if current_user.is_authenticated and current_user.role == "admin":
+        try:
+            data = request.json
+
+            InternshipRegistrationsDataAccess(get_db()).update_status(student=data['student_id'],
+                                                                 internship=data['internship_id'],
+                                                                 status=data['status'])
+
+            internship_title = InternshipDataAccess(get_db()).get_internship(data['internship_id'], False).title
+            # if data['status']:
+            #     msg = f"Your registration for project {internship_title} has changed to {data['status']}.\n" \
+            #         f"For questions or remarks please contact the supervisors of the project."
+            #     send_mail(data['student_id'] + "@ad.ua.ac.be", "ESP Registration Update", msg)
+        except Exception as e:
+            return jsonify({'success': False, "message": "Failed to update registration!"}), 400, {
+                'ContentType': 'application/json'}
+        return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
+
+    else:
+        return jsonify({'success': False, "message": "Failed to update registration!"}), 400, {
+            'ContentType': 'application/json'}
+
+@bp.route('/add-view/<int:e_id>', methods=['POST'])
+def add_view(e_id):
+    """
+    Handles the POST request to '/add-view/<int:e_id>'.
+    :param p_id: project id
+    :return: Json with success/failure status
+    """
+    try:
+        InternshipDataAccess(get_db()).add_view_count(e_id, 1)
+        return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
+    except:
+        print("Failed to count a view for project " + str(e_id) + ".")
+        return ""

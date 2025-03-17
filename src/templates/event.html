@@ -20,28 +20,46 @@
 {% block content %}
 
     <div class="container" id="content">
-        <div class="text-center" id="not-reviewed" style="display: none;">
-            {% if current_user.is_authenticated and current_user.role == "admin" %}
-                After reviewing the internship, please click one of the buttons below.
-                <br>
-            <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept</button>
-            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny</button>
-                {% endif %}
-        </div>
-        <div class="text-center" id="already-reviewed" style="display: none;">
-            {% if current_user.is_authenticated and current_user.role == "admin" %}
-                This internship has already been reviewed.
-                <br>
-                <button class="btn btn-primary" id="delete-button" type="button" onclick="reviewInternship(false)">Remove Internship</button>
-            {% endif %}
-        </div>
-        <!-- Option buttons -->
+    <div class="text-center" id="not-reviewed" style="display: none;">
+        {% if current_user.is_authenticated and current_user.role == "admin" %}
+            After reviewing the internship, please click one of the buttons below.
+            <br>
+            <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept
+            </button>
+            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny
+            </button>
+        {% endif %}
+    </div>
+    <div class="text-center" id="already-reviewed" style="display: none;">
+        {% if current_user.is_authenticated and current_user.role == "admin" %}
+            This internship has already been reviewed.
+            <br>
+            <button class="btn btn-primary" id="delete-button" type="button" onclick="reviewInternship(false)">Remove
+                Internship
+            </button>
+        {% endif %}
+    </div>
+
+
+    <!-- Option buttons -->
+    <div class="text-center" id="buttons">
+
+        {% if current_user.is_authenticated and current_user.role == "student" %}
+            <div class="dropdown">
+                <button class="btn default-color dropdown-toggle" type="button" id="registration-btn"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ get_text("Register") }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="registration-btn" id="registration-options">
+                </div>
+            </div>
+
+        {% endif %}
 
         <h1 class="title text-center" id="title"></h1>
 
         <!-- Badges -->
         <div class="text-center" id="badges"></div>
-
 
 
         <!-- Extra Info -->
@@ -90,13 +108,13 @@
             <table id="registrations-table" class="table table-hover col-xl" style="width:100%"></table>
         </div>
 
-        <div class="text-center" id="recommendations-title">
-            <br>
-            <h3>Recommendations</h3>
-            <hr>
-        </div>
+        {#        <div class="text-center" id="recommendations-title">#}
+        {#            <br>#}
+        {#            <h3>Recommendations</h3>#}
+        {#            <hr>#}
+        {#        </div>#}
 
-        <div class="card-columns mb-3 text-center" id="recommendations"></div>
+        {#        <div class="card-columns mb-3 text-center" id="recommendations"></div>#}
 
 
         <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">

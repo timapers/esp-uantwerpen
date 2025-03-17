@@ -64,3 +64,7 @@ DROP TABLE IF EXISTS contact_person_company CASCADE;
 -- Drop company table
 DROP TABLE IF EXISTS company CASCADE;
 
+DROP TABLE IF EXISTS internship_registration CASCADE;
+
+
+
