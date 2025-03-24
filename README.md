@@ -149,7 +149,7 @@ sudo -u postgres psql -d esp -c 'REFRESH MATERIALIZED VIEW search_index;'
 ```
 
 ### Update Tables
-When you want to update the tables to the newest version. Run the following command. Here is 24032025.sql the newest upgrade file in the "upgrades" folder.
+When you want to update the tables to the newest version. Run the following command. Here is 24032025.sql the newest upgrade file in the "migrations/upgrades" folder.
 ```
 python upgrade_downgrade_db.py upgrade 24032025.sql  
 ```
