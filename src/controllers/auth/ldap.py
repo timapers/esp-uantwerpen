@@ -25,9 +25,6 @@ def check_credentials(user_id, password):
     :param password: the user password
     :return: Boolean indicating if the credentials are correct
     """
-    ## TODO: Remove this after development
-    # return True
-
     if config_data.get('dev', False):
         return True
 

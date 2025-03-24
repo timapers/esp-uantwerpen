@@ -64,7 +64,7 @@ class TypeDataAccess:
     def get_internship_types(self, active_only):
         cursor = self.dbconnect.get_cursor()
         if active_only:
-            cursor.execute('SELECT DISTINCT internship_has_type.type, type.is_active FROM internship_has_type JOIN internship ON internship_has_type.type = type.type_name WHERE type.is_active = TRUE')
+            cursor.execute('SELECT DISTINCT internship_has_type.type, type.is_active FROM internship_has_type JOIN type ON internship_has_type.type = type.type_name WHERE type.is_active = TRUE')
         else:
             cursor.execute('SELECT DISTINCT internship_has_type.type, type.is_active FROM internship_has_type JOIN type ON internship_has_type.type = internship.type_name')
         return [Type(row[0], row[1]) for row in cursor]
