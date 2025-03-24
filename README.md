@@ -127,6 +127,8 @@ The *contact-mail* will be the address that people will be able to contact for p
 
 ### Initialize tables
 
+#### NOTE: Don't do this when you already have tables as this will drop all the data you have stored. Go to section [Update Tables](#update-tables) for this.
+
 Now that the database and configuration files are set, we can initialize the tables.
 Simply execute the following command
 
@@ -146,6 +148,11 @@ To initialize the search for your start data, run the following command
 sudo -u postgres psql -d esp -c 'REFRESH MATERIALIZED VIEW search_index;'
 ```
 
+### Update Tables
+When you want to update the tables to the newest version. Run the following command. Here is 24032025.sql the newest upgrade file in the "migrations/upgrades" folder.
+```
+python upgrade_downgrade_db.py upgrade 24032025.sql  
+```
 
 ### LDAP
 
