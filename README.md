@@ -127,7 +127,7 @@ The *contact-mail* will be the address that people will be able to contact for p
 
 ### Initialize tables
 
-# NOTE: Don't do this when you already have tables. Go to section update table for this.
+#### NOTE: Don't do this when you already have tables as this will drop all the data you have stored. Go to section [Update Tables](#update-tables) for this.
 
 Now that the database and configuration files are set, we can initialize the tables.
 Simply execute the following command
