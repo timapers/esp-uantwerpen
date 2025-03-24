@@ -106,7 +106,7 @@ def get_events_page_additional_data():
     companies = CompanyDataAccess(connection).get_all_company_names()
 
     tags = TagDataAccess(connection).get_tags()
-    types = TypeDataAccess(connection).get_types(active_only)
+    types = TypeDataAccess(connection).get_internship_types(active_only)
 
     # contact_person = Contact_person_companyDataAccess(connection).get_contact_person_companies()
 

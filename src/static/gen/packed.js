@@ -1,10 +1,11 @@
+
 /**
  * This function provides sets group selector html content.
  */
 function setModalGroupSelector() {
     $("#edit-group-selector").html(
         `<option value="Don't change">Don't change</option>` +
-        COMPANIES.map(function (group) {
+        GROUPS.map(function (group) {
             return `<option value=${group}>${group}</option>`
         }).join("")
     ).selectpicker("refresh");
@@ -82,6 +83,7 @@ function createEditEntry(type) {
         className = "employee-entry";
         middleColumn = `
             <select id="employee-type" class="form-control">
+                <option value="Co-Promotor">Co-Promotor</option>
                 <option value="Mentor">Mentor</option>
             </select>`;
         placeholder = "Name";
@@ -167,14 +169,17 @@ function removeEntry(element) {
 }
 
 
-
-function sendEditingChanges(internships) {
+/**
+ * Only used in entries for the editing function (see createEditEntry())
+ * @param {array} projects to be be edited
+ */
+function sendEditingChanges(projects) {
     let json = {
-        internships: internships,
+        projects: projects,
         entries: []
     };
 
-    // Add logic to collect and send editing changes as required for internships.
+
     let addEntries = $("#add-entries").children();
     for (let entry of addEntries) {
         // Convert to JQuery object
@@ -246,22 +251,104 @@ function sendEditingChanges(internships) {
             group: replaceResearchGroup
         });
     }
-    // Example AJAX call (update URL to match backend):
+
+    /*
+    let activeStatus = $("#active-status-selector").val();
+    if (activeStatus !== "Don't change" && activeStatus !== "Verander niet") {
+        json.entries.push({
+            entry_type: "replace-active",
+            active: activeStatus === "Active" || activeStatus === "Actief"
+        });
+    }
+    */
+
+    // Send the data
     $.ajax({
-        url: "edit-internships",
+        url: "projects",
         type: "POST",
         data: JSON.stringify(json),
         contentType: 'application/json',
         success: function () {
             $("#modal-info").text("Successfully saved!");
             setLoading(true);
-            refreshInternshipsData();
+            refreshProjectsData();
         },
         error: function (message) {
-            $("#modal-info").text("Error occurred: " + message.responseJSON.message);
+            $("#modal-info").text("Error occurred: " + message["responseJSON"]["message"])
         }
     });
 }
+
+function sendCopy(projects) {
+    let json = {
+        projects: projects,
+        entries: []
+    };
+
+    // Send the data
+    $.ajax({
+        url: "copy-projects",
+        type: "POST",
+        data: JSON.stringify(json),
+        contentType: 'application/json',
+        success: function (message) {
+            $("#success").html(message["message"])
+            $("#success").show();
+            $("#error").hide();
+            setLoading(true);
+            refreshProjectsData();
+
+            let allCheckBoxes = $(".custom-control-input");
+            allCheckBoxes.prop('checked', false)
+        },
+        error: function(message) {
+            $("#error").html(message["responseJSON"]["message"]);
+            $("#error").show();
+            $("#success").hide();
+            setLoading(true);
+            refreshProjectsData();
+
+            let allCheckBoxes = $(".custom-control-input");
+            allCheckBoxes.prop('checked', false)
+        }
+    });
+}
+
+function sendDelete(projects) {
+    let json = {
+        projects: projects,
+        entries: []
+    };
+
+    // Send the data
+    $.ajax({
+        url: "delete-projects",
+        type: "POST",
+        data: JSON.stringify(json),
+        contentType: 'application/json',
+        success: function (message) {
+            $("#success").html(message["message"])
+            $("#success").show();
+            $("#error").hide();
+            setLoading(true);
+            refreshProjectsData();
+
+            let allCheckBoxes = $(".custom-control-input");
+            allCheckBoxes.prop('checked', false)
+        },
+        error: function(message) {
+            $("#error").html(message["responseJSON"]["message"]);
+            $("#error").show();
+            $("#success").hide();
+            setLoading(true);
+            refreshProjectsData();
+
+            let allCheckBoxes = $(".custom-control-input");
+            allCheckBoxes.prop('checked', false)
+        }
+    });
+}
+
 
 /**
  * This function checks if the page is being viewed in edit mode.
@@ -279,53 +366,61 @@ function inEditMode() {
     }
 }
 
+
+
 /**
- * Retrieves the internships with a checked checkbox
- * @returns {Array} of internship ID's
+ * Retrieves the projects with a checked checkbox
+ * @returns {Array} of project ID's
  */
-function getCheckedInternships() {
+function getCheckedProjects() {
     let i = 0;
     let currentCheckbox = $("#checkbox0");
-    let checkedInternships = [];
+    let checkedProjects = [];
 
     // Checks if current checkbox exists
     while (currentCheckbox.length) {
 
         if (currentCheckbox.is(":checked")) {
-            checkedInternships.push(getInternshipAtCard(i)['internship_id']);
+            checkedProjects.push(getProjectAtCard(i)['project_id']);
         }
 
         // Go to the next one
         i++;
-        currentCheckbox = $(`#checkbox${i}`);
+        currentCheckbox = $(`#checkbox${i}`)
     }
 
-    return checkedInternships;
+    return checkedProjects;
 }
+
+
 /**
- * This function resets the search value and refreshes internships data.
+ * This function resets the search value and refreshes projects data.
  */
 function resetSearch() {
     setSearch("");
     $("#search_text").val("");
     $("#reset-search").hide();
-    refreshInternshipsData();
+    refreshProjectsData();
 }
 
-function onChangeReviewedEventFilter(element) {
-    setParam('reviewed-filter', element.checked);
-    filterInternships();
+
+function onChangeAvailableProjectsFilter(element) {
+    setParam('available', element.checked);
+    filterProjects();
 }
+
 
 function onChangeLikedFilter(element) {
     setParam('liked', element.checked);
-    filterInternships();
+    filterProjects();
 }
 
-function onClickFilterCompany() {
-    setParam('company', $("#search_company").val());
-    filterInternships();
+
+function onClickFilterPromotor() {
+    setParam('employee', $("#search_promotor").val());
+    filterProjects();
 }
+
 
 /**
  * This function toggles the filter extension
@@ -430,143 +525,309 @@ function sort_on_date(reverse = false) {
 }
 
 /**
- * This function filters all internships.
+ * This function filters all projects.
  */
-function filterInternships() {
-    let filtered_internships = ALL_INTERNSHIPS;
+function filterProjects() {
+    let filtered_projects = ALL_PROJECTS;
 
-    filtered_internships = filter_liked_internships(filtered_internships);
-    filtered_internships = filter_companies(filtered_internships);
-    filtered_internships = filter_types(filtered_internships);
-    filtered_internships = filter_reviewed_internships(filtered_internships);
-    filtered_internships = filter_full(filtered_internships);
+    filtered_projects = filter_liked_projects(filtered_projects);
+    filtered_projects = filter_research_groups(filtered_projects);
+    filtered_projects = filter_type(filtered_projects);
+    filtered_projects = filter_full(filtered_projects);
+    filtered_projects = filter_employee(filtered_projects);
 
     const order_by = $("#orderBy").val();
     if (order_by === "AZ") {
-        filtered_internships.sort(sort_on("title"));
+        filtered_projects.sort(sort_on("title"));
     } else if (order_by === "ZA") {
-        filtered_internships.sort(sort_on("title", true));
+        filtered_projects.sort(sort_on("title", true));
     } else if (order_by === "newest") {
-        filtered_internships.sort(sort_on_date(true));
+        filtered_projects.sort(sort_on_numbers("last_updated", true));
     } else if (order_by === "oldest") {
-        filtered_internships.sort(sort_on_date());
+        filtered_projects.sort(sort_on_numbers("last_updated"));
     } else if (order_by === "popular") {
-        filtered_internships.sort(sort_on_numbers("view_count", true));
+        filtered_projects.sort(sort_on_numbers("view_count", true))
+    } else if (order_by === "recommended") {
+        filtered_projects.sort(sort_on_numbers("recommendation", true))
     }
 
-    swapInternships(filtered_internships);
+    swapProjects(filtered_projects);
 }
 
 /**
- * This function filters internships based on companies.
- * @param {array} event_filter_prev array with internships to be filtered
- * @return {array} filtered internships array
+ * This function filters projects based on employee searches.
+ * @param {array} projects_filter_prev array with projects to be filtered
+ * @return {array} filtered projects array
  */
-function filter_companies(event_filter_prev) {
-    const companies = $("#company-filter").selectpicker("val");
-    if (companies.length === 0) return event_filter_prev;
+function filter_employee(projects_filter_prev) {
+    const promotor_text = $("#search_promotor").val();
+    if (promotor_text.length === 0) return projects_filter_prev;
 
-    let filtered_events = [];
-    console.log(event_filter_prev);
-    for (const event of event_filter_prev) {
-        if (event['company_name'].includes(companies)) {
-            filtered_events.push(event);
+    var filtered_projects = [];
+    var project_added;
+    for (var i = 0; i < projects_filter_prev.length; i++) {
+        project_added = false;
+                        if (projects_filter_prev[i]["project_id"] == 244) {
+                    console.log(projects_filter_prev[i]);
+                }
+        if (projects_filter_prev[i]["employees"]["Promotor"]) {
+            for (var j = 0; j < projects_filter_prev[i]["employees"]["Promotor"].length; j++) {
+                if (projects_filter_prev[i]["employees"]["Promotor"][j] === promotor_text) {
+                    filtered_projects.push(projects_filter_prev[i]);
+                    project_added = true;
+                    break;
+                }
+            }
+        }
+        if (projects_filter_prev[i]["employees"]["Mentor"] && !project_added) {
+            for (var j = 0; j < projects_filter_prev[i]["employees"]["Mentor"].length; j++) {
+                if (projects_filter_prev[i]["employees"]["Mentor"][j] === promotor_text) {
+                    filtered_projects.push(projects_filter_prev[i]);
+                    project_added = true;
+                    break;
+                }
+            }
+        }
+        if (projects_filter_prev[i]["employees"]["Co-Promotor"] && !project_added) {
+            for (var j = 0; j < projects_filter_prev[i]["employees"]["Co-Promotor"].length; j++) {
+                if (projects_filter_prev[i]["employees"]["Co-Promotor"][j] === promotor_text) {
+                    filtered_projects.push(projects_filter_prev[i]);
+                    project_added = true;
+                    break;
+                }
+            }
         }
     }
-    return filtered_events;
-
-
-
-}
-function filter_reviewed_internships(event_filter_prev) {
-    const reviewed = $("#reviewed-filter").is(":checked");
-    if (!reviewed) return event_filter_prev;
-
-    let filtered_events = [];
-    for (const event of event_filter_prev) {
-        if (!event['is_reviewed']) {
-            filtered_events.push(event);
-        }
-    }
-
-    return filtered_events;
+    return filtered_projects
 }
 
 /**
- * This function filters internships based on types.
- * @param {array} current_events array with internships to be filtered
- * @return {array} filtered internships array
+ * This function filters projects based on a type filter.
+ * @param {array} current_projects array with projects to be filtered
+ * @return {array} filtered projects array
  */
-function filter_types(current_events) {
+function filter_type(current_projects) {
     const types = $("#type-filter").selectpicker("val");
     if (types.length === 0) {
-        return current_events;
+        return current_projects;
     }
 
-    let filtered_events = [];
+    let filtered_projects = [];
 
-    for (const event of current_events) {
+    for (const project of current_projects) {
         // Checks if one of the types picked is present in the project
         const intersect = types.some(function (type) {
-            return event['types'].includes(type);
+            return project['types'].includes(type);
         });
 
         if (intersect) {
-            filtered_events.push(event);
+            filtered_projects.push(project);
         }
     }
 
-    return filtered_events;
+    return filtered_projects;
 }
 
 /**
- * This function filters internships based on likes.
- * @param {array} internships_arr array with internships to be filtered
- * @return {array} filtered internships array
+ * This function filters projects based on a language filter.
+ * @param {array} projects_filter_prev array with projects to be filtered
+ * @return {array} filtered projects array
  */
-function filter_liked_internships(internships_arr) {
-    if (getCookie("sessionAction") !== "active" || !$("#liked-filter").is(":checked")) {
-        return internships_arr;
+function filter_language(projects_filter_prev) {
+    var show_dutch = document.getElementById("showDutch");
+    var show_english = document.getElementById("showEnglish");
+
+    var current_project;
+    var filtered_projects = [];
+    for (var i = 0; i < projects_filter_prev.length; i++) {
+        current_project = projects_filter_prev[i];
+        if (((show_dutch.checked && current_project["html_content_nl"] != null) ||
+            (show_english.checked && current_project["html_content_eng"] != null))) {
+            filtered_projects.push(current_project);
+
+        }
     }
 
-    return internships_arr.filter(internship => internship["liked"]);
+    return filtered_projects;
 }
 
 /**
- * This function filters internships based on the availability of the internship.
- * @param {array} current_internships array with internships to be filtered
- * @return {array} filtered internships array
+ * This function filters projects based on likes.
+ * @param {array} projects_arr array with projects to be filtered
+ * @return {array} filtered projects array
  */
-function filter_full(current_internships) {
-    if (!$("#full-filter").is(":checked")) {
-        return current_internships;
+function filter_liked_projects(projects_arr) {
+    if (getCookie("sessionAction") !== "active" || ! $("#liked-filter").is(":checked")) {
+        return projects_arr;
     }
 
-    return current_internships.filter(internship => !is_occupied(internship));
+    let filtered_projects = [];
+    for (let i = 0; i < projects_arr.length; i++) {
+        if (projects_arr[i]["liked"]) {
+            filtered_projects.push(projects_arr[i]);
+        }
+    }
+    return filtered_projects;
 }
 
-function is_occupied(internship) {
+/**
+ * This function filters projects based on the availability of the project.
+ * @param {array} current_projects array with projects to be filtered
+ * @return {array} filtered projects array
+ */
+function filter_full(current_projects) {
+    if (! $("#full-filter").is(":checked")) {
+        return current_projects;
+    }
+
+    let filtered_projects = [];
+    for (let project of current_projects) {
+        if (! is_occupied(project)) {
+            filtered_projects.push(project);
+        }
+    }
+    return filtered_projects;
+}
+
+function is_occupied(project) {
     let students = 0;
-    for (let registration of internship['registrations']) {
+    for (let registration of project['registrations']) {
         if (registration['status'] === "Accepted") {
             students += 1;
         }
     }
-    return internship['max_students'] <= students
+    return project['max_students'] <= students
 }
 
-// /**
-//  * This function initializes the company filter with values.
-//  */
-// function init_company_filter() {
-//     const list = document.getElementById('companies-list');
-//
-//     COMPANIES.forEach(function (item) {
-//         const option = document.createElement('option');
-//         option.value = item;
-//         list.appendChild(option);
-//     });
-// }
+
+/**
+ * This function filters projects based on year.
+ * @param {array} projects_filter_prev array with projects to be filtered
+ * @return {array} filtered projects array
+ */
+function filter_year(projects_filter_prev) {
+    var e3 = document.getElementById("filter_year");
+    var year_filter = e3.options[e3.selectedIndex].value;
+    var filtered_projects = [];
+    for (var i = 0; i < projects_filter_prev.length; i++) {
+        for (var j = 0; j < projects_filter_prev[i]["active_years"].length; j++) {
+            var current_year = projects_filter_prev[i]["active_years"][j];
+
+            if (current_year == year_filter) { //== needed instead of ===, ignore inspection
+                filtered_projects.push(projects_filter_prev[i]);
+                break;
+            }
+        }
+    }
+    return filtered_projects;
+
+}
+
+/**
+ * This function filters projects based on research groups.
+ * @param {array} current_projects array with projects to be filtered
+ * @return {array} filtered projects array
+ */
+function filter_research_groups(current_projects) {
+    const groups = $("#research-group-filter").selectpicker("val");
+    if (groups.length === 0) {
+        return current_projects;
+    }
+
+    let filtered_projects = [];
+
+    for (const project of current_projects) {
+        if (groups.includes(project['research_group'])) {
+            filtered_projects.push(project);
+        }
+    }
+    return filtered_projects;
+}
+
+/**
+ * This function creates a type filter.
+ */
+function createTypeFilter() {
+    var list_type = document.getElementById('typeFilter');
+    var option = document.createElement("option");
+    for (var i = 0; i < TYPES.length; i++) {
+        option = document.createElement("option");
+        option.text = TYPES[i];
+        option.value = TYPES[i];
+        list_type.appendChild(option);
+    }
+
+}
+
+/**
+ * This function loads projects according to a given search query (through ajax call).
+ */
+function search(callback) {
+    const query = $("#search_text").val();
+    $.ajax({
+        url: "search/" + query,
+        method: "GET",
+        success: function (result) {
+            ALL_PROJECTS = result;
+            filterProjects();
+            setSearch(query);
+            $("#reset-search").show();
+        },
+        error: function (result) {
+
+        }
+    });
+}
+
+/**
+ * This function executes a search on keyboard enter input.
+ * @param {event} e
+ * @return {boolean} default true
+ */
+function searchOnEnter(e) {
+    let keynum = e.keyCode || e.which;  //for compatibility with IE < 9
+    if (keynum === 13) { //13 is the enter char code
+        e.preventDefault();
+        search();
+    }
+    return true;
+}
+
+/**
+ * This function initializes the employee filter with values.
+ */
+function init_employee_filter() {
+    const list = document.getElementById('employees-list');
+
+    EMPLOYEES.forEach(function (item) {
+        const option = document.createElement('option');
+        option.value = item;
+        list.appendChild(option);
+    });
+}
+
+/**
+ * This function initializes the research group filter with values.
+ */
+function init_research_select() {
+    let elem = $("#research-group-filter");
+    elem.html(
+        GROUPS.map(function (group) {
+            return `<option value='${group}'>${group}</option>`
+        }).join(""));
+
+    let param = getURLParams().get('groups');
+    if (param) {
+        let groups = param.split(',');
+        elem.selectpicker('val', groups);
+    }
+
+    elem.on('changed.bs.select', function() {
+            setParam('groups', $(this).val());
+            filterProjects();
+        })
+        .selectpicker('refresh');
+}
 
 /**
  * This function initializes the type filter with values.
@@ -585,40 +846,215 @@ function init_type_select() {
     }
 
     elem.on('changed.bs.select', function () {
-        setParam('types', $(this).val());
-        filterInternships();
-    })
+            setParam('types', $(this).val());
+            filterProjects();
+        })
         .selectpicker('refresh');
 }
 
-function init_company_select() {
-    let elem = $("#company-filter");
-    elem.html(
-        COMPANIES.map(function (company) {
-            return `<option value='${company}'>${company}</option>`
-        }).join(""));
+/**
+ * This function returns the amount of projects with certain type.
+ * @param {array} projects_filter_prev array with projects to be filtered
+ * @param {string} type_filter type to be filtered by
+ * @return {number} count
+ */
+function count_type(projects_filter_prev, type_filter) {
+    var filtered_projects = [];
+    if (type_filter === 'all'){
+        return projects_filter_prev.length;
+    }
+    for (var i = 0; i < projects_filter_prev.length; i++) {
+        var current_project = projects_filter_prev[i];
+        for (var j = 0; j < current_project["types"].length; j++) {
+            if (type_filter === current_project["types"][j]) {
+                filtered_projects.push(current_project);
+            }
+        }
+    }
+    return filtered_projects.length
+}
 
-    let param = getURLParams().get('company');
-    if (param) {
-        let comps = param.split(',');
-        elem.selectpicker('val', comps);
+/**
+ * This function returns the amount of projects with dutch content.
+ * @param {array} projects_filter_prev array with projects to be filtered
+ * @return {number} count
+ */
+function count_dutch(projects_filter_prev) {
+    var filtered_projects = [];
+    for (var i = 0; i < projects_filter_prev.length; i++) {
+        if (projects_filter_prev[i]["html_content_nl"] != null) {
+            filtered_projects.push(projects_filter_prev[i])
+        }
+    }
+    return filtered_projects.length;
+}
+
+/**
+ * This function returns the amount of projects with english content.
+ * @param {array} projects_filter_prev array with projects to be filtered
+ * @return {number} count
+ */
+function count_english(projects_filter_prev) {
+    var filtered_projects = [];
+    for (var i = 0; i < projects_filter_prev.length; i++) {
+        if (projects_filter_prev[i]["html_content_eng"] != null) {
+            filtered_projects.push(projects_filter_prev[i])
+        }
+    }
+    return filtered_projects.length;
+}
+
+//////////////////////////////////////////
+// AUTOCOMPLETE EMPLOYEES (from w3 site) /
+//////////////////////////////////////////
+
+
+/**
+ * @param inp input element
+ * @param arr the possible values
+ */
+function autocomplete(inp, arr) {
+    let currentFocus;
+
+    inp.addEventListener("input", function (e) {
+        let val = this.value;
+
+        closeAllLists();
+        if (!val) {
+            return false;
+        }
+        currentFocus = -1;
+
+        // create a DIV element that will contain the items (values)
+        let possibleValues = document.createElement("DIV");
+        possibleValues.setAttribute("id", this.id + "autocomplete-list");
+        possibleValues.setAttribute("class", "autocomplete-items");
+        this.parentNode.appendChild(possibleValues);
+
+        let validEmployee = false;
+
+        for (let i = 0; i < arr.length; i++) {
+            // Check if the item starts with the same letters as the text field value
+            if (arr[i].substr(0, val.length).toUpperCase() === val.toUpperCase()) {
+
+                // Create a DIV element for each matching element
+                let value = document.createElement("DIV");
+                value.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>" + arr[i].substr(val.length);
+                value.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+
+                value.addEventListener("click", function (e) {
+                    inp.value = this.getElementsByTagName("input")[0].value;
+                    closeAllLists();
+                    inp.className = "form-control border border-success";
+                });
+
+                possibleValues.appendChild(value);
+            }
+            if (arr[i] === val) {
+                closeAllLists();
+                validEmployee = true;
+            }
+        }
+
+        if (validEmployee) {
+            inp.className = "form-control border border-success";
+        } else {
+            inp.className = "form-control border border-danger";
+        }
+
+    });
+
+    inp.addEventListener("keydown", function (e) {
+        let x = document.getElementById(this.id + "autocomplete-list");
+        if (x) x = x.getElementsByTagName("div");
+
+        // Down key
+        if (e.keyCode === 40) {
+            currentFocus++;
+            addActive(x);
+        }
+
+        // Up key
+        else if (e.keyCode === 38) {
+            currentFocus--;
+            addActive(x);
+        }
+
+        // Enter key
+        else if (e.keyCode === 13) {
+            e.preventDefault();
+            if (currentFocus > -1 && x) {
+                x[currentFocus].click();
+            }
+        }
+    });
+
+    function addActive(x) {
+        if (!x) return false;
+        removeActive(x);
+        if (currentFocus >= x.length) {
+            currentFocus = 0;
+        }
+        if (currentFocus < 0) {
+            currentFocus = (x.length - 1);
+        }
+        x[currentFocus].classList.add("autocomplete-active");
     }
 
-    elem.on('changed.bs.select', function () {
-        setParam('company', $(this).val());
-        filterInternships();
-    })
-    .selectpicker('refresh');
+    function removeActive(x) {
+        for (let i = 0; i < x.length; i++) {
+            x[i].classList.remove("autocomplete-active");
+        }
+    }
+
+    function closeAllLists(element) {
+        /*close all autocomplete lists in the document,
+        except the one passed as an argument:*/
+        let x = document.getElementsByClassName("autocomplete-items");
+        for (let i = 0; i < x.length; i++) {
+            if (element !== x[i] && element !== inp) {
+                x[i].parentNode.removeChild(x[i]);
+            }
+        }
+    }
+
+    document.addEventListener("click", function (e) {
+        closeAllLists(e.target);
+    });
 }
-let ALL_INTERNSHIPS = null;
-let INTERNSHIPS = null;
+
+function substringMatcher(strs) {
+  return function findMatches(q, cb) {
+    let matches, substrRegex;
+
+    // an array that will be populated with substring matches
+    matches = [];
+
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        matches.push(str);
+      }
+    });
+
+    cb(matches);
+  };
+}
+
+let ALL_PROJECTS = null;
+let PROJECTS = null;
 let TYPES = [];
 let EMPLOYEES = [];
-let COMPANIES = [];
-let CONTACT_PERSONS = [];
+let GROUPS = [];
+let PROMOTORS = [];
 
 // Enum used in the function addEditEntry
-const ENTRY_TYPE = {ADD_CONACT_PERSON: 1, REMOVE_CONTACT_PERSON: 2, TAG: 3, TYPE: 4};
+const ENTRY_TYPE = {ADD_EMPLOYEE: 1, REMOVE_EMPLOYEE: 2, TAG: 3, TYPE: 4};
+
 
 $(function () {
 
@@ -632,7 +1068,7 @@ $(function () {
     saveScrollingPosition();
 
     // Set the value of the selector to the value in the URL parameters
-    $("#amount-selector").val(getInternshipsPerPage() === 1000 ? "All" : getInternshipsPerPage());
+    $("#amount-selector").val(getProjectsPerPage() === 1000 ? "All" : getProjectsPerPage());
 
     restoreFilters();
 
@@ -640,34 +1076,39 @@ $(function () {
         $("#search_text").val($.urlParam("search"));
         search();
     } else {
-        refreshInternshipsData(restoreScrollingPosition);
+        refreshProjectsData(restoreScrollingPosition);
     }
 
     $("#success").hide();
     $("#error").hide();
 
     $.ajax({
-        url: "events-page-additional",
+        url: "projects-page-additional",
         success: function (result) {
-            // = result["employees"];
+            EMPLOYEES = result["employees"];
             TYPES = result["types"];
-            COMPANIES = result["companies"];
+            GROUPS = result["groups"];
+            PROMOTORS = result["promotors"];
             init_type_select();
-            init_company_select();
+            init_research_select();
+            init_employee_filter();
             setModalGroupSelector();
         }
     });
+
 });
 
+
 /**
- * Refreshes the internships and navigation when the back button is pressed
+ * Refreshes the projects and navigation when the back button is pressed
  */
 window.addEventListener('popstate', function (event) {
-    refreshInternships();
+    refreshProjects();
     refreshNavigation();
     setActiveNavElement(getPage());
-    $("#amount-selector").val(getInternshipsPerPage() === 1000 ? "All" : getInternshipsPerPage());
+    $("#amount-selector").val(getProjectsPerPage() === 1000 ? "All" : getProjectsPerPage());
 }, false);
+
 
 /**
  * This function initializes all buttons, checkboxes and selectors and gives them the correct starting values.
@@ -680,23 +1121,33 @@ function setupButtons() {
     let showDescriptionsButton = $("#showDescriptionsButton");
 
     editModalButton.click(function () {
-        let checkedInternships = getCheckedInternships();
+        let checkedProjects = getCheckedProjects();
 
-        $("#modal-title").text(checkedInternships.length + (checkedInternships.length === 1 ? " internship" : " internships") + " selected");
+        $("#modal-title").text(checkedProjects.length + (checkedProjects.length === 1 ? " project" : " projects") + " selected");
 
         let saveChangesButton = $("#saveChangesButton");
         saveChangesButton.off("click");
         saveChangesButton.click(function () {
-            saveChanges(checkedInternships);
+            sendEditingChanges(checkedProjects);
         });
     });
 
-    copyButton.click(function () {
-        let checkedInternships = getCheckedInternships();
+    copyButton.click(function() {
+        let checkedProjects = getCheckedProjects();
 
-        if (checkedInternships.length > 0) {
-            if (confirm("Are you sure you want to copy " + checkedInternships.length + " internships?")) {
-                sendCopy(checkedInternships);
+        if (checkedProjects.length > 0) {
+            if (confirm("Are you sure you want to copy " + checkedProjects.length + " projects?")) {
+                sendCopy(checkedProjects);
+            }
+        }
+    })
+
+    deleteButton.click(function() {
+        let checkedProjects = getCheckedProjects();
+
+        if (checkedProjects.length > 0) {
+            if (confirm("Are you sure you want to delete " + checkedProjects.length + " projects?")) {
+                sendDelete(checkedProjects);
             }
         }
     })
@@ -740,7 +1191,7 @@ function setupButtons() {
         copyButton.show();
         deleteButton.show();
         selectAllButton.show();
-        setInternshipsPerPage(1000);
+        setProjectsPerPage(1000);
     } else {
         selectAllButton.hide();
         editModalButton.hide();
@@ -748,121 +1199,10 @@ function setupButtons() {
         deleteButton.hide();
     }
 }
-function restoreFilters() {
-    let params = getURLParams();
-    if (params.get('available')) {
-        $("#full-filter").prop('checked', params.get('available') === 'true');
-    }
-    if (params.get('liked')) {
-        $("#liked-filter").prop('checked', params.get('liked') === 'true');
-    }
-    // if (params.get('employee')) {
-    //     $("#search_promotor").val(params.get('employee'));
-    // }
-}
-/**
- * @returns {number} the page, default value 0
- */
-function getPage() {
-    let urlParam = $.urlParam('page');
-    if (urlParam) {
-        return parseInt(urlParam[0]);
-    } else {
-        return 0;
-    }
-}
-
-/**
- * This function pushes a new page to the browser, based on a new page index.
- * @param {number} number index for the next page
- */
-function setPage(number) {
-    let internshipsPerPage = getInternshipsPerPage();
-    if (internshipsPerPage === 1000) {
-        internshipsPerPage = "All";
-    }
-    setParam('page', number);
-    setParam('amount', internshipsPerPage);
-    setParam('edit', inEditMode());
-    setParam('search', getSearch());
-    // window.history.pushState('Projects', "Projects - ESP", GLOBAL.root + `/projects?page=${number}&amount=${projectsPerPage}&edit=${inEditMode()}&search=${getSearch()}`);
-}
-/**
- * This function retrieves the search query from the url.
- * @return {string} query
- */
-function getSearch() {
-    const query = $.urlParam("search");
-    if (query) {
-        return query;
-    } else {
-        return "";
-    }
-}
-
-/**
- * This function pushes a new page to the browser, based on a search query
- * @param {string} query
- */
-function setSearch(query) {
-    setParam('search', query);
-
-}
-
-/**
- * @returns {number} projects per page, default value 50
- */
-function getInternshipsPerPage() {
-    let urlParam = parseURLParams(window.location.href)['amount'];
-    if (!urlParam) {
-        return 50;
-    }
-
-    let amount = urlParam[0];
-    if (amount === "All") {
-        return 1000;
-    } else {
-        return parseInt(amount);
-    }
-}
-
-/**
- * This function pushes a new page to the browser, based on a new amount of projects per page
- * @param {number} number the new project count per page
- */
-function setInternshipsPerPage(number) {
-    if (number === 1000) {
-        number = "All";
-    }
-    setParam('amount', number);
-}
-
-/**
- * This function retrieves the amount of pages.
- * @return {number} page count
- */
-function getPages() {
-    return Math.ceil(INTERNSHIPS.length / getInternshipsPerPage());
-}
 
 
-/**
- * Save scrolling position
- */
-function saveScrollingPosition() {
-    var pathName = document.location.pathname;
-    window.onbeforeunload = function () {
-        var scrollPosition = $(document).scrollTop();
-        sessionStorage.setItem("scrollPosition_" + pathName, scrollPosition.toString());
-    };
-}
 
-function restoreScrollingPosition() {
-    var pathName = document.location.pathname;
-    if (sessionStorage["scrollPosition_" + pathName]) {
-        $(document).scrollTop(sessionStorage.getItem("scrollPosition_" + pathName));
-    }
-}
+
 /**
  * Hides or shows the loading spinner on the page
  * @param bool
@@ -877,67 +1217,71 @@ function setLoading(bool) {
 }
 
 /**
- * This function retrieves the correct internship based on the current page, amount of internships per page, and an index.
+ * This function retrieves the correct project based on the current page, amount of projects per page and an index.
  * @param {number} number index on the current page
- * @return {internship} correct internship
+ * @return {project} correct project
  */
-function getInternshipAtCard(number) {
-    return INTERNSHIPS[getPage() * getInternshipsPerPage() + number];
+function getProjectAtCard(number) {
+    return PROJECTS[getPage() * getProjectsPerPage() + number]
 }
 
+
 /**
- * This function refreshes all internship data and applies filters.
+ * This function refreshes all project data and applies filters.
  */
-function refreshInternshipsData(callback = null) {
-    // Get all the internships, show them when arrived
+function refreshProjectsData(callback=null) {
+    // Get all the projects, show them when arrived
     $.ajax({
-        url: "get-all-events-data",
+        url: "get-all-projects-data",
         success: function (result) {
-            ALL_INTERNSHIPS = result;
-            filterInternships();
+            ALL_PROJECTS = result;
+            filterProjects();
             if (callback) {
-                callback();
+                callback()
             }
         }
     });
 }
 
 /**
- * Displays the given list of internships in the accordion
- * @param list array of internships
+ * Displays the given list of projects in the accordion
+ * @param list array of projects
  */
-function swapInternships(list) {
-    INTERNSHIPS = list;
+function swapProjects(list) {
+    PROJECTS = list;
     setLoading(false);
     if (getPage() >= getPages()) {
         setPage(0);
     }
-    refreshInternships();
+    refreshProjects();
     refreshNavigation();
     setActiveNavElement(getPage());
 }
 
+
+
 /**
- * Fills the accordion with the global internships variable
+ * Fills the accordion with the global projects variable
  */
-function refreshInternships() {
+function refreshProjects() {
     let page = getPage();
-    let number = getInternshipsPerPage();
+    let number = getProjectsPerPage();
 
     let start = page * number;
-    let internshipsToShow = null;
+    let projectsToShow = null;
 
-    if (INTERNSHIPS.length > start + number) {
-        internshipsToShow = INTERNSHIPS.slice(start, start + number);
+    if (PROJECTS.length > start + number) {
+        projectsToShow = PROJECTS.slice(start, start + number);
     } else {
-        internshipsToShow = INTERNSHIPS.slice(start);
+        projectsToShow = PROJECTS.slice(start);
     }
 
-    provideCards(internshipsToShow.length);
-    for (let i = 0; i < internshipsToShow.length; i++) {
-        fillCard(i, internshipsToShow[i]);
+    provideCards(projectsToShow.length);
+    for (let i = 0; i < projectsToShow.length; i++) {
+        fillCard(i, projectsToShow[i]);
     }
 }
+
 /**
  * Constructs two new nav bars and sets them at the top and bottom of the accordion
  */
@@ -1022,132 +1366,6 @@ function setActiveNavElement(number) {
 }
 
 /**
- * Fills a card with an internship
- * @param {number} number the unique ID of the card
- * @param internship the internship that will be shown
- */
-function fillCard(number, internship) {
-    // Set title and link
-    let title = internship["title"];
-    $("#card-title" + number).html(title).attr("href", 'event-page?event_id=' + internship["internship_id"]);
-
-    // Set the content preview
-    let content = internship["description"] || "No description available.";
-    $("#card-text" + number).html(content);
-    $("#link" + number).click(function () {
-        window.location.href = '/event-page?event_id=' + internship["internship_id"];
-    });
-
-    $(`#card-collapse${number}`).collapse('hide');
-
-    // Add badges
-    let badges = $("#card-badges" + number);
-    badges.children().remove();
-
-    if (is_occupied(internship)) {
-            badges.append($(`
-                <span class="badge badge-danger" style="margin-right: 10px">
-                    ${language === 'en' ? 'Occupied' : 'Volzet'}
-                </span>
-            `))
-        }
-    if (internship["is_active"] !== undefined && !internship["is_active"]) {
-        let inactive_badge = document.createElement("span");
-        inactive_badge.setAttribute("class", "badge badge-info");
-        inactive_badge.innerHTML = "Inactive";
-        inactive_badge.style = "margin-right: 10px";
-        badges.append(inactive_badge);
-    }
-
-    if (internship["company_name"]) {
-        let company_badge = document.createElement("span");
-        company_badge.setAttribute("class", "badge badge-success");
-        company_badge.innerHTML = internship["company_name"];
-        company_badge.style = "m<<argin-right: 10px";
-        badges.append(company_badge);
-    }
-
-    if (internship['tags'] !== undefined) {
-        for (let i = 0; i < internship['tags'].length; i++) {
-            let tag_badge = document.createElement("span");
-            tag_badge.setAttribute("class", "badge tag-bg-color");
-            tag_badge.innerHTML = internship['tags'][i];
-            tag_badge.style = "margin-right: 10px";
-            badges.append(tag_badge);
-        }
-    }
-
-    let date_badge = document.createElement("span");
-    // console.log(internship);
-    date_badge.innerHTML = "Created on: " + internship["creation_date"];
-    date_badge.style = "color : #B5B7BA; white-space: nowrap;";
-    badges.append(date_badge);
-}
-
-/**
- * Ensures that there is the right amount of cards in the accordion.
- * Done by either adding or removing cards.
- * @param number amount of cards wanted
- */
-function provideCards(number) {
-    if (number < 0) {
-        return;
-    }
-
-    let accordion = $("#accordion");
-    let length = function () {
-        return accordion.children().length;
-    };
-
-    while (length() !== number) {
-        if (length() > number) {
-            accordion.children().last().remove();
-        } else {
-            accordion.append(createCard(length()));
-        }
-    }
-}
-
-/**
- * Creates a JQuery DOM element of a card, meant to be placed in the accordion
- * @param {number} number the unique ID of the card
- * @returns {*|jQuery|HTMLElement} DOM Card element
- */
-function createCard(number) {
-    let cardClasses;
-    let titleClass;
-
-    if (theme === "dark") {
-        titleClass = "text-white";
-        cardClasses = "text-white bg-dark border-secondary";
-    } else {
-        titleClass = "";
-        cardClasses = "";
-    }
-
-    // Element is the actual html code
-    let element = `
-    <div class="card ${cardClasses}">
-      <div class="card-body">
-        <div class="row">
-            <div class="col">
-                <h5 class="card-title">
-                    <a id="card-title${number}"></a> 
-                    <button type="button" class="btn btn-sm ${titleClass}" style="font-size: 10px" onclick="$('#card-collapse${number}').collapse('toggle');">. . .</button>
-                </h5>
-                <h6 class="card-subtitle mb-2" id="card-badges${number}"></h6>
-                <div class="collapse card-text" id="card-collapse${number}">
-                        <p id="card-text${number}"></p>
-                </div>
-            </div>
-        </div>
-      </div>
-    </div>`;
-
-    return $(element);
-}
-
-/**
  * Creates a JS DOM element for the navigation/pagination bar
  * @param bottom boolean indicating if it's the bottom nav, changes the id accordingly
  * @returns {HTMLElement} bootstrap pagination element
@@ -1184,7 +1402,7 @@ function createNav(bottom) {
         if (currentPage !== 0) {
             setPage(currentPage - 1);
             setActiveNavElement(currentPage - 1);
-            refreshInternships();
+            refreshProjects();
         }
         return false;
     };
@@ -1224,11 +1442,355 @@ function createNav(bottom) {
         if (currentPage !== getPages() - 1) {
             setPage(currentPage + 1);
             setActiveNavElement(currentPage + 1);
-            refreshInternships();
+            refreshProjects();
         }
         return false;
     };
     list.appendChild(next);
 
     return nav;
+}
+
+/**
+ * Ensures that there is the right amount of cards in the accordion.
+ * Done by either adding or removing cards.
+ * @param number amount of card wanted
+ */
+function provideCards(number) {
+    if (number < 0) {
+        return;
+    }
+
+    let accordion = $("#accordion");
+    let length = function () {
+        return accordion.children().length;
+    };
+
+    while (length() !== number) {
+        if (length() > number) {
+            accordion.children().last().remove();
+        } else {
+            accordion.append(createCard(length()))
+        }
+    }
+}
+
+/**
+ * Called when clicking the selector.
+ * Changes the page url and refreshes the projects
+ * @param selector
+ */
+function selectorOnClick(selector) {
+    setPage(0);
+    setProjectsPerPage(selector.value);
+    refreshProjects();
+    refreshNavigation();
+    setActiveNavElement(0);
+}
+
+/**
+ * Called when clicking a star.
+ * Sets the right kind of star and sends the value to the server
+ * @param element the JS DOM element
+ */
+function starOnClick(element) {
+    // Get the unique id from the end of the star id
+    let number = parseInt(element.id.match(/(\d+)$/)[0], 10);
+    let project = getProjectAtCard(number);
+
+    if (project["liked"]) {
+        element.children[0].innerHTML = "&#9734";
+        project["liked"] = false;
+        $.returnValues("unlike-project", project["project_id"]);
+    } else {
+        element.children[0].innerHTML = "&#9733";
+        project["liked"] = true;
+        $.returnValues("like-project", project["project_id"]);
+    }
+}
+
+/**
+ * This function sets the correct star icon to the element.
+ * @param element
+ * @param {boolean} liked
+ */
+function starLoad(element, liked) {
+    if (liked) {
+        element.children[0].innerHTML = "&#9733";
+    } else {
+        element.children[0].innerHTML = "&#9734";
+    }
+}
+
+/**
+ * Fills a card with a project
+ * @param {number} number the unique ID of the card
+ * @param project the project that will be shown
+ */
+function fillCard(number, project) {
+    // Set title and link
+    let title = project["title"];
+    $("#card-title" + number).html(title).attr("href", 'project-page?project_id=' + project["project_id"]);
+
+    // Set the content preview according to the current language
+    let content;
+    if ((language === "en" && project["html_content_eng"]) ||
+        (language === "nl" && !project["html_content_nl"])) {
+        content = project["html_content_eng"];
+    } else {
+        content = project["html_content_nl"];
+    }
+    $("#card-text" + number).html(content);
+    $("#link" + number).click(function () {
+        window.location.href = '/project-page?project_id=' + project["project_id"];
+    });
+
+    $(`#card-collapse${number}`).collapse('hide');
+
+    // Add badges
+    let badges = $("#card-badges" + number);
+    badges.children().remove();
+
+    if (is_occupied(project)) {
+        badges.append($(`
+            <span class="badge badge-danger" style="margin-right: 10px">
+                ${language === 'en' ? 'Occupied' : 'Volzet'}
+            </span>
+        `))
+    }
+
+    if (project["is_active"] !== undefined && !project["is_active"]) {
+        let inactive_badge = document.createElement("span");
+        inactive_badge.setAttribute("class", "badge badge-info");
+        inactive_badge.innerHTML = "Inactive";
+        inactive_badge.style = "margin-right: 10px";
+        badges.append(inactive_badge);
+    }
+
+    if (project["employees"]["Promotor"]) {
+        let name_badge = document.createElement("span");
+        name_badge.setAttribute("class", "badge badge-success employee-bg-color");
+        name_badge.innerHTML = project["employees"]["Promotor"][0];
+        name_badge.style = "margin-right: 10px";
+        badges.append(name_badge);
+    }
+
+    for (let i = 0; i < project['types'].length; i++) {
+        let type_badge = document.createElement("span");
+        type_badge.setAttribute("class", "badge badge-primary type-bg-color");
+        type_badge.innerHTML = project['types'][i];
+        type_badge.style = "margin-right: 10px";
+        badges.append(type_badge);
+    }
+
+    let length = 3;
+    if (project['tags'].length < length) {
+        length = project['tags'].length
+    }
+    for (let i = 0; i < length; i++) {
+        let tag_badge = document.createElement("span");
+        tag_badge.setAttribute("class", "badge tag-bg-color");
+        tag_badge.innerHTML = project['tags'][i];
+        tag_badge.style = "margin-right: 10px";
+        badges.append(tag_badge);
+    }
+
+    let date_badge = document.createElement("span");
+    //date_badge.setAttribute("class", "badge badge-secondary");
+    date_badge.innerHTML = "Last updated " + timestampToString(project['last_updated']);
+    date_badge.style = "color : #B5B7BA; white-space: nowrap;";
+    badges.append(date_badge);
+
+    let like_button = document.getElementById("fav-button-" + number);
+    if (role === "student") {
+        starLoad(like_button, project["liked"])
+    }
+}
+
+/**
+ * Creates a JQuery DOM element of a card, meant to be placed in the accordion
+ * @param {number} number the unique ID of the card
+ * @returns {*|jQuery|HTMLElement} DOM Card element
+ */
+function createCard(number) {
+    let checkbox = "";
+    let favoriteBtn = "";
+    let buttonClass;
+    let cardClasses;
+    let titleClass;
+
+    if (inEditMode()) {
+        checkbox = `
+            <div class="custom-control form-control-lg custom-checkbox" style="display: inline-block; margin-left: 10px">
+                <input type="checkbox" class="custom-control-input" id="checkbox${number}">
+                <label class="custom-control-label" for="checkbox${number}"></label>
+            </div>`;
+    }
+
+    if (theme === "dark") {
+        buttonClass = "bg-secondary";
+        titleClass = "text-white";
+        cardClasses = "text-white bg-dark border-secondary";
+    } else {
+        buttonClass = "bg-light";
+        titleClass = "";
+        cardClasses = "";
+    }
+
+    if (role === "student") {
+        favoriteBtn = `<button class="btn ${buttonClass} btn-sm" type="button" id="fav-button-${number}" onclick="starOnClick(this)">
+                    <span style="font-size: 20px">&#9734</span>
+                </button>`;
+    }
+
+    // Element is the actual html code, checkbox is added in there
+    let element = `
+    <div class="card ${cardClasses}">
+      <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <h5 class="card-title">
+                    <a id="card-title${number}"></a> 
+                    <button type="button" class="btn ${buttonClass} btn-sm ${titleClass}" style="font-size: 10px" onclick="$('#card-collapse${number}').collapse('toggle');">. . .</button>
+                </h5>
+                
+                <h6 class="card-subtitle mb-2" id="card-badges${number}"></h6>
+                
+                <div class="collapse card-text" id="card-collapse${number}">
+                        <p id="card-text${number}"></p>
+                </div>
+                
+            </div>
+            <div class="col-xs-auto text-center" style="padding-right: 10px">
+ 
+                ${favoriteBtn}
+                ${checkbox}
+                
+            </div>
+        </div>
+      </div>
+    </div>`;
+
+    return $(element);
+}
+
+
+
+function restoreFilters() {
+    let params = getURLParams();
+    if (params.get('available')) {
+        $("#full-filter").prop('checked', params.get('available') === 'true');
+    }
+    if (params.get('liked')) {
+        $("#liked-filter").prop('checked', params.get('liked') === 'true');
+    }
+    if (params.get('employee')) {
+        $("#search_promotor").val(params.get('employee'));
+    }
+}
+
+/**
+ * @returns {number} the page, default value 0
+ */
+function getPage() {
+    let urlParam = $.urlParam('page');
+    if (urlParam) {
+        return parseInt(urlParam[0]);
+    } else {
+        return 0;
+    }
+}
+
+/**
+ * This function pushes a new page to the browser, based on a new page index.
+ * @param {number} number index for the next page
+ */
+function setPage(number) {
+    let projectsPerPage = getProjectsPerPage();
+    if (projectsPerPage === 1000) {
+        projectsPerPage = "All";
+    }
+    setParam('page', number);
+    setParam('amount', projectsPerPage);
+    setParam('edit', inEditMode());
+    setParam('search', getSearch());
+    // window.history.pushState('Projects', "Projects - ESP", GLOBAL.root + `/projects?page=${number}&amount=${projectsPerPage}&edit=${inEditMode()}&search=${getSearch()}`);
+}
+
+/**
+ * This function retrieves the search query from the url.
+ * @return {string} query
+ */
+function getSearch() {
+    const query = $.urlParam("search");
+    if (query) {
+        return query;
+    } else {
+        return "";
+    }
+}
+
+/**
+ * This function pushes a new page to the browser, based on a search query
+ * @param {string} query
+ */
+function setSearch(query) {
+    setParam('search', query);
+    // window.history.pushState('Projects', "Projects - ESP", GLOBAL.root + `/projects?page=${getPage()}&amount=${getProjectsPerPage()}&edit=${inEditMode()}&search=${query}`);
+}
+
+/**
+ * @returns {number} projects per page, default value 50
+ */
+function getProjectsPerPage() {
+    let urlParam = parseURLParams(window.location.href)['amount'];
+    if (!urlParam) {
+        return 50;
+    }
+
+    let amount = urlParam[0];
+    if (amount === "All") {
+        return 1000;
+    } else {
+        return parseInt(amount);
+    }
+}
+
+/**
+ * This function pushes a new page to the browser, based on a new amount of projects per page
+ * @param {number} number the new project count per page
+ */
+function setProjectsPerPage(number) {
+    if (number === 1000) {
+        number = "All";
+    }
+    setParam('amount', number);
+    // window.history.pushState('Projects', "Projects - ESP", GLOBAL.root + `/projects?page=${getPage()}&amount=${number}&edit=${inEditMode()}&search=${getSearch()}`);
+}
+
+/**
+ * This function retrieves the amount of pages.
+ * @return {number} page count
+ */
+function getPages() {
+    return Math.ceil(PROJECTS.length / getProjectsPerPage());
+}
+
+
+/**
+ * Save scrolling position
+ */
+function saveScrollingPosition() {
+    var pathName = document.location.pathname;
+    window.onbeforeunload = function () {
+        var scrollPosition = $(document).scrollTop();
+        sessionStorage.setItem("scrollPosition_" + pathName, scrollPosition.toString());
+    };
+}
+
+function restoreScrollingPosition() {
+    var pathName = document.location.pathname;
+    if (sessionStorage["scrollPosition_" + pathName]) {
+        $(document).scrollTop(sessionStorage.getItem("scrollPosition_" + pathName));
+    }
 }

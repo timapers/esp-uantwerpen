@@ -17,3 +17,6 @@ DROP TABLE IF EXISTS contact_person_company;
 
 -- Drop company table
 DROP TABLE IF EXISTS company;
+
+-- Drop internship_registration table
+DROP TABLE IF EXISTS internship_registration;

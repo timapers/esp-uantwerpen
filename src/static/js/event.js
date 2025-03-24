@@ -503,7 +503,7 @@ function save_event(description_warning = true, type_warning = true, active_warn
 
     let active_types = type_still_active(event['types']);
     if (active_types.length > 0 && type_warning) {
-        console.log("in ")
+        // console.log("in ")
         let err_text;
         if (active_types.length === 1) {
             err_text = 'Type: \"' + active_types.join() + '\" is still used by a registration. The registration type for those registrations need to be changed by you. Are you sure you want to continue?'
@@ -636,7 +636,7 @@ function construct_event() {
         badges.appendChild(group);
         group.setAttribute("class", "badge research-group-bg-color");
         group.setAttribute("id", "rg-badge");
-        console.log(event);
+        // console.log(event);
         group.innerHTML = event['company_name'];
         make_comp_popover(group);
     }
@@ -784,7 +784,7 @@ function make_comp_popover(popover) {
     popover.href = "#rg-popover";
     popover.setAttribute("data-toggle", "popover");
     //Title
-    console.log(company);
+    // console.log(company);
     popover.setAttribute("data-original-title", company);
     let info_present = false;
     let html_content = "<div class='row'>";

@@ -45,13 +45,6 @@
             </div>
         </div>
 
-        <div class="text-center mt-3">
-            {% if current_user.is_authenticated and current_user.role == "admin" %}
-                ADMIN IS ONLINE
-                {% endif %}
-
-        </div>
-
         <div class="text-center mt-3" id="filter" style="display: none;">
             <select name="company" id="company-filter" class="selectpicker w-auto" multiple
                     title="Choose Companies"></select>

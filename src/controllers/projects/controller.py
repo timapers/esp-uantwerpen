@@ -185,7 +185,7 @@ def get_projects_page_additional_data():
     connection = get_db()
     active_only = not session.get("archive")
 
-    all_types = TypeDataAccess(connection).get_types(active_only)
+    all_types = TypeDataAccess(connection).get_project_types(active_only)
     employees = EmployeeDataAccess(connection).get_employees(active_only)
     promotors = EmployeeDataAccess(connection).get_promotors(active_only)
     groups = ResearchGroupDataAccess(connection).get_group_names(active_only)
