@@ -213,7 +213,7 @@ function fillCard(number, internship) {
     }
 
     let date_badge = document.createElement("span");
-    console.log(internship);
+    // console.log(internship);
     date_badge.innerHTML = "Created on: " + internship["creation_date"];
     date_badge.style = "color : #B5B7BA; white-space: nowrap;";
     badges.append(date_badge);

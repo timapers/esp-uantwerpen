@@ -304,7 +304,7 @@ class InternshipDataAccess:
         cursor.execute('SELECT view_count FROM internship WHERE internship_id = %s', (internship_id,))
         view_count = cursor.fetchone()[0] + amount
         try:
-            cursor.execute('UPDATE internship SET view_count = view_count + %s WHERE internship_id = %s',
+            cursor.execute('UPDATE internship SET view_count = %s WHERE internship_id = %s',
                            (view_count, internship_id))
             self.dbconnect.commit()
         except:
@@ -403,7 +403,7 @@ class InternshipDataAccess:
 
         try:
             cursor.execute('INSERT INTO internship(title, description_id, max_students, company_id, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s)',
-                           ('Internship at ' + company.name, doc_id, int(data['max_students']), comp_id, data['address'], cp_id, True))
+                           ('Internship at ' + company.name, doc_id, 1, comp_id, data['address'], cp_id, True))
             cursor.execute('SELECT LASTVAL()')
             iden = cursor.fetchone()
             i_id = iden[0]

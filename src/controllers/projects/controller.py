@@ -2,7 +2,7 @@
 This package processes all routing requests.
 """
 
-from flask_login import current_user
+from flask_login import current_user, login_required
 from flask import render_template, Blueprint, request, jsonify, session, current_app, \
     send_from_directory, send_file
 from src.controllers.projects.manage_projects import manage
@@ -17,12 +17,14 @@ from src.controllers.projects.recommendations import get_projects_with_recommend
 from werkzeug.utils import secure_filename
 from src.utils.mail import send_mail
 from src.config import config_data
+from decorator import login_required
 import xlsxwriter
 
 bp = Blueprint('projects', __name__)
 
 
 @bp.route('/projects', methods=["GET", "POST"])
+@login_required
 def projects(my_projects=False):
     """
     Handles the GET & POST request to '/projects'.
@@ -320,6 +322,7 @@ def employee_authorized_for_project(employee_name, project_id):
 
 
 @bp.route('/project-page')
+@login_required
 def project_page():
     """
     Increases link strength upon a click.
@@ -378,6 +381,7 @@ def unlike_project():
 
 
 @bp.route('/get-all-project-data/<int:p_id>', methods=['GET'])
+@login_required
 def get_all_project_data(p_id):
     """
     Handles the GET request to '/get-all-project-data/<int:p_id>'.

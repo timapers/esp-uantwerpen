@@ -40,8 +40,8 @@ $(function () {
     // init_description_toggle();
     init_tag_generator();
 
-    $("#external-employee-btn").click(addModal);
-    $("#modify-btn").click(edit_event);
+    // $("#external-employee-btn").click(addModal);
+    // $("#modify-btn").click(edit_event);
 
     $("#edit-tags").tagsinput({
         tagClass: "badge tag-bg-color"
@@ -349,12 +349,10 @@ function fetch_event() {
             // construct_contact_person();
 
             if (role === "student") {
-                update_user_behaviour();
+                // update_user_behaviour();
                 // update_like_status("Like", "Unlike")
-            } else {
                 add_view();
             }
-
             enablePopovers();
         }
     })
@@ -593,7 +591,7 @@ function construct_event() {
         if (event['registrations'][i]['status'].toLowerCase() === "accepted") {
             registered_students += 1;
         }
-        if (role === "student" && event['registrations'][i]['student_nr'] === userid) {
+        if (role === "student" && event['registrations'][i]['student'] === userid) {
             document.getElementById("registration-btn").disabled = true;
             document.getElementById("registration-btn").innerHTML = event['registrations'][i]['status'];
         }
@@ -699,6 +697,11 @@ function construct_event() {
     if (attachment_present) {
         $("#attachments").show();
     }
+    // Address
+    const address = event['address'];
+    const address_div = document.getElementById("address-body");
+    address_div.innerHTML = address;
+
 
     let edit_permissions = role === "admin";
 
@@ -772,20 +775,6 @@ function fill_cp_popover(popover, cp) {
     });
 }
 
-/**
- * This function provides employee popovers with data
- * @param popover Popover element
- * @param cp Contact Person data
- */
-function init_cp_popover(popover, cp) {
-    $.ajax({
-        url: "get-employee-tags/" + employee["e_id"],
-        type: "GET",
-        success: function (data) {
-            fill_employee_popover(popover, employee, data);
-        }
-    });
-}
 
 /**
  * Makes a popover for the research group.
@@ -800,36 +789,8 @@ function make_comp_popover(popover) {
     let info_present = false;
     let html_content = "<div class='row'>";
     let column_width = 'col-sm-6';
-    // if (research_group['logo_location'] != null) {
-    //     html_content += "<div class='col-sm-2' id='rg_image'>";
-    //     html_content += "<img src='" + research_group['logo_location'] + "' alt='../static/images/default_avatar.svg'  width='100px' height='100px'>";
-    //     html_content += "</div>";
-    //     column_width = 'col-sm-4';
-    // }
-    //Description
-    // html_content += "<div class=" + column_width + " id='rg_descr'>";
-    // if (research_group['description_eng'] || research_group['description_nl']) {
-    //     if (language === 'en') {
-    //         html_content += "<p><b>Description: </b><br>" + research_group['description_eng'] + "</p>";
-    //     } else if (language === 'nl') {
-    //         html_content += "<p><b>Description: </b><br>" + research_group['description_nl'] + "</p>";
-    //     }
-    //     info_present = true;
-    // }
     //Info
     html_content += "</div><div class=" + column_width + " id='rg_info'>";
-    // if (research_group['address']) {
-    //     info_present = true;
-    //     html_content += "<p><b>Address: </b>" + research_group['address'] + "</p>";
-    // }
-    // if (research_group['telephone_number']) {
-    //     info_present = true;
-    //     html_content += "<p><b>Telephone number: </b>" + research_group['telephone_number'] + "</p>";
-    // }
-    // if (research_group['contact_person']) {
-    //     info_present = true;
-    //     html_content += "<p><b>Contact Person: </b>" + research_group['contact_person'] + "</p>";
-    // }
     html_content += "</div></div>";
     if (!info_present) {
         if (language === 'nl') {
@@ -939,211 +900,177 @@ function update_registration(registration, new_status, new_type) {
     });
 }
 
-/**
- * Constructs the recommended events.
- */
-function create_recommendations() {
-    for (const link of links.slice(0, 4)) {
-
-        const list = $(`<ul class="list-unstyled"></ul>`);
-
-        for (const guide of link['employees']) {
-            if (guide["guidance_type"] !== "Promotor") {
-                continue;
-            }
-            list.append($(`<li><span class="badge employee-bg-color">${guide["employee"]["name"]}</span></li>`))
-        }
-
-        for (const type of link["types"]) {
-            list.append($(`<li><span class="badge type-bg-color">${type}</span></li>`));
-        }
-
-        for (const tag of link["tags"].slice(0, 3)) {
-            list.append($(`<li><span class="badge tag-bg-color">${tag}</span></li>`));
-        }
-
-
-        const card = `
-            <div class="card">
-                <div class="card-header">
-                    <a class="h4" href="event-page?event_id=${link['event_id']}&from=${event["event_id"]}">${link["title"]}</a>
-                </div>
-                <div class="card-body">
-                    ${list.prop("outerHTML")}
-                </div>
-            </div>                
-        `;
-
-        $("#recommendations").append($(card));
-    }
-}
+// /**
+//  * Constructs the recommended events.
+//  */
+// function create_recommendations() {
+//     for (const link of links.slice(0, 4)) {
+//
+//         const list = $(`<ul class="list-unstyled"></ul>`);
+//
+//         for (const guide of link['employees']) {
+//             if (guide["guidance_type"] !== "Promotor") {
+//                 continue;
+//             }
+//             list.append($(`<li><span class="badge employee-bg-color">${guide["employee"]["name"]}</span></li>`))
+//         }
+//
+//         for (const type of link["types"]) {
+//             list.append($(`<li><span class="badge type-bg-color">${type}</span></li>`));
+//         }
+//
+//         for (const tag of link["tags"].slice(0, 3)) {
+//             list.append($(`<li><span class="badge tag-bg-color">${tag}</span></li>`));
+//         }
+//
+//
+//         const card = `
+//             <div class="card">
+//                 <div class="card-header">
+//                     <a class="h4" href="event-page?event_id=${link['event_id']}&from=${event["event_id"]}">${link["title"]}</a>
+//                 </div>
+//                 <div class="card-body">
+//                     ${list.prop("outerHTML")}
+//                 </div>
+//             </div>
+//         `;
+//
+//         $("#recommendations").append($(card));
+//     }
+// }
 
 /**
  * Increments the view counter.
  */
 function add_view() {
-    $.returnValues("/add-view/" + event["internship_id"]);
-}
-
-/**
- * Updates the clicks and view for a event and user.
- */
-function update_user_behaviour() {
-    $.returnValues("/register-user-data/" + event["internship_id"]);
+    $.returnValues("/add-view-internship/" + event["internship_id"]);
 }
 
 // /**
-//  * Gets the like status and changes the button accordingly.
-//  * @param like_text Text used for inside button.
-//  * @param unlike_text Text used for inside button.
+//  * This function opens a default edit modal.
 //  */
-// function update_like_status(like_text, unlike_text) {
-//     let btn = document.getElementById("like-btn");
-//     if (event['liked']) {
-//         btn.innerHTML = unlike_text;
-//     } else {
-//         btn.innerHTML = like_text;
-//     }
+// function addModal() {
+//     $("#modal-info").text("");
+//
+//     $("#modal-title").text("Add new employee");
+//
+//     $("#modal-body").html(getEditHTML());
+//
+//     let saveChanges = $("#saveChangesButton");
+//     saveChanges.off("click");
+//     saveChanges.click(function () {
+//         let json = getEditData();
+//         json["type"] = "add";
+//         $("#modal-info").text("Saving...");
+//         $.ajax({
+//             url: "modify-lists",
+//             method: "POST",
+//             data: JSON.stringify(json),
+//             contentType: 'application/json',
+//             success: function (message) {
+//                 $("#modal").modal('toggle');
+//                 employees.push(json["name"]);
+//
+//                 if (json["guidance"] === "Promotor") {
+//                     $("#promotors-input").tagsinput("add", json["name"])
+//                 } else if (json['guidance'] === "Co-Promotor") {
+//                     $("#co-promotors-input").tagsinput("add", json["name"])
+//                 } else if (json['guidance'] === "Mentor") {
+//                     $("#mentors-input").tagsinput("add", json["name"])
+//                 }
+//             },
+//             error: function (message) {
+//                 $("#modal-info").text("Error occurred")
+//             }
+//         });
+//     });
+//
+//     $("#modal").modal("toggle");
+// }
+//
+// /**
+//  * This function provides default edit html.
+//  */
+// function getEditHTML() {
+//     return `
+//             <div class="row">
+//                 <div class="col">
+//                     Name
+//                 </div>
+//                 <div class="col">
+//                     <input id="name-input" class="form-control-sm">
+//                 </div>
+//             </div>
+//             <div class="row">
+//                 <div class="col">
+//                     Email
+//                 </div>
+//                 <div class="col">
+//                     <input id="email-input" class="form-control-sm">
+//                 </div>
+//             </div>
+//             <div class="row">
+//                 <div class="col">
+//                     Office
+//                 </div>
+//                 <div class="col">
+//                     <input id="office-input" class="form-control-sm">
+//                 </div>
+//             </div>
+//             <div class="row">
+//                 <div class="col">
+//                     Research Group
+//                 </div>
+//                 <div class="col">
+//                     <select style='width: 100%; max-width: 150px;' id="research-group-input">
+//
+//                         ${`<option value="">None</option>` +
+//     groups.map(function (group) {
+//         return `<option value="${group}">${group}</option>`;
+//     }).join("")}
+//
+//                     </select>
+//                 </div>
+//             </div>
+//             <div class="row">
+//                 <div class="col">
+//                     Guidance
+//                 </div>
+//                 <div class="col">
+//                     <select style='width: 100%; max-width: 150px;' id="guidance-input">
+//                         <option value="Co-Promotor">Co-Promotor</option>
+//                         <option value="Mentor">Mentor</option>
+//                     </select>
+//                 </div>
+//             </div>
+//         `;
 // }
 
-/**
- * Changes the like status.
- * @param like_text Text used for inside button.
- * @param unlike_text Text used for inside button.
- */
-function change_like(like_text, unlike_text) {
-    let btn = document.getElementById("like-btn");
-    if (event['liked']) {
-        $.returnValues('unlike-event', event["event_id"]);
-        event['liked'] = false;
-        btn.innerHTML = like_text;
-    } else {
-        $.returnValues('like-event', event["event_id"]);
-        event['liked'] = true;
-        btn.innerHTML = unlike_text;
-    }
-}
-
-/**
- * This function opens a default edit modal.
- */
-function addModal() {
-    $("#modal-info").text("");
-
-    $("#modal-title").text("Add new employee");
-
-    $("#modal-body").html(getEditHTML());
-
-    let saveChanges = $("#saveChangesButton");
-    saveChanges.off("click");
-    saveChanges.click(function () {
-        let json = getEditData();
-        json["type"] = "add";
-        $("#modal-info").text("Saving...");
-        $.ajax({
-            url: "modify-lists",
-            method: "POST",
-            data: JSON.stringify(json),
-            contentType: 'application/json',
-            success: function (message) {
-                $("#modal").modal('toggle');
-                employees.push(json["name"]);
-
-                if (json["guidance"] === "Promotor") {
-                    $("#promotors-input").tagsinput("add", json["name"])
-                } else if (json['guidance'] === "Co-Promotor") {
-                    $("#co-promotors-input").tagsinput("add", json["name"])
-                } else if (json['guidance'] === "Mentor") {
-                    $("#mentors-input").tagsinput("add", json["name"])
-                }
-            },
-            error: function (message) {
-                $("#modal-info").text("Error occurred")
-            }
-        });
-    });
-
-    $("#modal").modal("toggle");
-}
-
-/**
- * This function provides default edit html.
- */
-function getEditHTML() {
-    return `
-            <div class="row">
-                <div class="col">
-                    Name
-                </div>
-                <div class="col">
-                    <input id="name-input" class="form-control-sm">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    Email
-                </div>
-                <div class="col">
-                    <input id="email-input" class="form-control-sm">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    Office
-                </div>
-                <div class="col">
-                    <input id="office-input" class="form-control-sm">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    Research Group
-                </div>
-                <div class="col">
-                    <select style='width: 100%; max-width: 150px;' id="research-group-input">
-
-                        ${`<option value="">None</option>` +
-    groups.map(function (group) {
-        return `<option value="${group}">${group}</option>`;
-    }).join("")}
-
-                    </select>                
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    Guidance
-                </div>
-                <div class="col">
-                    <select style='width: 100%; max-width: 150px;' id="guidance-input">
-                        <option value="Co-Promotor">Co-Promotor</option>
-                        <option value="Mentor">Mentor</option>
-                    </select>                
-                </div>
-            </div>
-        `;
-}
-
-/**
- * This function returns all input data.
- * @return data input data
- */
-function getEditData() {
-    let data = {};
-    data["object"] = "employee";
-    data["name"] = $("#name-input").val();
-    data["email"] = $("#email-input").val();
-    data["office"] = $("#office-input").val();
-    data["research_group"] = $("#research-group-input").val();
-    data["is_external"] = true;
-    data["extra_info"] = "";
-    data["title"] = null;
-    data["guidance"] = $("#guidance-input").val();
-    return data;
-}
+// /**
+//  * This function returns all input data.
+//  * @return data input data
+//  */
+// function getEditData() {
+//     let data = {};
+//     data["object"] = "employee";
+//     data["name"] = $("#name-input").val();
+//     data["email"] = $("#email-input").val();
+//     data["office"] = $("#office-input").val();
+//     data["research_group"] = $("#research-group-input").val();
+//     data["is_external"] = true;
+//     data["extra_info"] = "";
+//     data["title"] = null;
+//     data["guidance"] = $("#guidance-input").val();
+//     return data;
+// }
 
 function reviewInternship(action) {
-    fetch('/review-internship', {
+    var alreadyReviewed = document.getElementById("already-reviewed");
+    var notReviewed = document.getElementById("not-reviewed");
+    if (alreadyReviewed && alreadyReviewed.style.display !== "none") {
+        if (confirm("Are you sure you want to delete this internship?")) {
+            // Proceed with deletion
+            fetch('/review-internship', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1162,4 +1089,30 @@ function reviewInternship(action) {
         .catch((error) => {
             console.error('Error:', error);
         });
+        } else {
+            // Cancel deletion
+
+        }
+    }
+    if (notReviewed && notReviewed.style.display !== "none"){
+            fetch('/review-internship', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({action: action, internship_id: event.internship_id}),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Internship review updated successfully.');
+                window.location.href = '/careers';
+            } else {
+                alert('Failed to update internship review: ' + data.message);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
 }

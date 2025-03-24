@@ -4,7 +4,7 @@ This package processes all routing requests.
 
 
 from flask import Blueprint, request, jsonify, render_template, current_app, send_from_directory, session
-from flask_login import current_user
+from flask_login import current_user, login_required
 from src.models.internship import InternshipDataAccess
 from src.models.company import CompanyDataAccess
 from src.models.internship_registration import InternshipRegistration, InternshipRegistrationsDataAccess
@@ -12,12 +12,14 @@ from src.models.tag import TagDataAccess
 from src.models.type import TypeDataAccess
 from src.models.db import get_db
 from werkzeug.utils import secure_filename
+from decorator import login_required
 from datetime import date
 import os
 bp = Blueprint('careers', __name__)
 
 
 @bp.route('/careers', methods=["GET", "POST"])
+@login_required
 def careers(my_internships=False):
     if request.method == "GET":
         return render_template('career.html', internships=my_internships)
@@ -25,6 +27,7 @@ def careers(my_internships=False):
 
 
 @bp.route('/get-all-events-data', methods=['GET'])
+@login_required
 def get_all_internships_data():
     """
     Handles the GET request to fetch all internships data.
@@ -129,6 +132,7 @@ def add_view_to_internship(internship_id):
         return jsonify({'success': False, 'message': str(e)}), 400
 
 @bp.route('/event-page')
+@login_required
 def event_page():
     """
     Increases link strength upon a click.
@@ -178,6 +182,7 @@ def get_attachment(filename):
     return jsonify({'success': False}), 400, {'ContentType': 'application/json'}
 
 @bp.route('/get-all-event-data/<int:e_id>', methods=['GET'])
+@login_required
 def get_all_event_data(e_id):
     """
     Handles the GET request to '/get-all-event-data/<int:p_id>'.
@@ -212,7 +217,7 @@ def create_event():
 @bp.route('/create_internship', methods=['GET', 'POST'])
 def create_internship():
     if request.method == 'GET':
-        return render_template('create_internship.html')
+        return render_template('create_internship.html', show_popup=False)
 
     data = request.form
     connection = get_db()
@@ -220,7 +225,7 @@ def create_internship():
 
     try:
         event_access.create_internship(data)
-        return render_template('create_internship.html', success=True)
+        return render_template('create_internship.html', success=True, show_popup=True)
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 400
 
@@ -313,16 +318,17 @@ def handle_registration():
         return jsonify({'success': False, "message": "Failed to update registration!"}), 400, {
             'ContentType': 'application/json'}
 
-@bp.route('/add-view/<int:e_id>', methods=['POST'])
-def add_view(e_id):
+@bp.route('/register-user-data/<int:e_id>', methods=['POST'])
+def register_user_data(e_id):
     """
-    Handles the POST request to '/add-view/<int:e_id>'.
-    :param p_id: project id
+    Handles the POST request to '/register-user-data/<int:e_id>'.
+    :param e_id: project id
     :return: Json with success/failure status
     """
     try:
         InternshipDataAccess(get_db()).add_view_count(e_id, 1)
         return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
     except:
-        print("Failed to count a view for project " + str(e_id) + ".")
-        return ""
+        return jsonify(
+            {'success': True, 'message': "Failed to register user behaviour for project " + str(p_id) + "."}), 400, {
+                   'ContentType': 'application/json'}
