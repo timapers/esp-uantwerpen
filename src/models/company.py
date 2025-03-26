@@ -15,6 +15,7 @@ class Company:
             'website': self.website
         }
 
+
 class CompanyDataAccess:
     def __init__(self, dbconnect):
         self.dbconnect = dbconnect
@@ -55,6 +56,24 @@ class CompanyDataAccess:
         if row is None:
             return None
         return Company(*row)
+
+    def get_company_by_website(self, website):
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT company_id, name, website FROM company WHERE website = %s', (website,))
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return Company(*row)
+
+    def update_company(self, company_id,new_name, new_website):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE company SET name = %s, website = %s WHERE company_id = %s;', (new_name, new_website, company_id))
+            self.dbconnect.commit()
+            return company_id
+        except:
+            self.dbconnect.rollback()
+            raise
 
     def create_company(self, obj):
         cursor = self.dbconnect.get_cursor()

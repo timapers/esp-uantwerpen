@@ -382,6 +382,10 @@ class InternshipDataAccess:
         company = CompanyDataAccess(self.dbconnect).get_company_by_name(data['company_name'])
         if company is None:
             company = CompanyDataAccess(self.dbconnect).create_company(Company(None, data['company_name'], data['website']))
+        else:
+            # Check if website is the same
+            if company.website != data['website']:
+                CompanyDataAccess(self.dbconnect).update_company(company.company_id,data['company_name'], data['website'])
         comp_id = company.company_id
         # Contact Person Handling
         # Check if contact person already in db
