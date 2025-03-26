@@ -168,6 +168,7 @@ def remove_project():
 
 
 @bp.route('/get-all-projects-data', methods=['GET'])
+@login_required
 def get_all_projects_data():
     """
     Handles the GET request to '/get-all-projects-data'.
@@ -177,6 +178,7 @@ def get_all_projects_data():
 
 
 @bp.route('/projects-page-additional', methods=['GET'])
+@login_required
 def get_projects_page_additional_data():
     """
     Handles the GET request to '/projects-page-additional'.

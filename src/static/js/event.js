@@ -646,10 +646,10 @@ function construct_event() {
     // Tags
     if (event['tags'] === null || event['tags'] === undefined || event['tags'].length === 0) {
         let tag_badge = document.createElement("span");
-        tag_badge.setAttribute("class", "badge tag-bg-color");
-        tag_badge.setAttribute("style", "margin-right: 5px;");
-        tag_badge.innerHTML = "No tags";
-        badges.appendChild(tag_badge);
+        // tag_badge.setAttribute("class", "badge tag-bg-color");
+        // tag_badge.setAttribute("style", "margin-right: 5px;");
+        // tag_badge.innerHTML = "No tags";
+        // badges.appendChild(tag_badge);
     } else {
         for (let i = 0; i < event['tags'].length; i++) {
             let tag_badge = document.createElement("span");
@@ -724,7 +724,12 @@ function construct_event() {
     }
 
     if (role === 'student') {
-        fill_register_dropdown();
+        // fill_register_dropdown();
+        let container = $('#registration-btn');
+        container.off('click').on('click', function () {
+            register_for_event(event['types'][0]);
+
+        });
     }
 }
 
@@ -852,7 +857,9 @@ function construct_registrations() {
                 <td class="text-center">${registration['student']}</td>
                 <td class="type">
                     <select>
-                        ${event['types'].map(function (type) {return `<option value="${type}">${type}</option>`}).join('')}
+                        ${event['types'].map(function (type) {
+            return `<option value="${type}">${type}</option>`
+        }).join('')}
                     </select>
                 </td>
                 <td class="status" align="right">
@@ -869,8 +876,11 @@ function construct_registrations() {
 
         const elem = $(row);
         elem.find('.type select').val(registration['type']).on('change', function () {
-            update_registration(registration, null, this.value)});
-        elem.find(".status select").val(registration['status']).on("change", function () { update_registration(registration, this.value, null) });
+            update_registration(registration, null, this.value)
+        });
+        elem.find(".status select").val(registration['status']).on("change", function () {
+            update_registration(registration, this.value, null)
+        });
         registrations.append(elem);
     }
 }
@@ -1071,48 +1081,48 @@ function reviewInternship(action) {
         if (confirm("Are you sure you want to delete this internship?")) {
             // Proceed with deletion
             fetch('/review-internship', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({action: action, internship_id: event.internship_id}),
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Internship review updated successfully.');
-                window.location.href = '/careers';
-            } else {
-                alert('Failed to update internship review: ' + data.message);
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({action: action, internship_id: event.internship_id}),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Internship review updated successfully.');
+                        window.location.href = '/careers';
+                    } else {
+                        alert('Failed to update internship review: ' + data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
         } else {
             // Cancel deletion
 
         }
     }
-    if (notReviewed && notReviewed.style.display !== "none"){
-            fetch('/review-internship', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({action: action, internship_id: event.internship_id}),
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Internship review updated successfully.');
-                window.location.href = '/careers';
-            } else {
-                alert('Failed to update internship review: ' + data.message);
-            }
+    if (notReviewed && notReviewed.style.display !== "none") {
+        fetch('/review-internship', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({action: action, internship_id: event.internship_id}),
         })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Internship review updated successfully.');
+                    window.location.href = '/careers';
+                } else {
+                    alert('Failed to update internship review: ' + data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     }
 }

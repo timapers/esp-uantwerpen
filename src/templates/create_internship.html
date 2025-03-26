@@ -7,28 +7,39 @@
 {% block title %}Create Event{% endblock %}
 
 {% block head %}
-    <script src="{{ url_for('static', filename='js/lib/dropzone.js') }}"></script>
-    {#    <script src="{{ url_for('static', filename='js/create_event.js') }}"></script>#}
-    <script src="{{ url_for('static', filename='js/lib/ckeditor/ckeditor.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/lib/bootstrap-tagsinput.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/lib/bootstrap3-typeahead.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/lib/bootstrap4-toggle.min.js') }}"></script>
-    <!-- Add this to your create_internship.html template -->
-    {% if show_popup and not request.args.get('refresh') %}
-    <script>
-        alert("Internship created successfully!");
-    </script>
+<script src="{{ url_for('static', filename='js/lib/dropzone.js') }}"></script>
+{#    <script src="{{ url_for('static', filename='js/create_event.js') }}"></script>#}
+<script src="{{ url_for('static', filename='js/lib/ckeditor/ckeditor.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lib/bootstrap-tagsinput.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lib/bootstrap3-typeahead.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lib/bootstrap4-toggle.min.js') }}"></script>
+<!-- Add this to your create_internship.html template -->
+{% if show_popup and success and not request.args.get('refresh') %}
+<div class="alert alert-success alert-dismissible fade show container">
+    <strong>Success!</strong> Your internship is submitted and is currently under review!
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+</div>
 {% endif %}
-    {#    <style>#}
-    {#        .navbar {#}
-    {#            display: none;#}
-    {#        }#}
-    {##}
-    {#    </style>#}
-    {#    INCLUDE UA LOGO#}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap-tagsinput.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap4-toggle.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/dropzone.css') }}">
+{% if show_popup and not success and not request.args.get('refresh') %}
+<div class="alert alert-danger alert-dismissible fade show container">
+    An Error occurred
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+</div>
+{% endif %}
+
+
+{#    <style>#}
+{#        .navbar {#}
+{#            display: none;#}
+{#        }#}
+{##}
+{#    </style>#}
+{#    INCLUDE UA LOGO#}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap-tagsinput.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap4-toggle.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lib/dropzone.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -75,12 +86,14 @@
 
             <div class="form-group">
                 <label for="event-description">Description</label>
-                <textarea class="form-control" id="event-description" name="description"></textarea>
+                <textarea class="form-control" id="event-description" name="description" required></textarea>
                 <script>CKEDITOR.replace('event-description');</script>
             </div>
 
 
-            <button type="submit" class="btn btn-primary">Create Internship</button>
+            <button type="submit" class="btn btn-primary text-center"
+                    style="display: block; margin: 0 auto; margin-bottom: 20px;">Create Internship
+            </button>
         </form>
     </div>
 {% endblock %}

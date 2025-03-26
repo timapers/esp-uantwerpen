@@ -167,7 +167,7 @@ function fillCard(number, internship) {
     $("#card-title" + number).html(title).attr("href", 'event-page?event_id=' + internship["internship_id"]);
 
     // Set the content preview
-    let content = internship["description"] || "No description available.";
+    let content = internship["html_content_eng"] || "No description available.";
     $("#card-text" + number).html(content);
     $("#link" + number).click(function () {
         window.location.href = '/event-page?event_id=' + internship["internship_id"];
@@ -198,7 +198,7 @@ function fillCard(number, internship) {
         let company_badge = document.createElement("span");
         company_badge.setAttribute("class", "badge badge-success");
         company_badge.innerHTML = internship["company_name"];
-        company_badge.style = "m<<argin-right: 10px";
+        company_badge.style = "margin-right: 10px";
         badges.append(company_badge);
     }
 

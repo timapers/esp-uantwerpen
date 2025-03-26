@@ -227,7 +227,7 @@ def create_internship():
         event_access.create_internship(data)
         return render_template('create_internship.html', success=True, show_popup=True)
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 400
+        return render_template('create_internship.html', success=False, show_popup=True)
 
 @bp.route('/review-internship', methods=['POST'])
 def review_internship():
