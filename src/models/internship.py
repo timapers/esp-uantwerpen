@@ -38,6 +38,7 @@ class Internship:
         self.company_name = None
         self.contact_person_name_email = None
         self.registrations = None
+        self.website = None
 
     def to_dict(self):
         value = vars(self)
@@ -122,9 +123,10 @@ class InternshipDataAccess:
             attachments.append({'name': row[0], 'file_location': row[1]})
         event.attachments = attachments
 
-        """Company Name"""
-        cursor.execute('SELECT name FROM company WHERE company_id = %s', (event.company_id,))
-        event.company_name = cursor.fetchone()[0]
+        """Company Name and website"""
+        cursor.execute('SELECT name, website FROM company WHERE company_id = %s', (event.company_id,))
+        event.company_name, event.website = cursor.fetchone()
+
 
         """Contact Person name:email"""
         cursor.execute('SELECT name, email FROM contact_person_company WHERE contact_person_id = %s', (event.contact_person,))
@@ -403,7 +405,7 @@ class InternshipDataAccess:
 
         try:
             cursor.execute('INSERT INTO internship(title, description_id, max_students, company_id, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s)',
-                           ('Internship at ' + company.name, doc_id, 1, comp_id, data['address'], cp_id, True))
+                           (data['title'], doc_id, 1, comp_id, data['address'], cp_id, True))
             cursor.execute('SELECT LASTVAL()')
             iden = cursor.fetchone()
             i_id = iden[0]

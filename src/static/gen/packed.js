@@ -478,6 +478,10 @@ function filter_companies(event_filter_prev) {
 
 
 }
+function isReviewed(event) {
+    return event['is_reviewed'];
+}
+
 function filter_reviewed_internships(event_filter_prev) {
     const reviewed = $("#reviewed-filter").is(":checked");
     if (!reviewed) return event_filter_prev;
@@ -1051,6 +1055,14 @@ function fillCard(number, internship) {
                 </span>
             `))
         }
+
+    if (!isReviewed(internship)){
+        badges.append($(`
+            <span class="badge badge-danger" style="margin-right: 10px">
+                ${language === 'en' ? 'Not Reviewed' : 'Niet Beoordeeld'}
+            </span>
+        `))
+    }
     if (internship["is_active"] !== undefined && !internship["is_active"]) {
         let inactive_badge = document.createElement("span");
         inactive_badge.setAttribute("class", "badge badge-info");

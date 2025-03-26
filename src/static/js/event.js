@@ -790,13 +790,17 @@ function make_comp_popover(popover) {
     popover.setAttribute("data-toggle", "popover");
     //Title
     // console.log(company);
-    popover.setAttribute("data-original-title", company);
+    popover.setAttribute("data-original-title", event['company_name']);
     let info_present = false;
     let html_content = "<div class='row'>";
     let column_width = 'col-sm-6';
     //Info
     html_content += "</div><div class=" + column_width + " id='rg_info'>";
     html_content += "</div></div>";
+    if (event['company_name']) {
+        info_present = true;
+        html_content += "<p>" + event['website'] + "</p>";
+    }
     if (!info_present) {
         if (language === 'nl') {
             html_content = "<p>Geen info aanwezig.</p>"

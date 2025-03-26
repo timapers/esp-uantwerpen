@@ -174,6 +174,10 @@ function filter_companies(event_filter_prev) {
 
 
 }
+function isReviewed(event) {
+    return event['is_reviewed'];
+}
+
 function filter_reviewed_internships(event_filter_prev) {
     const reviewed = $("#reviewed-filter").is(":checked");
     if (!reviewed) return event_filter_prev;
