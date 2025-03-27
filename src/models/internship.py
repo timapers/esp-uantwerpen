@@ -402,7 +402,7 @@ class InternshipDataAccess:
             Contact_person_companyDataAccess(self.dbconnect).link_comp_to_person(comp_id, cp_id)
 
         i_id = None
-        type = 'internship'
+        type = 'Internship'
 
         if not TypeDataAccess(self.dbconnect).if_exsists(type):
             TypeDataAccess(self.dbconnect).add_type(Type(type, True))
