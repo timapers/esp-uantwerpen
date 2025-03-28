@@ -13,7 +13,7 @@ class Internship:
     """
 
     def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, address,
-                 contact_person, is_active, is_reviewed):
+                 contact_person, is_active, is_reviewed, is_accepted):
         self.internship_id = in_id
         self.title = title
         self.max_students = max_students
@@ -25,6 +25,7 @@ class Internship:
         self.contact_person = contact_person
         self.is_active = is_active
         self.is_reviewed = is_reviewed
+        self.is_accepted = is_accepted
         ### TODO: Add Last Updated ###
         self.last_updated = None
         """
@@ -95,7 +96,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed FROM internship WHERE internship_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE internship_id = %s',
             (internship_id,))
         row = cursor.fetchone()
         event = Internship(*row)
@@ -148,33 +149,13 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed FROM internship WHERE company_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE company_id = %s',
             (company_id,))
         internships = list()
         for row in cursor:
             internships.append(Internship(*row))
         return internships
 
-    def add_internship(self, obj):
-        """
-        Adds an internship to the database.
-        :param obj: The new internship object.
-        :raise: Exception if the database has to roll back.
-        """
-        cursor = self.dbconnect.get_cursor()
-        try:
-            cursor.execute(
-                'INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                (obj.title, obj.max_students, obj.description_id, obj.company_id, obj.view_count, obj.creation_date,
-                    obj.address, obj.contact_person, obj.is_active, obj.is_reviewed))
-            cursor.execute('SELECT LASTVAL()')
-            iden = cursor.fetchone()[0]
-            obj.internship_id = iden
-            self.dbconnect.commit()
-            return obj
-        except:
-            self.dbconnect.rollback()
-            raise
 
     def add_type(self, internship_id, internship_type):
         """
