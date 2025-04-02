@@ -72,7 +72,7 @@ class InternshipDataAccess:
             cursor.execute('SELECT internship_id FROM internship')
         return [row[0] for row in cursor]
 
-    def get_internships(self, active_only, reviewed_only):
+    def get_internships(self, active_only, accepted_only):
         """
         Fetches all the internships from the database.
         :param active_only: Fetch only active internships.
@@ -82,7 +82,7 @@ class InternshipDataAccess:
         internships = list()
         for internship_id in self.get_internship_ids(active_only):
             i = self.get_internship(internship_id, active_only)
-            if reviewed_only and not i.is_reviewed:
+            if accepted_only and not i.is_accepted:
                 continue
             else:
                 internships.append(i)
@@ -403,16 +403,16 @@ class InternshipDataAccess:
 
     def review_internship(self, internship_id, approved):
         if approved:
-            self.set_internship_reviewed(internship_id, True)
+            self.set_internship_reviewed_and_accepted(internship_id, True)
         else:
-            if self.get_internship(internship_id, False).is_reviewed:
-                self.remove_internship(internship_id)
+            self.set_internship_reviewed_and_accepted(internship_id, False)
 
 
-    def set_internship_reviewed(self, internship_id, reviewed):
+    def set_internship_reviewed_and_accepted(self, internship_id, accepted):
         cursor = self.dbconnect.get_cursor()
         try:
-            cursor.execute('UPDATE internship SET is_reviewed = %s WHERE internship_id = %s', (reviewed, internship_id))
+            cursor.execute('UPDATE internship SET is_reviewed = %s WHERE internship_id = %s', (True, internship_id))
+            cursor.execute('UPDATE internship SET is_accepted = %s WHERE internship_id = %s', (accepted, internship_id))
             self.dbconnect.commit()
         except:
             self.dbconnect.rollback()

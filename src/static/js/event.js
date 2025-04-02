@@ -1082,31 +1082,26 @@ function reviewInternship(action) {
     var alreadyReviewed = document.getElementById("already-reviewed");
     var notReviewed = document.getElementById("not-reviewed");
     if (alreadyReviewed && alreadyReviewed.style.display !== "none") {
-        if (confirm("Are you sure you want to delete this internship?")) {
-            // Proceed with deletion
-            fetch('/review-internship', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({action: action, internship_id: event.internship_id}),
+        // Proceed with deletion
+        fetch('/review-internship', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({action: action, internship_id: event.internship_id}),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Internship review updated successfully.');
+                    window.location.href = '/careers';
+                } else {
+                    alert('Failed to update internship review: ' + data.message);
+                }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Internship review updated successfully.');
-                        window.location.href = '/careers';
-                    } else {
-                        alert('Failed to update internship review: ' + data.message);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-        } else {
-            // Cancel deletion
-
-        }
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     }
     if (notReviewed && notReviewed.style.display !== "none") {
         fetch('/review-internship', {
@@ -1129,4 +1124,28 @@ function reviewInternship(action) {
                 console.error('Error:', error);
             });
     }
+}
+
+function removeInternship() {
+    if (confirm("Are you sure you want to delete this internship?")) {
+        fetch('/remove-internship', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({internship_id: event.internship_id}),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Internship removed successfully.');
+                    window.location.href = '/careers';
+                } else {
+                    alert('Failed to remove internship: ' + data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+}
 }

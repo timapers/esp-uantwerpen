@@ -36,9 +36,9 @@ def get_all_internships_data():
     connection = get_db()
     active_only = True  # Fetch only active internships
     if not current_user.is_authenticated or current_user.role != "admin":
-        internships = InternshipDataAccess(connection).get_internships(active_only, reviewed_only=True)
+        internships = InternshipDataAccess(connection).get_internships(active_only, accepted_only=True)
     else:
-        internships = InternshipDataAccess(connection).get_internships(active_only, reviewed_only=False)
+        internships = InternshipDataAccess(connection).get_internships(active_only, accepted_only=False)
     return jsonify([internship.to_dict() for internship in internships])
 
 @bp.route('/like-internship', methods=['POST'])
@@ -248,6 +248,23 @@ def review_internship():
     connection = get_db()
     InternshipDataAccess(connection).review_internship(internship_id, approved)
     return jsonify({'success': True, 'message': 'Internship review updated successfully.'})
+
+def remove_internship():
+    """
+    Handles the POST request to remove an internship.
+    """
+    if not current_user.is_authenticated or current_user.role != "admin":
+        return jsonify({'success': False, 'message': 'Authentication required.'}), 401
+
+    data = request.json
+    internship_id = data.get('internship_id')
+
+    if not internship_id:
+        return jsonify({'success': False, 'message': 'Internship ID is required.'}), 400
+
+    connection = get_db()
+    InternshipDataAccess(connection).remove_internship(internship_id)
+    return jsonify({'success': True, 'message': 'Internship removed successfully.'})
 
 @bp.route('/add-internship-registration', methods=['POST'])
 def add_registration():

@@ -26,15 +26,18 @@
             <br>
             <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept
             </button>
-{#            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny#}
-{#            </button>#}
+            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny
+            </button>
+            <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
+                Internship
+            </button>
         {% endif %}
     </div>
     <div class="text-center" id="already-reviewed" style="display: none;">
         {% if current_user.is_authenticated and current_user.role == "admin" %}
             This internship has already been reviewed.
             <br>
-            <button class="btn btn-primary" id="delete-button" type="button" onclick="reviewInternship(false)">Remove
+            <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
                 Internship
             </button>
         {% endif %}
