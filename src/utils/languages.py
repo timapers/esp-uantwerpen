@@ -447,7 +447,40 @@ language_dict = {
     "Career": {
         "en": "Career",
         "nl": "Carrière"
-    }
+    },
+    "Company Name": {
+        "en": "Company Name",
+        "nl": "Bedrijfsnaam"
+    },
+    "Address": {
+        "en": "Address",
+        "nl": "Adres"
+    },
+    "Contact Person Name": {
+        "en": "Contact Person Name",
+        "nl": "Contactpersoon Naam"
+    },
+    "Contact Person Email": {
+        "en": "Contact Person Email",
+        "nl": "Contactpersoon Email"
+    },
+    "Title of the Internship": {
+        "en": "Title of the Internship",
+        "nl": "Titel van de Stage"
+    },
+    "Create Internship": {
+        "en": "Create Internship",
+        "nl": "Maak Stage aan"
+    },
+    "Title of the internship": {
+        "en": "Title of the internship",
+        "nl": "Titel van de stage"
+    },
+    "Create Internship Application": {
+        "en": "Create Internship Application",
+        "nl": "Stage aanvraag Applicatie"
+    },
+
 }
 
 

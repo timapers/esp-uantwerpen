@@ -38,7 +38,7 @@
             {% endif %}
         {% endwith %}
 
-        <h1 class="title text-center">Create Internship Application</h1>
+        <h1 class="title text-center">{{ get_text("Create Internship Application") }}</h1>
 
         <div class="card mt-4">
             <div class="card-body">
@@ -46,7 +46,8 @@
                 <p class="card-text">Op deze pagina kunnen bedrijven hun stageopdracht uploaden.</p>
                 <p class="card-text">
                     Wil je weten of jouw project aan onze criteria voldoet? Raadpleeg dan het volgende document:
-                    <a href="get-document/info-one-pager-NL.pdf">NL</a> en <a href="get-document/info-one-pager-EN.pdf">EN</a>.
+                    <a href="get-document/info-one-pager-NL.pdf" style="color: blue;">NL</a> en <a
+                        href="get-document/info-one-pager-EN.pdf" style="color: blue;">EN</a>.
                 </p>
                 <p class="card-text">
                     Na indiening wordt de opdracht beoordeeld door ons departement. Zodra deze is goedgekeurd, ontvang
@@ -54,7 +55,7 @@
                 </p>
                 <p class="card-text">
                     Heb je bijkomende vragen? Neem dan contact op met onze coördinator, Tim Apers, via
-                    <a href="mailto:fwet-informatica-stages@uantwerpen.be">fwet-informatica-stages@uantwerpen.be</a>.
+                    <a href="mailto:fwet-informatica-stages@uantwerpen.be" style="color: blue">fwet-informatica-stages@uantwerpen.be</a>.
                 </p>
             </div>
         </div>
@@ -62,17 +63,17 @@
         <form method="POST" action="{{ url_for('careers.create_internship') }}" enctype="multipart/form-data"
               id="event-form">
             <div class="form-group">
-                <label for="company_name">Company Name</label>
+                <label for="company_name">{{ get_text("Company Name") }}</label>
                 <input type="text" class="form-control" id="company_name" name="company_name" required>
             </div>
 
             <div class="form-group">
-                <label for="contact_person">Contact Person Name</label>
+                <label for="contact_person">{{ get_text("Contact Person Name") }}</label>
                 <input type="text" class="form-control" id="contact_person" name="contact_person" required>
             </div>
 
             <div class="form-group">
-                <label for="contact_email">Contact Person Email</label>
+                <label for="contact_email">{{ get_text("Contact Person Email") }}</label>
                 <input type="email" class="form-control" id="contact_email" name="contact_email" required>
             </div>
 
@@ -82,7 +83,7 @@
             </div>
 
             <div class="form-group">
-                <label for="address">Address</label>
+                <label for="address">{{ get_text("Address") }}</label>
                 <input type="text" class="form-control" id="address" name="address" required>
             </div>
 
@@ -92,19 +93,19 @@
             {#            </div>#}
 
             <div class="form-group">
-                <label for="event-title">Title of the internship</label>
+                <label for="event-title">{{ get_text("Title of the internship")}}</label>
                 <input type="text" class="form-control" id="event-title" name="title" required>
             </div>
 
 
             <div class="form-group">
-                <label for="event-description">Description</label>
+                <label for="event-description">{{ get_text("Description") }}</label>
                 <textarea class="form-control" id="event-description" name="description"></textarea>
             </div>
 
 
             <button type="submit" class="btn btn-primary text-center"
-                    style="display: block; margin: 0 auto; margin-bottom: 20px;">Create Internship
+                    style="display: block; margin: 0 auto; margin-bottom: 20px;"> {{ get_text("Create Internship")}}
             </button>
         </form>
         <script>
