@@ -4,7 +4,7 @@
 
 
 
-{% block title %}Create Event{% endblock %}
+{% block title %}Create Internship{% endblock %}
 
 {% block head %}
     <script src="{{ url_for('static', filename='js/lib/dropzone.js') }}"></script>
@@ -13,30 +13,7 @@
     <script src="{{ url_for('static', filename='js/lib/bootstrap-tagsinput.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/bootstrap3-typeahead.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/bootstrap4-toggle.min.js') }}"></script>
-    <!-- Add this to your create_internship.html template -->
-    {% if show_popup and success and not request.args.get('refresh') %}
-        <div class="alert alert-success alert-dismissible fade show container">
-            <strong>Success!</strong> Your internship is submitted and is currently under review!
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                    aria-hidden="true">&times;</span></button>
-        </div>
-    {% endif %}
-    {% if show_popup and not success and not request.args.get('refresh') %}
-        <div class="alert alert-danger alert-dismissible fade show container">
-            An Error occurred
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                    aria-hidden="true">&times;</span></button>
-        </div>
-    {% endif %}
 
-
-    {#    <style>#}
-    {#        .navbar {#}
-    {#            display: none;#}
-    {#        }#}
-    {##}
-    {#    </style>#}
-    {#    INCLUDE UA LOGO#}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap-tagsinput.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap4-toggle.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/dropzone.css') }}">
@@ -46,9 +23,44 @@
 
     <nav></nav>
     <div class="container" id="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <h1 class="title text-center">Create Internship Application</h1>
 
-        <form method="POST" action="{{ url_for('careers.create_internship') }}" enctype="multipart/form-data">
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">How to Use</h5>
+                <p class="card-text">Op deze pagina kunnen bedrijven hun stageopdracht uploaden.</p>
+                <p class="card-text">
+                    Wil je weten of jouw project aan onze criteria voldoet? Raadpleeg dan het volgende document:
+                    <a href="get-document/info-one-pager-NL.pdf">NL</a> en <a href="get-document/info-one-pager-EN.pdf">EN</a>.
+                </p>
+                <p class="card-text">
+                    Na indiening wordt de opdracht beoordeeld door ons departement. Zodra deze is goedgekeurd, ontvang
+                    je een bevestigingsmail en wordt de opdracht gepubliceerd voor onze studenten.
+                </p>
+                <p class="card-text">
+                    Heb je bijkomende vragen? Neem dan contact op met onze coördinator, Tim Apers, via
+                    <a href="mailto:fwet-informatica-stages@uantwerpen.be">fwet-informatica-stages@uantwerpen.be</a>.
+                </p>
+            </div>
+        </div>
+        <br>
+        <form method="POST" action="{{ url_for('careers.create_internship') }}" enctype="multipart/form-data"
+              id="event-form">
             <div class="form-group">
                 <label for="company_name">Company Name</label>
                 <input type="text" class="form-control" id="company_name" name="company_name" required>
@@ -87,8 +99,7 @@
 
             <div class="form-group">
                 <label for="event-description">Description</label>
-                <textarea class="form-control" id="event-description" name="description" required></textarea>
-                <script>CKEDITOR.replace('event-description');</script>
+                <textarea class="form-control" id="event-description" name="description"></textarea>
             </div>
 
 
@@ -96,5 +107,24 @@
                     style="display: block; margin: 0 auto; margin-bottom: 20px;">Create Internship
             </button>
         </form>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var form = document.getElementById('event-form');
+                if (!form) {
+                    console.error("Form not found! Check the HTML.");
+                    return;
+                }
+
+                CKEDITOR.replace('event-description');
+
+                form.addEventListener('submit', function (event) {
+                    var editorData = CKEDITOR.instances['event-description'].getData().trim();
+                    if (editorData === '') {
+                        alert('Description cannot be empty!');
+                        event.preventDefault(); // Stop form submission
+                    }
+                });
+            });
+        </script>
     </div>
 {% endblock %}

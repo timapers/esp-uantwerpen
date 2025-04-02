@@ -3,7 +3,7 @@ This package processes all routing requests.
 """
 
 
-from flask import Blueprint, request, jsonify, render_template, current_app, send_from_directory, session
+from flask import Blueprint, request, jsonify, render_template, current_app, send_from_directory, session, redirect, redirect, url_for, flash
 from flask_login import current_user, login_required
 from src.models.internship import InternshipDataAccess
 from src.models.company import CompanyDataAccess
@@ -225,9 +225,11 @@ def create_internship():
 
     try:
         event_access.create_internship(data)
-        return render_template('create_internship.html', success=True, show_popup=True)
+        flash('Internship created successfully!', 'success')
+        return redirect(url_for('careers.create_internship', refresh=1))
     except Exception as e:
-        return render_template('create_internship.html', success=False, show_popup=True)
+        flash('Failed to create internship!', 'danger')
+        return redirect(url_for('careers.create_internship', refresh=1))
 
 @bp.route('/review-internship', methods=['POST'])
 def review_internship():
@@ -349,3 +351,10 @@ def register_user_data(e_id):
         return jsonify(
             {'success': True, 'message': "Failed to register user behaviour for project " + str(p_id) + "."}), 400, {
                    'ContentType': 'application/json'}
+
+@bp.route('/get-document/<string:name>')
+def get_document(name):
+    if secure_filename(name):
+        home_directory = os.path.join(current_app.config['file-storage'], 'home')
+        return send_from_directory(home_directory, name)
+    return jsonify({'success': False}), 400, {'ContentType': 'application/json'}
