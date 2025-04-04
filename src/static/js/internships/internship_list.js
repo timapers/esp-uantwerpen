@@ -189,8 +189,8 @@ function fillCard(number, internship) {
 
     if (!isReviewed(internship)){
         badges.append($(`
-            <span class="badge badge-danger" style="margin-right: 10px">
-                ${language === 'en' ? 'Not Reviewed' : 'Niet Beoordeeld'}
+            <span class="badge badge-warning" style="margin-right: 10px">
+                ${language === 'en' ? 'Pending Review' : 'Niet Beoordeeld'}
             </span>
         `))
     }

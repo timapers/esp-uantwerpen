@@ -53,7 +53,7 @@
             <br>
             {% if current_user.is_authenticated and current_user.role == "admin" %}
             <input type="checkbox" id="reviewed-filter" onchange="onChangeReviewedEventFilter(this)">
-            <label for="reviewed-filter">Show only NOT Reviewed Internships</label>
+            <label for="reviewed-filter">Only show unreviewed internships</label>
             {% endif %}
 
         </div>

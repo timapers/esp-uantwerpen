@@ -440,9 +440,9 @@ language_dict = {
         "en": "Bulk Edit",
         "nl": "Bulk Edit"
     },
-    "All Projects": {
-        "en": "All Projects",
-        "nl": "Alle Projecten"
+    "Research": {
+        "en": "Research",
+        "nl": "Onderzoek"
     },
     "Career": {
         "en": "Career",
@@ -477,8 +477,8 @@ language_dict = {
         "nl": "Titel van de stage"
     },
     "Create Internship Application": {
-        "en": "Create Internship Application",
-        "nl": "Stage aanvraag Applicatie"
+        "en": "Internship Application",
+        "nl": "Aanvraag Stageopdracht"
     },
 
 }
