@@ -211,15 +211,17 @@ def create_event():
     if request.method == 'GET':
         return render_template('create_event.html')
 
-    data = request.json
+    data = request.form
     connection = get_db()
     event_access = InternshipDataAccess(connection)
 
     try:
         event_access.create_event(data)
-        return jsonify({'success': True})
+        flash('Internship created successfully!', 'success')
+        return redirect(url_for('careers.create_event', refresh=1))
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 400
+        flash('Failed to create internship!', 'danger')
+        return redirect(url_for('careers.create_event', refresh=1))
 
 
 @bp.route('/create_internship', methods=['GET', 'POST'])

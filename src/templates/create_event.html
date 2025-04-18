@@ -8,18 +8,10 @@
 
 {% block head %}
     <script src="{{ url_for('static', filename='js/lib/dropzone.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/create_event.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/ckeditor/ckeditor.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/bootstrap-tagsinput.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/bootstrap3-typeahead.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/bootstrap4-toggle.min.js') }}"></script>
-{#    <style>#}
-{#        .navbar {#}
-{#            display: none;#}
-{#        }#}
-{##}
-{#    </style>#}
-{#    INCLUDE UA LOGO#}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap-tagsinput.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap4-toggle.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/dropzone.css') }}">
@@ -29,41 +21,57 @@
 
     <nav></nav>
     <div class="container" id="content">
-        <h1 class="title text-center">Create New Event</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <h1 class="title text-center">{{ get_text("Create New Event") }}</h1>
 
-        <form method="POST" action="{{ url_for('careers.create_event') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ url_for('careers.create_event') }}" enctype="multipart/form-data"
+              id="event-form">
             <div class="form-group">
-                <label for="event-title">Event Title</label>
-                <input type="text" class="form-control" id="event-title" name="title" required>
+                <label for="event-title">{{ get_text("Event Title") }}</label> <input type="text" class="form-control"
+                                                                                      id="event-title" name="title"
+                                                                                      required>
             </div>
 
             <div class="form-group">
-                <label for="company_name">Company Name</label>
+                <label for="company_name">{{ get_text("Company Name") }}</label>
                 <input type="tel" class="form-control" id="company_name" name="company_name" required>
             </div>
 
             <div class="form-group">
-                <label for="contact_person">Contact Person Name</label>
+                <label for="contact_person">{{ get_text("Contact Person Name") }}</label>
                 <input type="text" class="form-control" id="contact_person" name="contact_person" required>
             </div>
 
             <div class="form-group">
-                <label for="contact_email">Contact Person Email</label>
+                <label for="contact_email">{{ get_text("Contact Person Email") }}</label>
                 <input type="email" class="form-control" id="contact_email" name="contact_email" required>
             </div>
 
             <div class="form-group">
-                <label for="website">Website</label>
+                <label for="website">{{ get_text("Website") }}</label>
                 <input type="text" class="form-control" id="website" name="website" required>
             </div>
 
             <div class="form-group">
-            <label for="address">Address</label>
+                <label for="address">{{ get_text("Address") }}</label>
                 <input type="text" class="form-control" id="address" name="address" required>
             </div>
 
             <div class="form-group">
-                <label for="event-type">Event Type</label>
+                <label for="event-type">{{ get_text("Event Type") }}</label>
                 <select name="type" id="event-type" class="selectpicker" title="Choose Event Type">
                     <!-- Placeholders -->
                     <option value="internship">Internship</option>
@@ -72,26 +80,48 @@
                     <!-- Placeholders -->
                 </select>
             </div>
+            <div class="form-group">
+                <label for="event-start-date">{{ get_text("Start Date") }}</label>
+                <input type="datetime-local" class="form-control" id="event-start-date" name="start_date" required>
+            </div>
+            <div class="form-group">
+                <label for="event-end-date">{{ get_text("End Date") }}</label>
+                <input type="datetime-local" class="form-control" id="event-end-date" name="end_date" required>
+            </div>
 
             <div class="form-group">
-                <label for="event-description">Description</label>
+                <label for="event-description">{{ get_text("Description") }}</label>
                 <textarea class="form-control" id="event-description" name="description"></textarea>
-                <script>CKEDITOR.replace('event-description');</script>
             </div>
 
             <div class="form-group">
                 <!-- HIER MOET DUIDELIJK MEER UITLEG -->
-                <label for="event-tags">Tags</label>
+                <label for="event-tags">{{ get_text("Tags") }}</label>
                 <input id="event-tags" class="border border-secondary" type="text" name="tags" data-role="tagsinput"
                        placeholder="Add a tag">
             </div>
-
-            {#            <div class="form-group">#}
-            {#                <label>Upload Attachments</label>#}
-            {#                <div class="dropzone" id="dropzone"></div>#}
-            {#            </div>#}
-
-            <button type="submit" class="btn btn-primary">Create Event</button>
+            <button type="submit" class="btn btn-primary text-center"
+                    style="display: block; margin: 0 auto; margin-bottom: 20px;"> {{ get_text("Create Event") }}</button>
         </form>
+
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var form = document.getElementById('event-form');
+                if (!form) {
+                    console.error("Form not found! Check the HTML.");
+                    return;
+                }
+
+                CKEDITOR.replace('event-description');
+
+                form.addEventListener('submit', function (event) {
+                    var editorData = CKEDITOR.instances['event-description'].getData().trim();
+                    if (editorData === '') {
+                        alert('Description cannot be empty!');
+                        event.preventDefault(); // Stop form submission
+                    }
+                });
+            });
+        </script>
     </div>
 {% endblock %}

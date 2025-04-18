@@ -480,7 +480,46 @@ language_dict = {
         "en": "Internship Application",
         "nl": "Aanvraag Stageopdracht"
     },
-
+    "Create Event": {
+        "en": "Create Event",
+        "nl": "Maak Evenement aan"
+    },
+    "Event Name": {
+        "en": "Event Name",
+        "nl": "Naam Evenement"
+    },
+    "Event Date": {
+        "en": "Event Date",
+        "nl": "Datum Evenement"
+    },
+    "Event Type": {
+        "en": "Event Type",
+        "nl": "Type Evenement"
+    },
+    "Start Date": {
+        "en": "Start Date",
+        "nl": "Startdatum"
+    },
+    "End Date": {
+        "en": "End Date",
+        "nl": "Einddatum"
+    },
+    "Event Title": {
+        "en": "Event Title",
+        "nl": "Titel Evenement"
+    },
+    "Website": {
+        "en": "Website",
+        "nl": "Website"
+    },
+    "Create New Event": {
+        "en": "Create New Event",
+        "nl": "Maak nieuw evenement aan"
+    },
+    "Tags": {
+        "en": "Tags",
+        "nl": "Tags"
+    }
 }
 
 

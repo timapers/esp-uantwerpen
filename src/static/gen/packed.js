@@ -1067,14 +1067,7 @@ function fillCard(number, internship) {
         `))
     }
     else {
-        if (isAccepted(internship)) {
-            console.log("Internship accepted:", internship);
-            badges.append($(`
-                <span class="badge badge-success" style="margin-right: 10px">
-                    ${language === 'en' ? 'Accepted' : 'Geaccepteerd'}
-                </span>
-            `));
-        } else {
+        if (!isAccepted(internship)) {
             console.log("Internship rejected:", internship);
             badges.append($(`
                 <span class="badge badge-danger" style="margin-right: 10px">
@@ -1111,7 +1104,7 @@ function fillCard(number, internship) {
 
     let date_badge = document.createElement("span");
     // console.log(internship);
-    date_badge.innerHTML = "Created on: " + internship["creation_date"];
+    date_badge.innerHTML = "Created on: " +  internship['creation_date'];
     date_badge.style = "color : #B5B7BA; white-space: nowrap;";
     badges.append(date_badge);
 }

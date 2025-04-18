@@ -327,13 +327,66 @@ class InternshipDataAccess:
         :param data: The data to create the event with.
         :return: The created event.
         """
-        # TODO: Implement this method
         cursor = self.dbconnect.get_cursor()
-        cursor.execute('INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                       (data['title'], data['max_students'], data['description_id'], data['company_id'], data['view_count'], data['creation_date'], data['address'], data['contact_person'], data['is_active']))
-        cursor.execute('SELECT LASTVAL()')
-        iden = cursor.fetchone()[0]
-        self.dbconnect.commit()
+        from src.models.document import DocumentDataAccess
+        # Document Handling
+        # Copy doc twice in obj with html_content_eng and html_content_nl
+        doc_obj = Document(None, data['description'], data['description'])
+        doc = DocumentDataAccess(self.dbconnect).add_document(doc_obj)
+        doc_id = doc.document_id
+        # Company Handling
+        # Check if company already in db
+        company = CompanyDataAccess(self.dbconnect).get_company_by_name(data['company_name'])
+        if company is None:
+            company = CompanyDataAccess(self.dbconnect).create_company(
+                Company(None, data['company_name'], data['website']))
+        else:
+            # Check if website is the same
+            if company.website != data['website']:
+                CompanyDataAccess(self.dbconnect).update_company(company.company_id, data['company_name'],
+                                                                 data['website'])
+        comp_id = company.company_id
+        # Contact Person Handling
+        # Check if contact person already in db
+        cp = Contact_person_companyDataAccess(self.dbconnect).get_contact_person_by_email(data['contact_email'])
+        if cp is None:
+            obj = Contact_person_company(None, data['contact_person'], data['contact_email'])
+            cp = Contact_person_companyDataAccess(self.dbconnect).add_contact_person_company(obj)
+        cp_id = cp.contact_person_id
+
+        # Link company to contact person
+        # Check if combo exists
+        cpc = Contact_person_companyDataAccess(self.dbconnect).if_exsists(comp_id, cp_id)
+        if not cpc:
+            Contact_person_companyDataAccess(self.dbconnect).link_comp_to_person(comp_id, cp_id)
+
+        # Event Handling
+
+        event_start_date = datetime.datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
+        event_end_date = datetime.datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
+
+
+
+        i_id = None
+        type = data["type"]
+
+        max_students = 999
+        if not TypeDataAccess(self.dbconnect).if_exsists(type):
+            TypeDataAccess(self.dbconnect).add_type(Type(type, True))
+
+        try:
+            ## TODO: Add start and end date
+            cursor.execute('INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,NOW(),%s,%s,%s,%s,%s)',
+                           (data['title'], max_students, doc_id, comp_id, 0, event_start_date, event_end_date, data['address'], cp_id, True))
+            cursor.execute('SELECT LASTVAL()')
+            iden = cursor.fetchone()
+            i_id = iden[0]
+            self.dbconnect.commit()
+        except Exception as e:
+            print(e, flush=True)
+            self.dbconnect.rollback()
+            raise
+        self.link_internship_to_type(i_id, type)
         return iden
 
     def link_internship_to_type(self, internship_id, type_name):
