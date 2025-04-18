@@ -40,23 +40,16 @@
 
         <h1 class="title text-center">{{ get_text("Create Internship Application") }}</h1>
         <br>
+        {% if current_language == "nl" %}
 
-        <div class="container">
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <h5 class="card-title">Hoe werkt het?</h5>
-                <p class="card-text">Op deze pagina kunnen bedrijven hun stageopdracht eenvoudig indienen. Na het indienen wordt de opdracht geëvalueerd door ons departement en bij goedkeuring ontvang je een bevestigingsmail, waarna de opdracht zichtbaar wordt gemaakt voor onze studenten.</p>
-                <p class="card-text">
-                    Twijfel je of jouw project aan onze voorwaarden voldoet? Raadpleeg dan dit document (beschikbaar in het
-                    <a href="get-document/info-one-pager-NL.pdf" style="color: blue;">Nederlands</a>
-                    en
-                    <a href="get-document/info-one-pager-EN.pdf" style="color: blue;">Engels</a>) voor meer informatie. Voor verdere vragen kan je terecht bij onze stage coördinator,
-                    <a href="mailto:fwet-informatica-stages@uantwerpen.be" style="color: blue">Tim Apers</a>.
-                </p>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </div>
+        {% include 'create_internship_box_nl.html' %}
+
+        {% else %}
+
+        {% include 'create_internship_box_en.html' %}
+
+        {% endif %}
+
         <br>
         <form method="POST" action="{{ url_for('careers.create_internship') }}" enctype="multipart/form-data"
               id="event-form">
