@@ -194,6 +194,23 @@ function fillCard(number, internship) {
             </span>
         `))
     }
+    else {
+        if (isAccepted(internship)) {
+            console.log("Internship accepted:", internship);
+            badges.append($(`
+                <span class="badge badge-success" style="margin-right: 10px">
+                    ${language === 'en' ? 'Accepted' : 'Geaccepteerd'}
+                </span>
+            `));
+        } else {
+            console.log("Internship rejected:", internship);
+            badges.append($(`
+                <span class="badge badge-danger" style="margin-right: 10px">
+                    ${language === 'en' ? 'Rejected' : 'Afgewezen'}
+                </span>
+            `));
+        }
+    }
     if (internship["is_active"] !== undefined && !internship["is_active"]) {
         let inactive_badge = document.createElement("span");
         inactive_badge.setAttribute("class", "badge badge-info");

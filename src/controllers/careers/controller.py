@@ -2,8 +2,8 @@
 This package processes all routing requests.
 """
 
-
-from flask import Blueprint, request, jsonify, render_template, current_app, send_from_directory, session, redirect, redirect, url_for, flash
+from flask import Blueprint, request, jsonify, render_template, current_app, send_from_directory, session, redirect, \
+    redirect, url_for, flash
 from flask_login import current_user, login_required
 from src.models.internship import InternshipDataAccess
 from src.models.company import CompanyDataAccess
@@ -15,6 +15,7 @@ from werkzeug.utils import secure_filename
 from decorator import login_required
 from datetime import date
 import os
+
 bp = Blueprint('careers', __name__)
 
 
@@ -23,7 +24,6 @@ bp = Blueprint('careers', __name__)
 def careers(my_internships=False):
     if request.method == "GET":
         return render_template('career.html', internships=my_internships)
-
 
 
 @bp.route('/get-all-events-data', methods=['GET'])
@@ -40,6 +40,7 @@ def get_all_internships_data():
     else:
         internships = InternshipDataAccess(connection).get_internships(active_only, accepted_only=False)
     return jsonify([internship.to_dict() for internship in internships])
+
 
 @bp.route('/like-internship', methods=['POST'])
 def like_internship():
@@ -60,6 +61,7 @@ def like_internship():
     InternshipDataAccess(connection).like_internship(current_user.user_id, internship_id)
     return jsonify({'success': True})
 
+
 @bp.route('/unlike-internship', methods=['POST'])
 def unlike_internship():
     """
@@ -78,6 +80,7 @@ def unlike_internship():
     connection = get_db()
     InternshipDataAccess(connection).unlike_internship(current_user.user_id, internship_id)
     return jsonify({'success': True})
+
 
 # @bp.route('/get-event/<int:event_id>', methods=['GET'])
 # def get_internship_data(event_id):
@@ -118,6 +121,7 @@ def get_events_page_additional_data():
     }
     return jsonify(result)
 
+
 @bp.route('/add-view-internship/<int:internship_id>', methods=['POST'])
 def add_view_to_internship(internship_id):
     """
@@ -130,6 +134,7 @@ def add_view_to_internship(internship_id):
         return jsonify({'success': True})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 400
+
 
 @bp.route('/event-page')
 @login_required
@@ -170,6 +175,7 @@ def save_attachment():
     return jsonify({'success': True, 'name': file.filename, 'file_location': filename}), 200, {
         'ContentType': 'application/json'}
 
+
 @bp.route('/get-attachment/<path:filename>')
 def get_attachment(filename):
     """
@@ -180,6 +186,7 @@ def get_attachment(filename):
     if secure_filename(filename):
         return send_from_directory(os.path.join(current_app.config['file-storage'], 'attachments'), filename)
     return jsonify({'success': False}), 400, {'ContentType': 'application/json'}
+
 
 @bp.route('/get-all-event-data/<int:e_id>', methods=['GET'])
 @login_required
@@ -214,6 +221,7 @@ def create_event():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 400
 
+
 @bp.route('/create_internship', methods=['GET', 'POST'])
 def create_internship():
     if request.method == 'GET':
@@ -230,6 +238,7 @@ def create_internship():
     except Exception as e:
         flash('Failed to create internship!', 'danger')
         return redirect(url_for('careers.create_internship', refresh=1))
+
 
 @bp.route('/review-internship', methods=['POST'])
 def review_internship():
@@ -251,6 +260,7 @@ def review_internship():
     InternshipDataAccess(connection).review_internship(internship_id, approved)
     return jsonify({'success': True, 'message': 'Internship review updated successfully.'})
 
+@bp.route('/remove-internship', methods=['POST'])
 def remove_internship():
     """
     Handles the POST request to remove an internship.
@@ -268,6 +278,7 @@ def remove_internship():
     InternshipDataAccess(connection).remove_internship(internship_id)
     return jsonify({'success': True, 'message': 'Internship removed successfully.'})
 
+
 @bp.route('/add-internship-registration', methods=['POST'])
 def add_registration():
     """
@@ -278,7 +289,8 @@ def add_registration():
         try:
             internship_id = request.form['event']
             type = request.form['type']
-            registration = InternshipRegistration(current_user.user_id, internship_id, type, "Pending", date=date.today().strftime("%Y-%m-%d"))
+            registration = InternshipRegistration(current_user.user_id, internship_id, type, "Pending",
+                                                  date=date.today().strftime("%Y-%m-%d"))
             InternshipRegistrationsDataAccess(get_db()).add_internship_registration(registration)
 
             internship = InternshipDataAccess(get_db()).get_internship(internship_id, False)
@@ -320,8 +332,8 @@ def handle_registration():
             data = request.json
 
             InternshipRegistrationsDataAccess(get_db()).update_status(student=data['student_id'],
-                                                                 internship=data['internship_id'],
-                                                                 status=data['status'])
+                                                                      internship=data['internship_id'],
+                                                                      status=data['status'])
 
             internship_title = InternshipDataAccess(get_db()).get_internship(data['internship_id'], False).title
             # if data['status']:
@@ -337,6 +349,7 @@ def handle_registration():
         return jsonify({'success': False, "message": "Failed to update registration!"}), 400, {
             'ContentType': 'application/json'}
 
+
 @bp.route('/register-user-data/<int:e_id>', methods=['POST'])
 def register_user_data(e_id):
     """
@@ -350,7 +363,8 @@ def register_user_data(e_id):
     except:
         return jsonify(
             {'success': True, 'message': "Failed to register user behaviour for project " + str(p_id) + "."}), 400, {
-                   'ContentType': 'application/json'}
+            'ContentType': 'application/json'}
+
 
 @bp.route('/get-document/<string:name>')
 def get_document(name):

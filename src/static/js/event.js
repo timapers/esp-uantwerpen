@@ -604,6 +604,47 @@ function construct_event() {
     // Badges
     let badges = document.getElementById("badges");
 
+
+    if (role === "admin") {
+        if (!isReviewed(event)) {
+            let reviewed_badge = document.createElement("span");
+            reviewed_badge.setAttribute("class", "badge badge-warning");
+            reviewed_badge.setAttribute("style", "margin-right: 5px;");
+            reviewed_badge.setAttribute("id", "not-reviewed");
+            if (language === 'en') {
+                reviewed_badge.innerHTML = "Not reviewed";
+            } else {
+                reviewed_badge.innerHTML = "Niet beoordeeld";
+            }
+            badges.appendChild(reviewed_badge);
+        } else {
+            if (isAccepted(event)) {
+                let accepted_badge = document.createElement("span");
+                accepted_badge.setAttribute("class", "badge badge-success");
+                accepted_badge.setAttribute("style", "margin-right: 5px;");
+                accepted_badge.setAttribute("id", "already-reviewed");
+                if (language === 'en') {
+                    accepted_badge.innerHTML = "Accepted";
+                } else {
+                    accepted_badge.innerHTML = "Geaccepteerd";
+                }
+                badges.appendChild(accepted_badge);
+            } else {
+                let rejected_badge = document.createElement("span");
+                rejected_badge.setAttribute("class", "badge badge-danger");
+                rejected_badge.setAttribute("style", "margin-right: 5px;");
+                rejected_badge.setAttribute("id", "already-reviewed");
+                if (language === 'en') {
+                    rejected_badge.innerHTML = "Rejected";
+                } else {
+                    rejected_badge.innerHTML = "Afgekeurd";
+                }
+                badges.appendChild(rejected_badge);
+
+            }
+        }
+    }
+
     // Number of students
     let nr_students_badge = document.createElement("span");
     nr_students_badge.setAttribute("class", "badge success-color");
@@ -612,6 +653,14 @@ function construct_event() {
     nr_students_badge.innerHTML = "Students: " + registered_students + "/" + event['max_students'];
     badges.appendChild(nr_students_badge);
 
+
+    if (is_occupied(event)) {
+        badges.append($(`
+                <span class="badge badge-danger" style="margin-right: 10px">
+                    ${language === 'en' ? 'Occupied' : 'Volzet'}
+                </span>
+            `))
+    }
     //Type
     if (event['types'] === null || event['types'] === undefined || event['types'].length === 0) {
         let type_badge = document.createElement("span");
@@ -663,10 +712,18 @@ function construct_event() {
     //Reviewed
     if (event['is_reviewed'] == false) {
         $("#not-reviewed").show();
-        $("#already-reviewed").hide();
+        $("#already-reviewed-accepted").hide();
+        $("#already-reviewed-rejected").hide();
     } else {
-        $("#not-reviewed").hide();
-        $("#already-reviewed").show();
+        if (event["is_accepted"] == true) {
+            $("#not-reviewed").hide();
+            $("#already-reviewed-accepted").show();
+            $("#already-reviewed-rejected").hide();
+        } else {
+            $("#not-reviewed").hide();
+            $("#already-reviewed-accepted").hide();
+            $("#already-reviewed-rejected").show();
+        }
     }
 
 
@@ -1147,5 +1204,23 @@ function removeInternship() {
             .catch((error) => {
                 console.error('Error:', error);
             });
+    }
 }
+
+function isReviewed(event) {
+    return event['is_reviewed'];
+}
+
+function isAccepted(event) {
+    return event['is_accepted'];
+}
+
+function is_occupied(event) {
+    let students = 0;
+    for (let registration of event['registrations']) {
+        if (registration['status'] === "Accepted") {
+            students += 1;
+        }
+    }
+    return event['max_students'] <= students;
 }

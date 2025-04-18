@@ -33,10 +33,26 @@
             </button>
         {% endif %}
     </div>
-    <div class="text-center" id="already-reviewed" style="display: none;">
+    <div class="text-center" id="already-reviewed-accepted" style="display: none;">
         {% if current_user.is_authenticated and current_user.role == "admin" %}
             This internship has already been reviewed.
             <br>
+
+            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny
+            </button>
+            <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
+                Internship
+            </button>
+        {% endif %}
+    </div>
+    <div class="text-center" id="already-reviewed-rejected" style="display: none;">
+        {% if current_user.is_authenticated and current_user.role == "admin" %}
+            This internship has already been reviewed.
+            <br>
+            <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept
+            </button>
+{#            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny#}
+{#            </button>#}
             <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
                 Internship
             </button>
@@ -48,14 +64,14 @@
     <div class="text-center" id="buttons">
 
         {% if current_user.is_authenticated and current_user.role == "student" %}
-{#            <div class="dropdown">#}
-                <button class="btn default-color dropdown-toggle" type="button" id="registration-btn"
-                        aria-haspopup="true" aria-expanded="false">
-                    {{ get_text("Register") }}
-                </button>
-{#                <div class="dropdown-menu" aria-labelledby="registration-btn" id="registration-options">#}
-{#                </div>#}
-{#            </div>#}
+            {#            <div class="dropdown">#}
+            <button class="btn default-color dropdown-toggle" type="button" id="registration-btn"
+                    aria-haspopup="true" aria-expanded="false">
+                {{ get_text("Register") }}
+            </button>
+            {#                <div class="dropdown-menu" aria-labelledby="registration-btn" id="registration-options">#}
+            {#                </div>#}
+            {#            </div>#}
 
         {% endif %}
 
@@ -83,7 +99,6 @@
                 </ul>
             </div>
         </div>
-
 
 
         <div class="my-4 text-center card-deck justify-content-center" id="address_company">
