@@ -101,7 +101,7 @@
             <div class="my-4 text-center card-deck justify-content-center" id="address_company">
 
                 <div class="card" id="address">
-                    <div class="card-header"><h4 class="my-0">Address</h4></div>
+                    <div class="card-header"><h4 class="my-0"> {{ get_text("Address") }}</h4></div>
                     <div class="card-body" id="address-body">
                     </div>
                 </div>
@@ -128,7 +128,7 @@
             <div class="my-4 text-center card-deck justify-content-center" id="contact_person_company">
 
                 <div class="card" id="contact_person" style="display: none; ">
-                    <div class="card-header"><h4 class="my-0">Contact Person</h4></div>
+                    <div class="card-header"><h4 class="my-0">{{ get_text("Contact Person") }}</h4></div>
                     <div class="card-body">
                         <ul class="list-unstyled" id="contact_persons-list"></ul>
                         <input type="text" id="contact_persons-input" style="display: none; margin-top: 1em;"
@@ -146,7 +146,7 @@
                   style="display: none;"></form>
 
             <div class="container" id="registrations" style="display: none;">
-                <h3 class="text-center">Registrations</h3>
+                <h3 class="text-center">{{ get_text("Registrations") }}</h3>
                 <table id="registrations-table" class="table table-hover col-xl" style="width:100%"></table>
             </div>
 
