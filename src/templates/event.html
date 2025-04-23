@@ -18,168 +18,182 @@
 {% endblock %}
 
 {% block content %}
-
     <div class="container" id="content">
-    <div class="text-center" id="not-reviewed" style="display: none;">
-        {% if current_user.is_authenticated and current_user.role == "admin" %}
-            After reviewing the internship, please click one of the buttons below.
-            <br>
-            <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept
-            </button>
-            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny
-            </button>
-            <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
-                Internship
-            </button>
-        {% endif %}
-    </div>
-    <div class="text-center" id="already-reviewed-accepted" style="display: none;">
-        {% if current_user.is_authenticated and current_user.role == "admin" %}
-            This internship has already been reviewed.
-            <br>
+        <div class="text-center" id="not-reviewed" style="display: none;">
+            {% if current_user.is_authenticated and current_user.role == "admin" %}
+                After reviewing, please click one of the buttons below.
 
-            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny
-            </button>
-            <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
-                Internship
-            </button>
-        {% endif %}
-    </div>
-    <div class="text-center" id="already-reviewed-rejected" style="display: none;">
-        {% if current_user.is_authenticated and current_user.role == "admin" %}
-            This internship has already been reviewed.
-            <br>
-            <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept
-            </button>
-{#            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny#}
-{#            </button>#}
-            <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
-                Internship
-            </button>
-        {% endif %}
-    </div>
+                <br>
+                <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept
+                </button>
+                <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny
+                </button>
+                <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
+                </button>
+            {% endif %}
+        </div>
+        <div class="text-center" id="already-reviewed-accepted" style="display: none;">
+            {% if current_user.is_authenticated and current_user.role == "admin" %}
+                This has already been reviewed.
+                <br>
 
+                <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny
+                </button>
+                <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
+                </button>
+            {% endif %}
+        </div>
+        <div class="text-center" id="already-reviewed-rejected" style="display: none;">
+            {% if current_user.is_authenticated and current_user.role == "admin" %}
+                This has already been reviewed.
+                <br>
+                <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept
+                </button>
+                {#            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny#}
+                {#            </button>#}
+                <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
+                </button>
+            {% endif %}
+        </div>
 
-    <!-- Option buttons -->
-    <div class="text-center" id="buttons">
-
-        {% if current_user.is_authenticated and current_user.role == "student" %}
-            {#            <div class="dropdown">#}
-            <button class="btn default-color dropdown-toggle" type="button" id="registration-btn"
-                    aria-haspopup="true" aria-expanded="false">
-                {{ get_text("Register") }}
-            </button>
-            {#                <div class="dropdown-menu" aria-labelledby="registration-btn" id="registration-options">#}
-            {#                </div>#}
-            {#            </div>#}
-
-        {% endif %}
-
-        <h1 class="title text-center" id="title"></h1>
-
-        <!-- Badges -->
-        <div class="text-center" id="badges"></div>
-
-
-        <!-- Extra Info -->
-        <div class="text-center" id="extra-info"></div>
 
         <!-- Option buttons -->
         <div class="text-center" id="buttons">
 
+            {% if current_user.is_authenticated and current_user.role == "student" %}
+                {#            <div class="dropdown">#}
+                <button class="btn default-color dropdown-toggle" type="button" id="registration-btn"
+                        aria-haspopup="true" aria-expanded="false" style="display: none">
+                    {{ get_text("Register") }}
+                </button>
+                {#                <div class="dropdown-menu" aria-labelledby="registration-btn" id="registration-options">#}
+                {#                </div>#}
+                {#            </div>#}
 
-        </div>
+            {% endif %}
 
-        <div class="description mt-2" id="description"></div>
+            <h1 class="title text-center" id="title"></h1>
 
-        <div class="card" id="attachments" style="display: none;">
-            <div class="card-body">
-                Attachments &nbsp;
-                <ul class="list-unstyled d-inline" id="attachments-list">
-                </ul>
+            <!-- Badges -->
+            <div class="text-center" id="badges"></div>
+
+
+            <!-- Extra Info -->
+            <div class="text-center" id="extra-info"></div>
+
+            <!-- Option buttons -->
+            <div class="text-center" id="buttons">
+
+
             </div>
-        </div>
 
+            <div class="description mt-2" id="description"></div>
 
-        <div class="my-4 text-center card-deck justify-content-center" id="address_company">
-
-            <div class="card" id="address">
-                <div class="card-header"><h4 class="my-0">Address</h4></div>
-                <div class="card-body" id="address-body">
-                    TESTING
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Contact Person -->
-        <div class="my-4 text-center card-deck justify-content-center" id="contact_person_company">
-
-            <div class="card" id="contact_person" style="display: none; ">
-                <div class="card-header"><h4 class="my-0">Contact Person</h4></div>
+            <div class="card" id="attachments" style="display: none;">
                 <div class="card-body">
-                    <ul class="list-unstyled" id="contact_persons-list"></ul>
-                    <input type="text" id="contact_persons-input" style="display: none; margin-top: 1em;"
-                           placeholder="Add a CP"
-                           data-provide="typeahead">
+                    Attachments &nbsp;
+                    <ul class="list-unstyled d-inline" id="attachments-list">
+                    </ul>
                 </div>
             </div>
 
-        </div>
 
+            <div class="my-4 text-center card-deck justify-content-center" id="address_company">
 
-        <form action="{{ url_for('careers.save_attachment') }}"
-              class="dropzone mb-4"
-              id="dropzone"
-              style="display: none;"></form>
-
-        <div class="container" id="registrations" style="display: none;">
-            <h3 class="text-center">Registrations</h3>
-            <table id="registrations-table" class="table table-hover col-xl" style="width:100%"></table>
-        </div>
-
-        {#        <div class="text-center" id="recommendations-title">#}
-        {#            <br>#}
-        {#            <h3>Recommendations</h3>#}
-        {#            <hr>#}
-        {#        </div>#}
-
-        {#        <div class="card-columns mb-3 text-center" id="recommendations"></div>#}
-
-
-        <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
-            <div class="modal-dialog" role="document">
-
-                {% if current_theme == "dark" %}
-                    <div class="modal-content bg-dark">
-                {% else %}
-                    <div class="modal-content">
-                {% endif %}
-
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-
-                <div class="modal-body" id="modal-body">
-
-                </div>
-
-                <div class="modal-footer">
-                    <span id="modal-info"></span>
-                    <button type="button" class="btn light-button-color blacktext" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveChangesButton">Save changes</button>
-                </div>
-
-                </div>
+                <div class="card" id="address">
+                    <div class="card-header"><h4 class="my-0">Address</h4></div>
+                    <div class="card-body" id="address-body">
+                    </div>
                 </div>
 
             </div>
 
-        </div>
 
+            <div class="my-4 text-center" id="date" style="display: none;">
+                <div class="card-deck row justify-content-lg-between align-items-center">
+                    <div class="card" id="start">
+                        <div class="card-header"><h4 class="my-0">{{ get_text("Start Date") }}</h4></div>
+                        <div class="card-body" id="start_date-body">
+                        </div>
+                    </div>
+                    <div class="card" id="end">
+                        <div class="card-header"><h4 class="my-0">{{ get_text("End Date") }}</h4></div>
+                        <div class="card-body" id="end_date-body">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Person -->
+            <div class="my-4 text-center card-deck justify-content-center" id="contact_person_company">
+
+                <div class="card" id="contact_person" style="display: none; ">
+                    <div class="card-header"><h4 class="my-0">Contact Person</h4></div>
+                    <div class="card-body">
+                        <ul class="list-unstyled" id="contact_persons-list"></ul>
+                        <input type="text" id="contact_persons-input" style="display: none; margin-top: 1em;"
+                               placeholder="Add a CP"
+                               data-provide="typeahead">
+                    </div>
+                </div>
+
+            </div>
+
+
+            <form action="{{ url_for('careers.save_attachment') }}"
+                  class="dropzone mb-4"
+                  id="dropzone"
+                  style="display: none;"></form>
+
+            <div class="container" id="registrations" style="display: none;">
+                <h3 class="text-center">Registrations</h3>
+                <table id="registrations-table" class="table table-hover col-xl" style="width:100%"></table>
+            </div>
+
+            {#        <div class="text-center" id="recommendations-title">#}
+            {#            <br>#}
+            {#            <h3>Recommendations</h3>#}
+            {#            <hr>#}
+            {#        </div>#}
+
+            {#        <div class="card-columns mb-3 text-center" id="recommendations"></div>#}
+
+
+            <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+                <div class="modal-dialog" role="document">
+
+                    {% if current_theme == "dark" %}
+                        <div class="modal-content bg-dark">
+                    {% else %}
+                        <div class="modal-content">
+                    {% endif %}
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-title"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body" id="modal-body">
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <span id="modal-info"></span>
+                        <button type="button" class="btn light-button-color blacktext" data-dismiss="modal">Close
+                        </button>
+                        <button type="button" class="btn btn-primary" id="saveChangesButton">Save changes</button>
+                    </div>
+
+                    </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
     </div>
 
 {% endblock %}

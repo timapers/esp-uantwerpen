@@ -364,7 +364,7 @@ def register_user_data(e_id):
         return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
     except:
         return jsonify(
-            {'success': True, 'message': "Failed to register user behaviour for project " + str(p_id) + "."}), 400, {
+            {'success': True, 'message': "Failed to register user behaviour for event " + str(e_id) + "."}), 400, {
             'ContentType': 'application/json'}
 
 

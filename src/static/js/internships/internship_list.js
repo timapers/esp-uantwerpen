@@ -219,6 +219,15 @@ function fillCard(number, internship) {
         company_badge.style = "margin-right: 10px";
         badges.append(company_badge);
     }
+    if (internship['types'] !== undefined) {
+        for (let i = 0; i < internship['types'].length; i++) {
+            let type_badge = document.createElement("span");
+            type_badge.setAttribute("class", "badge type-bg-color");
+            type_badge.innerHTML = internship['types'][i];
+            type_badge.style = "margin-right: 10px";
+            badges.append(type_badge);
+        }
+    }
 
     if (internship['tags'] !== undefined) {
         for (let i = 0; i < internship['tags'].length; i++) {
@@ -229,6 +238,7 @@ function fillCard(number, internship) {
             badges.append(tag_badge);
         }
     }
+
 
     let date_badge = document.createElement("span");
     // console.log(internship);

@@ -12,7 +12,7 @@ class Internship:
     Internship model class
     """
 
-    def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, address,
+    def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address,
                  contact_person, is_active, is_reviewed, is_accepted):
         self.internship_id = in_id
         self.title = title
@@ -21,6 +21,8 @@ class Internship:
         self.company_id = company_id
         self.view_count = view_count
         self.creation_date = creation_date
+        self.start_date = start_date
+        self.end_date = end_date
         self.address = address
         self.contact_person = contact_person
         self.is_active = is_active
@@ -96,7 +98,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE internship_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE internship_id = %s',
             (internship_id,))
         row = cursor.fetchone()
         event = Internship(*row)

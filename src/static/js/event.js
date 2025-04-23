@@ -339,18 +339,14 @@ function fetch_event() {
         success: function (data) {
             event = data["event_data"];
             company = data["company"];
-            links = data["links"];
+            // links = data["links"];
             is_contact_person = data["contact_person_name_email"] // Format dict with "name" : name, "email" : email
-
 
             construct_event();
             construct_description();
-            // create_recommendations();
-            // construct_contact_person();
+
 
             if (role === "student") {
-                // update_user_behaviour();
-                // update_like_status("Like", "Unlike")
                 add_view();
             }
             enablePopovers();
@@ -646,13 +642,14 @@ function construct_event() {
     }
 
     // Number of students
-    let nr_students_badge = document.createElement("span");
-    nr_students_badge.setAttribute("class", "badge success-color");
-    nr_students_badge.setAttribute("style", "margin-right: 5px;");
-    nr_students_badge.setAttribute("id", "nr_students_badge");
-    nr_students_badge.innerHTML = "Students: " + registered_students + "/" + event['max_students'];
-    badges.appendChild(nr_students_badge);
-
+    if (event["types"][0] === "Internship") {
+        let nr_students_badge = document.createElement("span");
+        nr_students_badge.setAttribute("class", "badge success-color");
+        nr_students_badge.setAttribute("style", "margin-right: 5px;");
+        nr_students_badge.setAttribute("id", "nr_students_badge");
+        nr_students_badge.innerHTML = "Students: " + registered_students + "/" + event['max_students'];
+        badges.appendChild(nr_students_badge);
+    }
 
     if (is_occupied(event)) {
         badges.append($(`
@@ -740,7 +737,8 @@ function construct_event() {
     let views = document.createElement("span");
     info_div.appendChild(views);
     views.setAttribute("class", "extra_info_element");
-    views.innerHTML = "x" + event['view_count'] + " times viewed";
+    const view_count = event["view_count"];
+    views.innerHTML = "x" + view_count + " times viewed";
 
     const attachments = $("#attachments-list");
     let attachment_present;
@@ -759,7 +757,19 @@ function construct_event() {
     const address_div = document.getElementById("address-body");
     address_div.innerHTML = address;
 
+    if (event["types"][0] != "Internship") {
+        const start_date = event['start_date'];
+        const start_div = document.getElementById("start_date-body");
+        start_div.innerHTML = start_date;
 
+        const end_date = event['end_date'];
+        const end_div = document.getElementById("end_date-body");
+        end_div.innerHTML = end_date;
+
+        let date_div = document.getElementById("date");
+        date_div.style.display = "block";
+
+    }
     let edit_permissions = role === "admin";
 
 
@@ -775,14 +785,14 @@ function construct_event() {
 
 
 // Registrations
-    if (edit_permissions) {
+    if (edit_permissions && event["types"][0] === "Internship") {
         construct_registrations();
         // document.getElementById("modify-btn").setAttribute("style", "display: true;");
     }
 
-    if (role === 'student') {
-        // fill_register_dropdown();
+    if (role === 'student' && event['types'][0] === "Internship") {
         let container = $('#registration-btn');
+        container.show();
         container.off('click').on('click', function () {
             register_for_event(event['types'][0]);
 
@@ -791,12 +801,7 @@ function construct_event() {
 }
 
 
-function fill_register_dropdown() {
-    let container = $('#registration-options');
-    for (let type of event['types']) {
-        container.append($(`<a class="dropdown-item" href="#" onclick="register_for_event('${type}')">${type}</a>`))
-    }
-}
+
 
 
 /**
@@ -1017,123 +1022,6 @@ function add_view() {
     $.returnValues("/add-view-internship/" + event["internship_id"]);
 }
 
-// /**
-//  * This function opens a default edit modal.
-//  */
-// function addModal() {
-//     $("#modal-info").text("");
-//
-//     $("#modal-title").text("Add new employee");
-//
-//     $("#modal-body").html(getEditHTML());
-//
-//     let saveChanges = $("#saveChangesButton");
-//     saveChanges.off("click");
-//     saveChanges.click(function () {
-//         let json = getEditData();
-//         json["type"] = "add";
-//         $("#modal-info").text("Saving...");
-//         $.ajax({
-//             url: "modify-lists",
-//             method: "POST",
-//             data: JSON.stringify(json),
-//             contentType: 'application/json',
-//             success: function (message) {
-//                 $("#modal").modal('toggle');
-//                 employees.push(json["name"]);
-//
-//                 if (json["guidance"] === "Promotor") {
-//                     $("#promotors-input").tagsinput("add", json["name"])
-//                 } else if (json['guidance'] === "Co-Promotor") {
-//                     $("#co-promotors-input").tagsinput("add", json["name"])
-//                 } else if (json['guidance'] === "Mentor") {
-//                     $("#mentors-input").tagsinput("add", json["name"])
-//                 }
-//             },
-//             error: function (message) {
-//                 $("#modal-info").text("Error occurred")
-//             }
-//         });
-//     });
-//
-//     $("#modal").modal("toggle");
-// }
-//
-// /**
-//  * This function provides default edit html.
-//  */
-// function getEditHTML() {
-//     return `
-//             <div class="row">
-//                 <div class="col">
-//                     Name
-//                 </div>
-//                 <div class="col">
-//                     <input id="name-input" class="form-control-sm">
-//                 </div>
-//             </div>
-//             <div class="row">
-//                 <div class="col">
-//                     Email
-//                 </div>
-//                 <div class="col">
-//                     <input id="email-input" class="form-control-sm">
-//                 </div>
-//             </div>
-//             <div class="row">
-//                 <div class="col">
-//                     Office
-//                 </div>
-//                 <div class="col">
-//                     <input id="office-input" class="form-control-sm">
-//                 </div>
-//             </div>
-//             <div class="row">
-//                 <div class="col">
-//                     Research Group
-//                 </div>
-//                 <div class="col">
-//                     <select style='width: 100%; max-width: 150px;' id="research-group-input">
-//
-//                         ${`<option value="">None</option>` +
-//     groups.map(function (group) {
-//         return `<option value="${group}">${group}</option>`;
-//     }).join("")}
-//
-//                     </select>
-//                 </div>
-//             </div>
-//             <div class="row">
-//                 <div class="col">
-//                     Guidance
-//                 </div>
-//                 <div class="col">
-//                     <select style='width: 100%; max-width: 150px;' id="guidance-input">
-//                         <option value="Co-Promotor">Co-Promotor</option>
-//                         <option value="Mentor">Mentor</option>
-//                     </select>
-//                 </div>
-//             </div>
-//         `;
-// }
-
-// /**
-//  * This function returns all input data.
-//  * @return data input data
-//  */
-// function getEditData() {
-//     let data = {};
-//     data["object"] = "employee";
-//     data["name"] = $("#name-input").val();
-//     data["email"] = $("#email-input").val();
-//     data["office"] = $("#office-input").val();
-//     data["research_group"] = $("#research-group-input").val();
-//     data["is_external"] = true;
-//     data["extra_info"] = "";
-//     data["title"] = null;
-//     data["guidance"] = $("#guidance-input").val();
-//     return data;
-// }
 
 function reviewInternship(action) {
     var alreadyReviewed = document.getElementById("already-reviewed");
