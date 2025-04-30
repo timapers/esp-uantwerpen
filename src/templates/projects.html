@@ -112,7 +112,7 @@
 
                 <br>
 
-                <input type="checkbox" id="full-filter" onchange="onChangeAvailableProjectsFilter(this)">
+                <input type="checkbox" id="full-filter" onchange="onChangeAvailableProjectsFilter(this)" checked>
                 <label for="full-filter">Only Available Projects</label>
 
                 {% if current_user.is_authenticated and current_user.role == "student" %}

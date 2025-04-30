@@ -34,10 +34,12 @@ def get_all_internships_data():
     :return: JSON containing all internship data.
     """
     connection = get_db()
-    active_only = True  # Fetch only active internships
+
     if not current_user.is_authenticated or current_user.role != "admin":
+        active_only = True  # Fetch only active internships
         internships = InternshipDataAccess(connection).get_internships(active_only, accepted_only=True)
     else:
+        active_only = False  # Fetch only active internships
         internships = InternshipDataAccess(connection).get_internships(active_only, accepted_only=False)
     return jsonify([internship.to_dict() for internship in internships])
 
@@ -277,8 +279,17 @@ def remove_internship():
         return jsonify({'success': False, 'message': 'Internship ID is required.'}), 400
 
     connection = get_db()
-    InternshipDataAccess(connection).remove_internship(internship_id)
-    return jsonify({'success': True, 'message': 'Internship removed successfully.'})
+    # Get internship to check if it is active
+    i = InternshipDataAccess(connection).get_internship(internship_id, False)
+    # If the internship is active we will put it on non-active and vise versa
+    active = i.is_active
+    # Check if the internship is occupied
+    # if InternshipDataAccess(connection).is_internship_occupied(internship_id) and active:
+    #     return jsonify({'success': False, 'message': 'Cannot be made inactive when occupied'}), 400
+    # InternshipDataAccess(connection).remove_internship(internship_id)
+    n_active = not active
+    InternshipDataAccess(connection).set_internship_active(internship_id, n_active)
+    return jsonify({'success': True, 'message': 'Internship has been put on .'})
 
 
 @bp.route('/add-internship-registration', methods=['POST'])

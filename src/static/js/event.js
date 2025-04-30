@@ -32,6 +32,11 @@ Dropzone.options.dropzone = {
     }
 };
 
+
+function toggleInternshipStatus() {
+    removeInternship()
+}
+
 /**
  * MAIN FUNCTION
  */
@@ -639,6 +644,18 @@ function construct_event() {
 
             }
         }
+        if (!event['is_active']){
+            let inactive_badge = document.createElement("span");
+            inactive_badge.setAttribute("class", "badge badge-info");
+            inactive_badge.setAttribute("style", "margin-right: 5px;");
+            inactive_badge.setAttribute("id", "inactive-badge");
+            if (language === 'en') {
+                inactive_badge.innerHTML = "Inactive";
+            } else {
+                inactive_badge.innerHTML = "Inactief";
+            }
+            badges.appendChild(inactive_badge);
+        }
     }
 
     // Number of students
@@ -648,15 +665,23 @@ function construct_event() {
         nr_students_badge.setAttribute("style", "margin-right: 5px;");
         nr_students_badge.setAttribute("id", "nr_students_badge");
         nr_students_badge.innerHTML = "Students: " + registered_students + "/" + event['max_students'];
+        if (registered_students >= event['max_students']) {
+            nr_students_badge.setAttribute("class", "badge badge-danger");
+        }
+        if (role === "student") {
+            $("#registration-btn").prop("disabled", true);
+        }
         badges.appendChild(nr_students_badge);
     }
 
     if (is_occupied(event)) {
-        badges.append($(`
-                <span class="badge badge-danger" style="margin-right: 10px">
-                    ${language === 'en' ? 'Occupied' : 'Volzet'}
-                </span>
-            `))
+        let occ_badge = document.createElement("span");
+        occ_badge.setAttribute("class", "badge badge-danger");
+        occ_badge.setAttribute("style", "margin-right: 5px;");
+        occ_badge.setAttribute("id", "occupied-badge");
+        occ_badge.innerHTML = `${language === 'en' ? 'Occupied' : 'Volzet'}`;
+        badges.appendChild(occ_badge);
+
     }
     //Type
     if (event['types'] === null || event['types'] === undefined || event['types'].length === 0) {
@@ -798,10 +823,15 @@ function construct_event() {
 
         });
     }
+
+    const isActive = event['is_active']
+    const deleteButtons = document.querySelectorAll("#delete-button");
+
+    deleteButtons.forEach(button => {
+        button.textContent = isActive ? "Make Inactive" : "Make Active";
+    });
+
 }
-
-
-
 
 
 /**
@@ -1072,7 +1102,7 @@ function reviewInternship(action) {
 }
 
 function removeInternship() {
-    if (confirm("Are you sure you want to delete this internship?")) {
+    if (confirm("Are you sure you want to change the activity of this?")) {
         fetch('/remove-internship', {
             method: 'POST',
             headers: {
@@ -1083,10 +1113,16 @@ function removeInternship() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Internship removed successfully.');
+                    let m = ''
+                    if (event['is_active']) {
+                        m = 'inactive'
+                    } else {
+                        m = 'active'
+                    }
+                    alert('Change successful to ' + m + '.');
                     window.location.href = '/careers';
                 } else {
-                    alert('Failed to remove internship: ' + data.message);
+                    alert('Failed to change status: ' + data.message);
                 }
             })
             .catch((error) => {

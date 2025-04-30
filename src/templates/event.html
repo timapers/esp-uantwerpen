@@ -28,7 +28,8 @@
                 </button>
                 <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny
                 </button>
-                <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
+                <button class="btn btn-primary" id="delete-button" type="button" onclick="toggleInternshipStatus()">Make
+                    Inactive
                 </button>
             {% endif %}
         </div>
@@ -39,7 +40,8 @@
 
                 <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny
                 </button>
-                <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
+                <button class="btn btn-primary" id="delete-button" type="button" onclick="toggleInternshipStatus()">Make
+                    Inactive
                 </button>
             {% endif %}
         </div>
@@ -49,9 +51,8 @@
                 <br>
                 <button class="btn btn-primary" id="accept-button" type="button" onclick="reviewInternship(true)">Accept
                 </button>
-                {#            <button class="btn btn-primary" id="deny-button" type="button" onclick="reviewInternship(false)">Deny#}
-                {#            </button>#}
-                <button class="btn btn-primary" id="delete-button" type="button" onclick="removeInternship()">Remove
+                <button class="btn btn-primary" id="delete-button" type="button" onclick="toggleInternshipStatus()">Make
+                    Inactive
                 </button>
             {% endif %}
         </div>

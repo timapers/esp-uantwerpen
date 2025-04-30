@@ -157,7 +157,6 @@ function setActiveNavElement(number) {
     navTopElem.className = "page-item active";
     navTopElem.firstChild.innerHTML = number.toString() + "<span class=\"sr-only\">(current)</span>";
     navTopElem.firstChild.className = "page-link";
-
 }
 
 /**

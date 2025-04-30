@@ -137,6 +137,7 @@ function filterProjects() {
 
     filtered_projects = filter_liked_projects(filtered_projects);
     filtered_projects = filter_research_groups(filtered_projects);
+    filtered_projects = filter_inactive(filtered_projects);
     filtered_projects = filter_type(filtered_projects);
     filtered_projects = filter_full(filtered_projects);
     filtered_projects = filter_employee(filtered_projects);
@@ -648,4 +649,17 @@ function substringMatcher(strs) {
 
     cb(matches);
   };
+}
+function filter_inactive(current_projects) {
+    if (! $("#full-filter").is(":checked")) {
+        return current_projects;
+    }
+
+    let filtered_projects = [];
+    for (let project of current_projects) {
+        if (project['is_active']) {
+            filtered_projects.push(project);
+        }
+    }
+    return filtered_projects;
 }

@@ -472,3 +472,13 @@ class InternshipDataAccess:
         except:
             self.dbconnect.rollback()
             raise
+
+    def is_internship_occupied(self, internship_id):
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('select i.internship_id, COUNT(ir.internship) as registration_count, i.max_students from internship i left join internship_registration ir on i.internship_id = ir.internship where i.internship_id = %s group by i.internship_id', (internship_id,))
+        row = cursor.fetchone()
+        id, count, max_students = row[0], row[1], row[2]
+        if count >= max_students:
+            return True
+        else:
+            return False
