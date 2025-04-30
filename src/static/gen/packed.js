@@ -433,6 +433,25 @@ function sort_on_date(reverse = false) {
     }
 }
 
+function searchOnEnter(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        search($("#search_text").val());
+    }
+}
+
+function filter_search(filtered_internships) {
+    const search = $("#search_text").val().toLowerCase();
+    if (search.length === 0) {
+        return filtered_internships;
+    }
+
+    return filtered_internships.filter(internship => {
+        return internship['title'].toLowerCase().includes(search) ||
+            internship['company_name'].toLowerCase().includes(search) || internship['html_content_eng'].toLowerCase().includes(search);
+    });
+}
+
 /**
  * This function filters all internships.
  */
@@ -444,7 +463,8 @@ function filterInternships() {
     filtered_internships = filter_types(filtered_internships);
     filtered_internships = filter_reviewed_internships(filtered_internships);
     filtered_internships = filter_full(filtered_internships);
-    filtered_internships = filter_inactive(filtered_internships)
+    filtered_internships = filter_inactive(filtered_internships);
+    filtered_internships = filter_search(filtered_internships);
 
     const order_by = $("#orderBy").val();
     if (order_by === "AZ") {
@@ -635,6 +655,11 @@ function init_company_select() {
         filterInternships();
     })
     .selectpicker('refresh');
+}
+
+function search(value) {
+    setSearch(value);
+    filterInternships();
 }
 let ALL_INTERNSHIPS = null;
 let INTERNSHIPS = null;
