@@ -377,7 +377,7 @@ class InternshipDataAccess:
             TypeDataAccess(self.dbconnect).add_type(Type(type, True))
 
         try:
-            ## TODO: Add start and end date
+
             cursor.execute('INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,NOW(),%s,%s,%s,%s,%s)',
                            (data['title'], max_students, doc_id, comp_id, 0, event_start_date, event_end_date, data['address'], cp_id, True))
             cursor.execute('SELECT LASTVAL()')

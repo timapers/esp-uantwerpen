@@ -217,7 +217,7 @@ def create_event():
 
     try:
         event_access.create_event(data)
-        flash('Internship created successfully!', 'success')
+        flash('Event created successfully!', 'success')
         return redirect(url_for('careers.create_event', refresh=1))
     except Exception as e:
         flash('Failed to create internship!', 'danger')
