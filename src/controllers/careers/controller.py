@@ -5,6 +5,8 @@ This package processes all routing requests.
 from flask import Blueprint, request, jsonify, render_template, current_app, send_from_directory, session, redirect, \
     redirect, url_for, flash
 from flask_login import current_user, login_required
+
+from src.models.contact_person_company import Contact_person_company, Contact_person_companyDataAccess
 from src.models.internship import InternshipDataAccess
 from src.models.company import CompanyDataAccess
 from src.models.internship_registration import InternshipRegistration, InternshipRegistrationsDataAccess
@@ -14,6 +16,8 @@ from src.models.db import get_db
 from werkzeug.utils import secure_filename
 from decorator import login_required
 from datetime import date
+from src.utils.mail import send_mail
+from src.config import config_data
 import os
 
 bp = Blueprint('careers', __name__)
@@ -262,6 +266,20 @@ def review_internship():
 
     connection = get_db()
     InternshipDataAccess(connection).review_internship(internship_id, approved)
+    internship = InternshipDataAccess(connection).get_internship(internship_id, False)
+    contact_person = Contact_person_companyDataAccess(connection).get_contact_person_company(internship.contact_person)
+    cp_mail = contact_person.email
+    if approved:
+        msg = f"Your internship {internship.title} has been approved!\n" \
+              f"Kind regards,\n" \
+                f"ESP Team"
+        send_mail(cp_mail, "UA Internship/Event Review", msg)
+    else:
+        msg = f"Your internship {internship.title} has been rejected!\n" \
+                f"Please contact the ESP team for more information at {config_data.get('contact-mail', 'Tim.Apers@uantwerpen.be')}.\n" \
+              f"Kind regards,\n" \
+                f"ESP Team"
+        send_mail(cp_mail, "UA Internship/Event Review", msg)
     return jsonify({'success': True, 'message': 'Internship review updated successfully.'})
 
 @bp.route('/remove-internship', methods=['POST'])
