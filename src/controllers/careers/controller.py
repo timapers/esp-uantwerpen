@@ -289,7 +289,7 @@ def remove_internship():
     # InternshipDataAccess(connection).remove_internship(internship_id)
     n_active = not active
     InternshipDataAccess(connection).set_internship_active(internship_id, n_active)
-    return jsonify({'success': True, 'message': 'Internship has been put on .'})
+    return jsonify({'success': True, 'message': 'Internship has been put on ' + ('Inactive' if not n_active else 'Active') + '.'})
 
 
 @bp.route('/add-internship-registration', methods=['POST'])
