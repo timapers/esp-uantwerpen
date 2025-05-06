@@ -12,7 +12,8 @@ class Internship:
     Internship model class
     """
 
-    def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address,
+    def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, start_date,
+                 end_date, address,
                  contact_person, is_active, is_reviewed, is_accepted):
         self.internship_id = in_id
         self.title = title
@@ -130,16 +131,20 @@ class InternshipDataAccess:
         cursor.execute('SELECT name, website FROM company WHERE company_id = %s', (event.company_id,))
         event.company_name, event.website = cursor.fetchone()
 
-
         """Contact Person name:email"""
-        cursor.execute('SELECT name, email FROM contact_person_company WHERE contact_person_id = %s', (event.contact_person,))
+        cursor.execute('SELECT name, email FROM contact_person_company WHERE contact_person_id = %s',
+                       (event.contact_person,))
         row = cursor.fetchone()
         event.contact_person_name_email = {'name': row[0], 'email': row[1]}
         """Registrations"""
-        cursor.execute('SELECT student,name, internship, type, status, date FROM internship_registration JOIN student s on internship_registration.student = s.student_id WHERE internship = %s', (internship_id,))
+        cursor.execute(
+            'SELECT student,name, internship, type, status, date FROM internship_registration JOIN student s on internship_registration.student = s.student_id WHERE internship = %s',
+            (internship_id,))
         registrations = list()
         for row in cursor:
-            registrations.append({"student": row[0], "name": row[1], "internship": row[2], "type": row[3], "status": row[4], "date": row[5]})
+            registrations.append(
+                {"student": row[0], "name": row[1], "internship": row[2], "type": row[3], "status": row[4],
+                 "date": row[5]})
         event.registrations = registrations
         return event
 
@@ -157,7 +162,6 @@ class InternshipDataAccess:
         for row in cursor:
             internships.append(Internship(*row))
         return internships
-
 
     def add_type(self, internship_id, internship_type):
         """
@@ -363,11 +367,12 @@ class InternshipDataAccess:
             Contact_person_companyDataAccess(self.dbconnect).link_comp_to_person(comp_id, cp_id)
 
         # Event Handling
-
-        event_start_date = datetime.datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
-        event_end_date = datetime.datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
-
-
+        event_start_date = None
+        event_end_date = None
+        if (data["start_date"] in data):
+            event_start_date = datetime.datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
+        if (data["end_date"] in data):
+            event_end_date = datetime.datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
 
         i_id = None
         type = data["type"]
@@ -378,8 +383,10 @@ class InternshipDataAccess:
 
         try:
 
-            cursor.execute('INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,NOW(),%s,%s,%s,%s,%s)',
-                           (data['title'], max_students, doc_id, comp_id, 0, event_start_date, event_end_date, data['address'], cp_id, True))
+            cursor.execute(
+                'INSERT INTO internship(title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,NOW(),%s,%s,%s,%s,%s)',
+                (data['title'], max_students, doc_id, comp_id, 0, event_start_date, event_end_date, data['address'],
+                 cp_id, True))
             cursor.execute('SELECT LASTVAL()')
             iden = cursor.fetchone()
             i_id = iden[0]
@@ -417,11 +424,13 @@ class InternshipDataAccess:
         # Check if company already in db
         company = CompanyDataAccess(self.dbconnect).get_company_by_name(data['company_name'])
         if company is None:
-            company = CompanyDataAccess(self.dbconnect).create_company(Company(None, data['company_name'], data['website']))
+            company = CompanyDataAccess(self.dbconnect).create_company(
+                Company(None, data['company_name'], data['website']))
         else:
             # Check if website is the same
             if company.website != data['website']:
-                CompanyDataAccess(self.dbconnect).update_company(company.company_id,data['company_name'], data['website'])
+                CompanyDataAccess(self.dbconnect).update_company(company.company_id, data['company_name'],
+                                                                 data['website'])
         comp_id = company.company_id
         # Contact Person Handling
         # Check if contact person already in db
@@ -444,8 +453,9 @@ class InternshipDataAccess:
             TypeDataAccess(self.dbconnect).add_type(Type(type, True))
 
         try:
-            cursor.execute('INSERT INTO internship(title, description_id, max_students, company_id, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s)',
-                           (data['title'], doc_id, 1, comp_id, data['address'], cp_id, True))
+            cursor.execute(
+                'INSERT INTO internship(title, description_id, max_students, company_id, address, contact_person, is_active) VALUES(%s,%s,%s,%s,%s,%s,%s)',
+                (data['title'], doc_id, 1, comp_id, data['address'], cp_id, True))
             cursor.execute('SELECT LASTVAL()')
             iden = cursor.fetchone()
             i_id = iden[0]
@@ -462,7 +472,6 @@ class InternshipDataAccess:
         else:
             self.set_internship_reviewed_and_accepted(internship_id, False)
 
-
     def set_internship_reviewed_and_accepted(self, internship_id, accepted):
         cursor = self.dbconnect.get_cursor()
         try:
@@ -475,7 +484,9 @@ class InternshipDataAccess:
 
     def is_internship_occupied(self, internship_id):
         cursor = self.dbconnect.get_cursor()
-        cursor.execute('select i.internship_id, COUNT(ir.internship) as registration_count, i.max_students from internship i left join internship_registration ir on i.internship_id = ir.internship where i.internship_id = %s group by i.internship_id', (internship_id,))
+        cursor.execute(
+            'select i.internship_id, COUNT(ir.internship) as registration_count, i.max_students from internship i left join internship_registration ir on i.internship_id = ir.internship where i.internship_id = %s group by i.internship_id',
+            (internship_id,))
         row = cursor.fetchone()
         id, count, max_students = row[0], row[1], row[2]
         if count >= max_students:
