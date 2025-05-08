@@ -369,9 +369,9 @@ class InternshipDataAccess:
         # Event Handling
         event_start_date = None
         event_end_date = None
-        if (data["start_date"] in data):
+        if (data["start_date"] != ''):
             event_start_date = datetime.datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
-        if (data["end_date"] in data):
+        if (data["end_date"] != ''):
             event_end_date = datetime.datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
 
         i_id = None

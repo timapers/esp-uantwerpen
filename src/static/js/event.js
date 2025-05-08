@@ -648,7 +648,7 @@ function construct_event() {
 
             }
         }
-        if (!event['is_active']){
+        if (!event['is_active']) {
             let inactive_badge = document.createElement("span");
             inactive_badge.setAttribute("class", "badge badge-info");
             inactive_badge.setAttribute("style", "margin-right: 5px;");
@@ -795,10 +795,10 @@ function construct_event() {
             end_div.innerHTML = end_date;
             let date_div = document.getElementById("date");
             date_div.style.display = "block";
+        } else {
+            const end_div = document.getElementById("end");
+            end_div.style.display = "none";
         }
-    } else {
-        const end_div = document.getElementById("end_date-body");
-        end_div.style.display = "hidden";
     }
     if (event['end_date'] != null) {
         const end_date = event['end_date'];
@@ -812,6 +812,9 @@ function construct_event() {
             start_div.innerHTML = start_date;
             let date_div = document.getElementById("date");
             date_div.style.display = "block";
+        } else {
+            const end_div = document.getElementById("start");
+            end_div.style.display = "none";
         }
     }
     let edit_permissions = role === "admin";
