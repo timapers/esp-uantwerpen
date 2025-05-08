@@ -783,18 +783,36 @@ function construct_event() {
     const address_div = document.getElementById("address-body");
     address_div.innerHTML = address;
 
-    if (event["types"][0] != "Internship") {
+    if (event['start_date'] != null) {
         const start_date = event['start_date'];
         const start_div = document.getElementById("start_date-body");
         start_div.innerHTML = start_date;
-
+        let date_div = document.getElementById("date");
+        date_div.style.display = "block";
+        if (event['end_date'] != null) {
+            const end_date = event['end_date'];
+            const end_div = document.getElementById("end_date-body");
+            end_div.innerHTML = end_date;
+            let date_div = document.getElementById("date");
+            date_div.style.display = "block";
+        }
+    } else {
+        const end_div = document.getElementById("end_date-body");
+        end_div.style.display = "hidden";
+    }
+    if (event['end_date'] != null) {
         const end_date = event['end_date'];
         const end_div = document.getElementById("end_date-body");
         end_div.innerHTML = end_date;
-
         let date_div = document.getElementById("date");
         date_div.style.display = "block";
-
+        if (event['start_date'] != null) {
+            const start_date = event['start_date'];
+            const start_div = document.getElementById("start_date-body");
+            start_div.innerHTML = start_date;
+            let date_div = document.getElementById("date");
+            date_div.style.display = "block";
+        }
     }
     let edit_permissions = role === "admin";
 
