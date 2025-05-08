@@ -205,6 +205,10 @@ def get_all_event_data(e_id):
     active_only = not session["archive"]
     event_access = InternshipDataAccess(get_db())
     e_data = event_access.get_internship(e_id, active_only)
+    # Redirect students if the event is not accepted
+    if not e_data or not e_data.is_accepted:
+        if current_user.role != "admin":
+            return jsonify({'error': 'unauthorized'}), 403
     return jsonify({"event_data": e_data.to_dict()})
 
 

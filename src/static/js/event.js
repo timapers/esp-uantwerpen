@@ -346,7 +346,6 @@ function fetch_event() {
             company = data["company"];
             // links = data["links"];
             is_contact_person = data["contact_person_name_email"] // Format dict with "name" : name, "email" : email
-
             construct_event();
             construct_description();
 
@@ -355,6 +354,11 @@ function fetch_event() {
                 add_view();
             }
             enablePopovers();
+        },
+        error: function (msg) {
+            if (msg.status === 403) {
+                window.location.href = "/careers";
+            }
         }
     })
 }
@@ -667,9 +671,6 @@ function construct_event() {
         nr_students_badge.innerHTML = "Students: " + registered_students + "/" + event['max_students'];
         if (registered_students >= event['max_students']) {
             nr_students_badge.setAttribute("class", "badge badge-danger");
-        }
-        if (role === "student") {
-            $("#registration-btn").prop("disabled", true);
         }
         badges.appendChild(nr_students_badge);
     }
