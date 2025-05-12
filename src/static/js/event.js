@@ -696,7 +696,37 @@ function construct_event() {
             let type_badge = document.createElement("span");
             type_badge.setAttribute("class", "badge type-bg-color");
             type_badge.setAttribute("style", "margin-right: 5px;");
-            type_badge.innerHTML = event['types'][i];
+            if (event['types'][i] === 'Internship') {
+                if (language === 'en') {
+
+                    type_badge.innerHTML = 'Internship';
+
+                } else {
+                    type_badge.innerHTML = 'Stage';
+                }
+            }
+            else if (event['types'][i] === 'Job Fair') {
+                if (language === 'en') {
+                    type_badge.innerHTML = 'Job Fair';
+                } else {
+                    type_badge.innerHTML = 'Jobbeurs';
+                }
+            }
+            else if (event['types'][i] === 'Vacature') {
+
+                if (language === 'en') {
+                    type_badge.innerHTML = 'Vacancy';
+                } else {
+                    type_badge.innerHTML = 'Vacature';
+                }
+            }
+            else if (event['types'][i] === 'Conference') {
+                if (language === 'en') {
+                    type_badge.innerHTML = 'Conference';
+                } else {
+                    type_badge.innerHTML = 'Conferentie';
+                }
+            }
             badges.appendChild(type_badge);
         }
     }
@@ -783,6 +813,12 @@ function construct_event() {
     const address_div = document.getElementById("address-body");
     address_div.innerHTML = address;
 
+    let website = event['website'];
+    if (website && !website.startsWith('http://') && !website.startsWith('https://')) {
+        website = `https://${website}`;
+    }
+    const website_div = document.getElementById("website-body");
+website_div.innerHTML = `<a href="${website}" target="_blank" rel="noopener noreferrer" style="color: blue; text-decoration: underline;">${website}</a>`;
     if (event['start_date'] != null) {
         const start_date = event['start_date'];
         const start_div = document.getElementById("start_date-body");

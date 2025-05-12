@@ -519,6 +519,18 @@ language_dict = {
     "Tags": {
         "en": "Tags",
         "nl": "Tags"
+    },
+    "Internship": {
+        "en" : "Internship",
+        "nl" : "Stage"
+    },
+    "Vacature" : {
+        "en" : "Vacancy",
+        "nl" : "Vacature"
+    },
+    "Job Fair": {
+        "en" : "Job Fair",
+        "nl" : "Jobbeurs"
     }
 }
 
