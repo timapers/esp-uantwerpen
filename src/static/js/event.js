@@ -813,10 +813,12 @@ function construct_event() {
     const address_div = document.getElementById("address-body");
     address_div.innerHTML = address;
 
-    const website = event['website'];
+    let website = event['website'];
+    if (website && !website.startsWith('http://') && !website.startsWith('https://')) {
+        website = `https://${website}`;
+    }
     const website_div = document.getElementById("website-body");
-    website_div.innerHTML = website;
-
+website_div.innerHTML = `<a href="${website}" target="_blank" rel="noopener noreferrer" style="color: blue; text-decoration: underline;">${website}</a>`;
     if (event['start_date'] != null) {
         const start_date = event['start_date'];
         const start_div = document.getElementById("start_date-body");
