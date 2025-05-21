@@ -4,7 +4,7 @@ from flask_assets import Environment, Bundle
 
 from src.controllers.auth import ldap
 from src.config import config_data
-from src.utils.languages import languages, get_text
+from src.utils.languages import languages, get_text, language_dict
 from src.models.db import close_db
 
 # Blueprints
@@ -109,3 +109,11 @@ def load_user(user_id):
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
+
+@app.route('/get-translation-dict')
+def get_translation_dict():
+    """
+    Returns a dictionary with all translations for the current language.
+    :return: Dictionary with all translations.
+    """
+    return jsonify(language_dict)

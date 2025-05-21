@@ -223,37 +223,7 @@ function fillCard(number, internship) {
         for (let i = 0; i < internship['types'].length; i++) {
             let type_badge = document.createElement("span");
             type_badge.setAttribute("class", "badge type-bg-color");
-            if (internship['types'][i] === 'Internship') {
-                if (language === 'en') {
-
-                    type_badge.innerHTML = 'Internship';
-
-                } else {
-                    type_badge.innerHTML = 'Stage';
-                }
-            }
-            else if (internship['types'][i] === 'Job Fair') {
-                if (language === 'en') {
-                    type_badge.innerHTML = 'Job Fair';
-                } else {
-                    type_badge.innerHTML = 'Jobbeurs';
-                }
-            }
-            else if (internship['types'][i] === 'Vacature') {
-
-                if (language === 'en') {
-                    type_badge.innerHTML = 'Vacancy';
-                } else {
-                    type_badge.innerHTML = 'Vacature';
-                }
-            }
-            else if (internship['types'][i] === 'Conference') {
-                if (language === 'en') {
-                    type_badge.innerHTML = 'Conference';
-                } else {
-                    type_badge.innerHTML = 'Conferentie';
-                }
-            }
+            type_badge.innerHTML = translate(internship['types'][i]);
             type_badge.style = "margin-right: 10px";
             badges.append(type_badge);
         }
@@ -272,7 +242,9 @@ function fillCard(number, internship) {
 
     let date_badge = document.createElement("span");
     // console.log(internship);
-    date_badge.innerHTML = "Created on: " + internship['creation_date'];
+
+    const date = new Date(internship['creation_date']); // Converts to a Date object
+    date_badge.innerHTML = "Created on: " + date.toDateString();
     date_badge.style = "color : #B5B7BA; white-space: nowrap;";
     badges.append(date_badge);
 }

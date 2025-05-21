@@ -148,7 +148,7 @@ class InternshipDataAccess:
         event.registrations = registrations
         return event
 
-    def get_internships_by_company(self, company_id):
+    def get_internships_by_company(self, company_id, active_only=False, accepted_only=False):
         """
         Fetches all the internships from the database by company.
         :param company_id: The ID of
@@ -156,10 +156,14 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE company_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE company_id = %s',
             (company_id,))
         internships = list()
         for row in cursor:
+            if active_only and not row[9]:
+                continue
+            if accepted_only and not row[11]:
+                continue
             internships.append(Internship(*row))
         return internships
 

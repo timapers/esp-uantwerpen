@@ -531,6 +531,10 @@ language_dict = {
     "Job Fair": {
         "en" : "Job Fair",
         "nl" : "Jobbeurs"
+    },
+    "Conference": {
+        "en" : "Conference",
+        "nl" : "Conferentie"
     }
 }
 

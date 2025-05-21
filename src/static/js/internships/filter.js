@@ -317,7 +317,7 @@ function init_type_select() {
     let elem = $("#type-filter");
     elem.html(
         TYPES.map(function (type) {
-            return `<option value='${type}'>${type}</option>`
+            return `<option value='${type}'>${translate(type)}</option>`
         }).join(""));
 
     let param = getURLParams().get('types');

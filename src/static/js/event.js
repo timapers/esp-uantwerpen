@@ -696,37 +696,7 @@ function construct_event() {
             let type_badge = document.createElement("span");
             type_badge.setAttribute("class", "badge type-bg-color");
             type_badge.setAttribute("style", "margin-right: 5px;");
-            if (event['types'][i] === 'Internship') {
-                if (language === 'en') {
-
-                    type_badge.innerHTML = 'Internship';
-
-                } else {
-                    type_badge.innerHTML = 'Stage';
-                }
-            }
-            else if (event['types'][i] === 'Job Fair') {
-                if (language === 'en') {
-                    type_badge.innerHTML = 'Job Fair';
-                } else {
-                    type_badge.innerHTML = 'Jobbeurs';
-                }
-            }
-            else if (event['types'][i] === 'Vacature') {
-
-                if (language === 'en') {
-                    type_badge.innerHTML = 'Vacancy';
-                } else {
-                    type_badge.innerHTML = 'Vacature';
-                }
-            }
-            else if (event['types'][i] === 'Conference') {
-                if (language === 'en') {
-                    type_badge.innerHTML = 'Conference';
-                } else {
-                    type_badge.innerHTML = 'Conferentie';
-                }
-            }
+            type_badge.innerHTML = translate(event['types'][i]);
             badges.appendChild(type_badge);
         }
     }

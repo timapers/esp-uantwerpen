@@ -4,6 +4,21 @@ let TYPES = [];
 let EMPLOYEES = [];
 let COMPANIES = [];
 let CONTACT_PERSONS = [];
+let translationDict = {};
+$.ajax({
+    url: '/get-translation-dict',
+    method: 'GET',
+    success: function (data) {
+        translationDict = data;
+    },
+    error: function (err) {
+        console.error('Failed to fetch translation dictionary:', err);
+    }
+});
+
+function translate(key) {
+    return translationDict[key][language] || key;
+}
 
 // Enum used in the function addEditEntry
 const ENTRY_TYPE = {ADD_CONACT_PERSON: 1, REMOVE_CONTACT_PERSON: 2, TAG: 3, TYPE: 4};

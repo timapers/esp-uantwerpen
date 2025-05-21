@@ -110,17 +110,24 @@ def get_events_page_additional_data():
     :return: JSON containing metadata.
     """
     connection = get_db()
-    active_only = True
+    active_only = (current_user == None or current_user.role != "admin")
+    # TODO: If company is in an active / reviewed internship return it else don't
 
-    companies = CompanyDataAccess(connection).get_all_company_names()
+    companies = list()
+    all_active_internships = InternshipDataAccess(connection).get_internships(active_only, accepted_only=active_only)
+    for internship in all_active_internships:
+        companies.append(CompanyDataAccess(connection).get_company(internship.company_id))
+
+
+
 
     tags = TagDataAccess(connection).get_tags()
-    types = TypeDataAccess(connection).get_internship_types(active_only)
+    types = TypeDataAccess(connection).get_internship_types(True)
 
     # contact_person = Contact_person_companyDataAccess(connection).get_contact_person_companies()
 
     result = {
-        "companies": [company for company in companies],
+        "companies": [company.name for company in companies],
         # "tags": [tag for tag in tags],
         "types": [type.type_name for type in types],
         # "contact_person": [contact_person for contact_person in contact_person]
