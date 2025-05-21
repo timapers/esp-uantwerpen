@@ -4,17 +4,7 @@ let TYPES = [];
 let EMPLOYEES = [];
 let COMPANIES = [];
 let CONTACT_PERSONS = [];
-let translationDict = {};
-$.ajax({
-    url: '/get-translation-dict',
-    method: 'GET',
-    success: function (data) {
-        translationDict = data;
-    },
-    error: function (err) {
-        console.error('Failed to fetch translation dictionary:', err);
-    }
-});
+
 
 function translate(key) {
     return translationDict[key][language] || key;

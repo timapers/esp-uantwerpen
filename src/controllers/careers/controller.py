@@ -116,7 +116,8 @@ def get_events_page_additional_data():
     companies = list()
     all_active_internships = InternshipDataAccess(connection).get_internships(active_only, accepted_only=active_only)
     for internship in all_active_internships:
-        companies.append(CompanyDataAccess(connection).get_company(internship.company_id))
+        if internship.company_id not in [company.company_id for company in companies]:
+            companies.append(CompanyDataAccess(connection).get_company(internship.company_id))
 
 
 

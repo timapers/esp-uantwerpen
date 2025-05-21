@@ -7,7 +7,7 @@
     <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap.min.css') }}" type="text/css">
 
-    <script src="{{ url_for('static', filename='js/lib/jquery-3.3.1.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='js/translation.js') }}"></script>    <script src="{{ url_for('static', filename='js/lib/jquery-3.3.1.min.js') }}" type="text/javascript"></script>
     <script src='{{ url_for('static', filename='js/lib/popper.min.js') }}' type="text/javascript" xmlns=""></script>
     <script src='{{ url_for('static', filename='js/lib/bootstrap.min.js') }}' type="text/javascript"></script>
     <script src='{{ url_for('static', filename='js/esp.js') }}' type="text/javascript"></script>
@@ -58,66 +58,66 @@
 
 <div class="page-wrap">
 
-{% include 'nav.html' %}
+    {% include 'nav.html' %}
 
-<div class="modal fade" id="my-profile-modal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content {{ background }}">
+    <div class="modal fade" id="my-profile-modal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content {{ background }}">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="my-profile-title"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="my-profile-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
 
-            <div class="modal-body" id="my-profile-body">
-                <div id="my-profile-loading" class="text-center">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">{{ get_text("Loading") }}</span>
+                <div class="modal-body" id="my-profile-body">
+                    <div id="my-profile-loading" class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">{{ get_text("Loading") }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="modal-footer">
-                <span id="my-profile-info"></span>
-                <button type="button" class="btn light-button-color" data-dismiss="modal">Close</button>
-                <button type="button" class="btn default-color" id="saveChangesMyProfile">Save changes</button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-
-<div class="modal fade" id="my-csv-modal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content {{ background }}">
-
-            <div class="modal-header">
-                <h5 class="modal-title" id="my-csv-title"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="modal-body" id="my-csv-body">
-            </div>
-
-            <div class="modal-footer">
-                <div class="dropdown bootstrap-select" style="width: auto;">
-                    <select class="w-auto" multiple id="yearSelector" title="Registration year(s)"></select>
+                <div class="modal-footer">
+                    <span id="my-profile-info"></span>
+                    <button type="button" class="btn light-button-color" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn default-color" id="saveChangesMyProfile">Save changes</button>
                 </div>
-                <span id="my-profile-info"></span>
-                <button class="btn btn-light" id="download-csv">Download</button>
+
             </div>
         </div>
     </div>
-</div>
 
 
-{% block content %}
-{% endblock %}
+    <div class="modal fade" id="my-csv-modal" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content {{ background }}">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="my-csv-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" id="my-csv-body">
+                </div>
+
+                <div class="modal-footer">
+                    <div class="dropdown bootstrap-select" style="width: auto;">
+                        <select class="w-auto" multiple id="yearSelector" title="Registration year(s)"></select>
+                    </div>
+                    <span id="my-profile-info"></span>
+                    <button class="btn btn-light" id="download-csv">Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% block content %}
+    {% endblock %}
 
 </div>
 
