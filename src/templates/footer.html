@@ -4,13 +4,13 @@
     {% if current_language == "nl" %}
 
     <div class="footer-copyright text-center py-3" style="margin-top: 10px">Vragen?
-        Contacteer ons <a href="mailto://{{ contact_mail }}">via mail</a> of <a href="{{ url_for('contact') }}">via formulier</a>!
+        Contacteer ons <a href="mailto:{{ contact_mail }}">via mail</a> of <a href="{{ url_for('contact') }}">via formulier</a>!
     </div>
 
     {% else %}
 
     <div class="footer-copyright text-center py-3" style="margin-top: 10px">Questions?
-        Contact us <a href="mailto://{{ contact_mail }}">by mail</a> or <a href="{{ url_for('contact') }}">by form</a>!
+        Contact us <a href="mailto:{{ contact_mail }}">by mail</a> or <a href="{{ url_for('contact') }}">by form</a>!
     </div>
 
     {% endif %}

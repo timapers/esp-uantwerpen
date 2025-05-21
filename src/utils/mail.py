@@ -22,6 +22,7 @@ def send_mail(address, subject, message):
                '-t', address,
                '-u', subject,
                '-o', 'message-content-type=html',
+               '-o', 'tls=no',
                '-m', message,
                '-s', 'smtp.uantwerpen.be']
         print(address, message)
