@@ -25,11 +25,10 @@ def send_mail(address, subject, message):
                '-o', 'tls=no',
                '-m', message,
                '-s', 'smtp.uantwerpen.be']
-        print(address, message)
-        return True
-        # TODO: re-enable
-        # proc = subprocess.Popen(cmd)
-        # return proc.returncode == 0
+        # print(address, message)
+        # return True
+        proc = subprocess.Popen(cmd)
+        return proc.returncode == 0
     except:
         return False
 
