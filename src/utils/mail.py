@@ -17,6 +17,7 @@ def send_mail(address, subject, message):
     :return: process return code
     """
     try:
+        message = message.replace('\n', '<br>')
         cmd = ['sendemail',
                '-f', 'noreply@uantwerpen.be',
                '-t', address,
