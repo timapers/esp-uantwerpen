@@ -254,6 +254,11 @@ def create_internship():
     try:
         event_access.create_internship(data)
         flash('Internship created successfully!', 'success')
+        msg = f"Dear,\n\n" \
+              f"Your internship project '{data['title']}' was successfully submitted!\n\n" \
+              f"Kind regards,\n" \
+              f"UA Department of Computer science"
+        send_mail(data['contact_email'], "ESP Internship review", msg)
         return redirect(url_for('careers.create_internship', refresh=1))
     except Exception as e:
         flash('Failed to create internship!', 'danger')
@@ -282,16 +287,17 @@ def review_internship():
     contact_person = Contact_person_companyDataAccess(connection).get_contact_person_company(internship.contact_person)
     cp_mail = contact_person.email
     if approved:
-        msg = f"Your internship {internship.title} has been approved!\n" \
-              f"Kind regards,\n" \
-                f"ESP Team"
-        send_mail(cp_mail, "UA Internship/Event Review", msg)
+        msg = f"Dear,\n\n" \
+            f"Your internship project '{internship.title}' has been approved!\n\n" \
+            f"Kind regards,\n" \
+            f"UA Department of Computer science"
+        send_mail(cp_mail, "ESP Internship review", msg)
     else:
-        msg = f"Your internship {internship.title} has been rejected!\n" \
-                f"Please contact the ESP team for more information at {config_data.get('contact-mail', 'Tim.Apers@uantwerpen.be')}.\n" \
-              f"Kind regards,\n" \
-                f"ESP Team"
-        send_mail(cp_mail, "UA Internship/Event Review", msg)
+        msg = f"Dear,\n\n" \
+            f"Your internship project '{internship.title}' has been rejected! Please contact our coordinator for more information at {config_data.get('contact-mail', 'fwet-informatica-stages@uantwerpen.be')}.\n\n" \
+            f"Kind regards,\n" \
+            f"UA Department of Computer science"
+        send_mail(cp_mail, "ESP Internship review", msg)
     return jsonify({'success': True, 'message': 'Internship review updated successfully.'})
 
 @bp.route('/remove-internship', methods=['POST'])
