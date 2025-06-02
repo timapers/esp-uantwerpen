@@ -24,7 +24,7 @@ bp = Blueprint('projects', __name__)
 
 
 @bp.route('/projects', methods=["GET", "POST"])
-@login_required
+# @login_required
 def projects(my_projects=False):
     """
     Handles the GET & POST request to '/projects'.
@@ -168,7 +168,7 @@ def remove_project():
 
 
 @bp.route('/get-all-projects-data', methods=['GET'])
-@login_required
+# @login_required
 def get_all_projects_data():
     """
     Handles the GET request to '/get-all-projects-data'.
@@ -178,7 +178,7 @@ def get_all_projects_data():
 
 
 @bp.route('/projects-page-additional', methods=['GET'])
-@login_required
+# @login_required
 def get_projects_page_additional_data():
     """
     Handles the GET request to '/projects-page-additional'.
@@ -324,7 +324,7 @@ def employee_authorized_for_project(employee_name, project_id):
 
 
 @bp.route('/project-page')
-@login_required
+# @login_required
 def project_page():
     """
     Increases link strength upon a click.
@@ -383,7 +383,7 @@ def unlike_project():
 
 
 @bp.route('/get-all-project-data/<int:p_id>', methods=['GET'])
-@login_required
+# @login_required
 def get_all_project_data(p_id):
     """
     Handles the GET request to '/get-all-project-data/<int:p_id>'.
