@@ -22,5 +22,5 @@ loadTranslationDict();
 
 // Function to translate a key
 function translate(key) {
-    return translationDict[key] || key;
+    return translationDict[key][language] || key;
 }
