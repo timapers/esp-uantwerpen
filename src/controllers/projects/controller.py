@@ -236,7 +236,7 @@ def add_registration():
             msg_employees = f"Student {current_user.name} ({current_user.user_id}) has registered for your project {project.title}.\n" \
                 f"To change the registration status please visit the ESP site." \
 
-            guides = GuideDataAccess(get_db()).get_guides_for_project(project_id)
+            guides = GuideDataAccess(get_db()).get_guides_for_project(project.project_id)
             employee_access = EmployeeDataAccess(get_db())
             guides_with_info = [employee_access.get_employee(x.employee) for x in guides]
 
