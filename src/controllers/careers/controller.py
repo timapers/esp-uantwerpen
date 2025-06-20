@@ -421,3 +421,14 @@ def get_document(name):
         home_directory = os.path.join(current_app.config['file-storage'], 'home')
         return send_from_directory(home_directory, name)
     return jsonify({'success': False}), 400, {'ContentType': 'application/json'}
+
+
+@bp.route('/get-types')
+def get_types():
+    """
+    Returns a list of all internship types.
+    :return: JSON with all internship types.
+    """
+    connection = get_db()
+    types = TypeDataAccess(connection).get_types(True)
+    return jsonify([t.to_dict() for t in types])

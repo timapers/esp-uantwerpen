@@ -535,7 +535,23 @@ language_dict = {
     "Conference": {
         "en" : "Conference",
         "nl" : "Conferentie"
-    }
+    },
+    "Event": {
+        "en" : "Event",
+        "nl" : "Evenement"
+    },
+    "Event Description": {
+        "en" : "Event Description",
+        "nl" : "Evenement Beschrijving"
+    },
+    "Thesis": {
+        "en": "Thesis",
+        "nl": "Thesis"
+    },
+    "Webinair": {
+        "en": "Webinar",
+        "nl": "Webinair"
+    },
 }
 
 
@@ -546,3 +562,12 @@ def get_text(key, language):
         return "None"
 
     return language_dict[key][language]
+
+
+
+def add_to_dict(text, nl_text, en_text):
+    if text not in language_dict:
+        language_dict[text] = {
+            "nl": nl_text,
+            "en": en_text
+        }

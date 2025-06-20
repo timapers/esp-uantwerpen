@@ -12,6 +12,7 @@
     <script src="{{ url_for('static', filename='js/lib/bootstrap-tagsinput.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/bootstrap3-typeahead.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/bootstrap4-toggle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/create_event.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap-tagsinput.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap4-toggle.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/dropzone.css') }}">
@@ -73,12 +74,6 @@
             <div class="form-group">
                 <label for="event-type">{{ get_text("Event Type") }}</label>
                 <select name="type" id="event-type" class="selectpicker" title="Choose Event Type">
-                    <!-- Placeholders -->
-                    <option value="Internship">{{ get_text("Internship") }}</option>
-                    <option value="Job Fair">{{ get_text("Job Fair") }}</option>
-                    <option value="Conference">{{ get_text("Conference") }}</option>
-                    <option value="Vacature">{{ get_text("Vacature") }}</option>
-                    <!-- Placeholders -->
                 </select>
             </div>
             <div class="form-group">
