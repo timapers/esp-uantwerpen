@@ -432,3 +432,26 @@ def get_types():
     connection = get_db()
     types = TypeDataAccess(connection).get_types(True)
     return jsonify([t.to_dict() for t in types])
+
+@bp.route('/modify-event/<int:e_id>', methods=['POST'])
+@login_required
+def update_event(e_id):
+    """
+    Handles the POST request to update an internship.
+    :param e_id: internship id
+    :return: Json with success/failure status.
+    """
+    if not current_user.is_authenticated or current_user.role != "admin":
+        return jsonify({'success': False, 'message': 'Authentication required.'}), 401
+
+    data = request.json
+    connection = get_db()
+    event_access = InternshipDataAccess(connection)
+
+    try:
+        event_access.modify_event(e_id, data)
+        flash('Event updated successfully!', 'success')
+        return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
+    except Exception as e:
+        flash('Failed to update internship!', 'danger')
+        return jsonify({'success': False, 'message': str(e)}), 400, {'ContentType': 'application/json'}

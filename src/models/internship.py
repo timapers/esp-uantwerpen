@@ -497,3 +497,86 @@ class InternshipDataAccess:
             return True
         else:
             return False
+
+    def get_document_id(self, internship_id):
+        """
+        Fetches the document ID for a given internship.
+        :param internship_id: The ID of the internship.
+        :return: The document ID.
+        """
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT description_id FROM internship WHERE internship_id = %s', (internship_id,))
+        row = cursor.fetchone()
+        return row[0] if row else None
+
+
+    def update_title(self, id, title):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET title = %s WHERE internship_id = %s', (title, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def get_company_id(self, internship_id):
+        """
+        Fetches the company ID for a given internship.
+        :param internship_id: The ID of the internship.
+        :return: The company ID.
+        """
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT company_id FROM internship WHERE internship_id = %s', (internship_id,))
+        row = cursor.fetchone()
+        return row[0] if row else None
+
+    def update_description(self, id, description):
+        cursor = self.dbconnect.get_cursor()
+        from src.models.document import DocumentDataAccess
+        # Copy doc twice in obj with html_content_eng and html_content_nl
+        doc_id = self.get_document_id(id)
+        document = Document(doc_id, description, description)
+        DocumentDataAccess(self.dbconnect).update_document(document)
+
+    def update_address(self, id, address):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET address = %s WHERE internship_id = %s', (address, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def modify_event(self, id, data):
+        """
+        Modifies an existing internship.
+        :param id: The ID of the internship to modify.
+        :param data: The new data for the internship.
+        :raise: Exception if the database has to roll back.
+        """
+        cursor = self.dbconnect.get_cursor()
+
+        if 'title' in data:
+            title = data['title']
+            self.update_title(id, title)
+        if 'description' in data:
+            description = data['description']
+            self.update_description(id, description)
+        if 'address-body' in data:
+            address = data['address-body']
+            self.update_address(id, address)
+
+
+
+
+    # def update_website(self, id, website):
+    #     cursor = self.dbconnect.get_cursor()
+    #     company_id = self.get_company_id(id)
+    #     if company_id is None:
+    #         raise ValueError("Company ID not found for internship ID {}".format(id))
+    #     from src.models.company import CompanyDataAccess
+    #     company = CompanyDataAccess(self.dbconnect).get_company(company_id)
+    #     if company is None:
+    #         raise ValueError("Company not found for company ID {}".format(company_id))
+    #     # Update the company website
+    #     CompanyDataAccess(self.dbconnect).update_company(company_id, company.name, website)

@@ -19,6 +19,12 @@
 
 {% block content %}
     <div class="container" id="content">
+        {% if current_user.is_authenticated and current_user.role == "admin" %}
+
+        <div class="text-center" id="modify" style="display: none">
+            <button type="button" class="btn default-color my-2" id="modify-btn">{{ get_text("Modify") }}</button>
+        </div>
+        {% endif %}
         <div class="text-center" id="not-reviewed" style="display: none;">
             {% if current_user.is_authenticated and current_user.role == "admin" %}
                 After reviewing, please click one of the buttons below.
@@ -73,7 +79,7 @@
 
             {% endif %}
 
-            <h1 class="title text-center" id="title"></h1>
+            <h1 class="title text-center editable" id="title"></h1>
 
             <!-- Badges -->
             <div class="text-center" id="badges"></div>
@@ -88,7 +94,7 @@
 
             </div>
 
-            <div class="description mt-2" id="description"></div>
+            <div class="description mt-2 editable" id="description"></div>
 
             <div class="card" id="attachments" style="display: none;">
                 <div class="card-body">
@@ -103,7 +109,7 @@
 
                 <div class="card" id="address">
                     <div class="card-header"><h4 class="my-0"> {{ get_text("Address") }}</h4></div>
-                    <div class="card-body" id="address-body">
+                    <div class="card-body editable" id="address-body">
                     </div>
                 </div>
 

@@ -660,6 +660,7 @@ function construct_event() {
             }
             badges.appendChild(inactive_badge);
         }
+        $("#modify").show();
     }
 
     // Number of students
@@ -788,7 +789,7 @@ function construct_event() {
         website = `https://${website}`;
     }
     const website_div = document.getElementById("website-body");
-website_div.innerHTML = `<a href="${website}" target="_blank" rel="noopener noreferrer" style="color: blue; text-decoration: underline;">${website}</a>`;
+    website_div.innerHTML = `<a href="${website}" target="_blank" rel="noopener noreferrer" style="color: blue; text-decoration: underline;">${website}</a>`;
     if (event['start_date'] != null) {
         const start_date = event['start_date'];
         const start_div = document.getElementById("start_date-body");
@@ -1176,3 +1177,64 @@ function is_occupied(event) {
     }
     return event['max_students'] <= students;
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    let isEditing = false;
+
+    const editButton = document.getElementById("modify-btn");
+    if (!editButton) {
+        console.error("Element with ID 'modify-btn' not found in the DOM.");
+        return;
+    }
+
+    editButton.addEventListener("click", function () {
+        const fields = document.querySelectorAll(".editable");
+
+        if (!isEditing) {
+            // Switch to edit mode
+            fields.forEach(field => {
+                const currentValue = field.innerText.trim();
+                field.dataset.originalContent = currentValue; // Optional: keep original
+                field.innerHTML = `<input type="text" class="form-control" value="${currentValue.replace(/"/g, '&quot;')}">`;
+            });
+            editButton.innerText = translate("Save");
+            isEditing = true;
+        } else {
+            // Save mode
+            const updatedData = {};
+
+            fields.forEach(field => {
+                const input = field.querySelector("input");
+                if (input) {
+                    const newValue = input.value;
+                    const fieldId = field.id;
+                    updatedData[fieldId] = newValue;
+                    field.textContent = newValue;
+                }
+            });
+            console.log(updatedData);
+
+            fetch(`/modify-event/${event["internship_id"]}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Update successful:", data);
+                })
+                .catch(error => {
+                    console.error("Error updating:", error);
+                });
+            editButton.innerText = translate("Modify");
+            isEditing = false;
+        }
+    });
+});
