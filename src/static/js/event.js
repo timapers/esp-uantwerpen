@@ -8,6 +8,7 @@ let is_contact_person;
 let groups;
 let types;
 let contact_persons;
+let promotors;
 
 // Dropzone configuration
 Dropzone.options.dropzone = {
@@ -130,6 +131,7 @@ function fetch_additional_data(callback) {
             types = result["types"];
             groups = result["groups"];
             contact_persons = result["contact_persons"];
+            promotors = result["promotors"]
             // TODO: DOuble check this
             // init_supervisors_input(true);
             // init_supervisors_input(false);
@@ -197,25 +199,25 @@ function init_tag_generator() {
     });
 }
 
-/**
- * This function provides initializes the selectors.
- */
-function init_selectpickers() {
-    $("#edit-research-group").html(
-        groups.map(function (elem) {
-            return `<option title="${elem}">${elem}</option>`
-        }).join("")
-    );
-
-    $("#edit-type").html(
-        types.map(function (type) {
-            return `<option title="${type}">${type}</option>`
-        }).join("")
-    );
-
-    // After adding the options, refresh is necessary for the selectpicker lib
-    $('.selectpicker').selectpicker('refresh');
-}
+// /**
+//  * This function provides initializes the selectors.
+//  */
+// function init_selectpickers() {
+//     $("#edit-research-group").html(
+//         groups.map(function (elem) {
+//             return `<option title="${elem}">${elem}</option>`
+//         }).join("")
+//     );
+//
+//     $("#edit-type").html(
+//         types.map(function (type) {
+//             return `<option title="${type}">${type}</option>`
+//         }).join("")
+//     );
+//
+//     // After adding the options, refresh is necessary for the selectpicker lib
+//     $('.selectpicker').selectpicker('refresh');
+// }
 
 
 /**
@@ -223,113 +225,98 @@ function init_selectpickers() {
  */
 function init_supervisors_input(contact_person) {
     // TODO: MAKE HTML AND CHANGE THIS TO ONLY COMP AND CONTACT PERSON
-    let supervisors_input;
-    let list_source;
-    if (contact_person) {
-        supervisors_input = $("#contact_person input");
-        list_source = contact_persons;
-
-        supervisors_input.on('itemAdded', function (event) {
-            if (name === event.item) {
-                is_contact_person = true;
-            } else {
-                is_contact_person = false;
-            }
-            refresh_active_button();
-        });
-        supervisors_input.on('beforeItemRemove', function (event) {
-            if (confirm("Removing the company will automatically set the event to inactive. Are you sure you want to continue?")) {
-                event["is_active"] = false;
-                is_contact_person = false;
-            } else {
-                event.cancel = true;
-            }
-            refresh_active_button();
-        });
-    } else {
-        supervisors_input = $("#co-companys input, #contact_persons input");
-        list_source = employees;
-    }
-    //const supervisors_input = $("#supervisors input");
-
-    // Initialize the tagsinput with autocomplete for employees
-    if (contact_person) {
-        supervisors_input.tagsinput({
-            delimiter: '|',
-            tagClass: "badge employee-bg-color ",
-            typeahead: {
-                afterSelect: function (val) {
-                    this.$element.val("");
-                },
-                minLength: 0,
-                source: list_source,
-                showHintOnFocus: true,
-                autoSelect: false,
-                items: 'all'
-            },
-            freeInput: false,
-            maxTags: 1
-        });
-    } else {
-        supervisors_input.tagsinput({
-            delimiter: '|',
-            tagClass: "badge employee-bg-color ",
-            typeahead: {
-                afterSelect: function (val) {
-                    this.$element.val("");
-                },
-                source: list_source
-            },
-            freeInput: false
-        });
-    }
-
-    // Add the employee to the event when item is added
-    supervisors_input.on("itemAdded", function (event) {
-        const id = $(this).attr('id');
-
-        let guidance;
-        if (id === "contact_person-input") {
-            guidance = "company";
-        } else if (id === "co-companys-input") {
-            guidance = "Co-company";
-        } else {
-            guidance = "contact_person";
-        }
-
-
-        for (const employee of event['employees']) {
-            if (employee['guidance_type'] === guidance && employee['employee']['name'] === event.item) {
-                return;
-            }
-        }
-
-        event['employees'].push({
-            guidance_type: guidance,
-            employee: {name: event.item}
-        });
-    });
-
-    // After initializing tagsinput above, new divs will be added which we style and hide until editing starts
-    $("#supervisors .bootstrap-tagsinput")
-        .hide()
-        .css("border", "none")
-        .css("box-shadow", "none");
-}
-
-function construct_contact_person() {
-    // let contact_person = event['contact_person_name_email'];
+    // let supervisors_input;
+    // let list_source;
     // if (contact_person) {
-    //     let name = contact_person['name'];
-    //     let email = contact_person['email'];
-    //     let contact_persons_div = $("#contact_person");
+    //     supervisors_input = $("#contact_person input");
+    //     list_source = contact_persons;
     //
-    //     let badge = $(`<span class="badge employee-bg-color">${name}</span>`);
-    //     contact_persons_div.append(badge);
+    //     supervisors_input.on('itemAdded', function (event) {
+    //         if (name === event.item) {
+    //             is_contact_person = true;
+    //         } else {
+    //             is_contact_person = false;
+    //         }
+    //         refresh_active_button();
+    //     });
+    //     supervisors_input.on('beforeItemRemove', function (event) {
+    //         if (confirm("Removing the company will automatically set the event to inactive. Are you sure you want to continue?")) {
+    //             event["is_active"] = false;
+    //             is_contact_person = false;
+    //         } else {
+    //             event.cancel = true;
+    //         }
+    //         refresh_active_button();
+    //     });
     // } else {
-    //     $("#contact_person").hide();
+    //     supervisors_input = $("#co-companys input, #contact_persons input");
+    //     list_source = employees;
     // }
-
+    // //const supervisors_input = $("#supervisors input");
+    //
+    // // Initialize the tagsinput with autocomplete for employees
+    // if (contact_person) {
+    //     supervisors_input.tagsinput({
+    //         delimiter: '|',
+    //         tagClass: "badge employee-bg-color ",
+    //         typeahead: {
+    //             afterSelect: function (val) {
+    //                 this.$element.val("");
+    //             },
+    //             minLength: 0,
+    //             source: list_source,
+    //             showHintOnFocus: true,
+    //             autoSelect: false,
+    //             items: 'all'
+    //         },
+    //         freeInput: false,
+    //         maxTags: 1
+    //     });
+    // } else {
+    //     supervisors_input.tagsinput({
+    //         delimiter: '|',
+    //         tagClass: "badge employee-bg-color ",
+    //         typeahead: {
+    //             afterSelect: function (val) {
+    //                 this.$element.val("");
+    //             },
+    //             source: list_source
+    //         },
+    //         freeInput: false
+    //     });
+    // }
+    //
+    // // Add the employee to the event when item is added
+    // supervisors_input.on("itemAdded", function (event) {
+    //     const id = $(this).attr('id');
+    //
+    //     let guidance;
+    //     if (id === "contact_person-input") {
+    //         guidance = "company";
+    //     } else if (id === "co-companys-input") {
+    //         guidance = "Co-company";
+    //     } else {
+    //         guidance = "contact_person";
+    //     }
+    //
+    //
+    //     for (const employee of event['employees']) {
+    //         if (employee['guidance_type'] === guidance && employee['employee']['name'] === event.item) {
+    //             return;
+    //         }
+    //     }
+    //
+    //     event['employees'].push({
+    //         guidance_type: guidance,
+    //         employee: {name: event.item}
+    //     });
+    // });
+    //
+    // // After initializing tagsinput above, new divs will be added which we style and hide until editing starts
+    // $("#supervisors .bootstrap-tagsinput")
+    //     .hide()
+    //     .css("border", "none")
+    //     .css("box-shadow", "none");
 }
 
 
@@ -363,217 +350,151 @@ function fetch_event() {
     })
 }
 
-/**
- * This function toggles a event's activity.
- */
-function refresh_active_button() {
-    const active_btn = $("#active-btn");
+// /**
+//  * This function toggles a event's activity.
+//  */
+// function refresh_active_button() {
+//     const active_btn = $("#active-btn");
+//
+//     if (event["is_active"]) {
+//         active_btn.attr("class", "btn my-2 btn-success");
+//         active_btn.text("Active")
+//     } else {
+//         active_btn.attr("class", "btn my-2 btn-danger");
+//         active_btn.text("Inactive");
+//     }
+//
+//     if (is_contact_person) {
+//         active_btn.prop('disabled', false);
+//     } else {
+//         active_btn.prop('disabled', true);
+//     }
+// }
 
-    if (event["is_active"]) {
-        active_btn.attr("class", "btn my-2 btn-success");
-        active_btn.text("Active")
-    } else {
-        active_btn.attr("class", "btn my-2 btn-danger");
-        active_btn.text("Inactive");
-    }
 
-    if (is_contact_person) {
-        active_btn.prop('disabled', false);
-    } else {
-        active_btn.prop('disabled', true);
-    }
-}
-
-/**
- * This function provides functionality to edit a event and makes sure that all editable values are set.
- */
-function edit_event() {
-    $("#modify-btn").text("Save").off("click").click(save_event);
-    $("#success").hide();
-
-    refresh_active_button();
-
-    $("#active-btn").show().click(function () {
-        event["is_active"] = !event["is_active"];
-        refresh_active_button();
-    });
-
-    $("#title").attr("contenteditable", "true");
-    init_editor("description");
-
-    $("#badges").html("");
-    $("#extra-info").hide();
-    $("#edit-options").show();
-    $("#dropzone").show();
-
-    $("#description-title").show();
-
-    if (event['company'] !== null && event['company'] !== 'No Company') {
-        $("#edit-research-group").selectpicker("val", event["company"]);
-    }
-
-    $("#edit-type").selectpicker("val", event["types"]);
-
-    const tag_editor = $("#edit-tags");
-    tag_editor.tagsinput("removeAll");
-    for (const tag of event["tags"]) {
-        tag_editor.tagsinput("add", tag);
-    }
-
-    $("#edit-students").val(event["max_students"]);
-
-    for (const cp of event["contact_persons"]) {
-
-        const type = employee["guidance_type"];
-
-        if (type === "company") {
-            $("#companys-input").tagsinput("add", employee["employee"]["name"])
-        } else if (type === "Co-company") {
-            $("#co-companys-input").tagsinput("add", employee["employee"]["name"]);
-        } else if (type === "contact_person") {
-            $("#contact_persons-input").tagsinput("add", employee["employee"]["name"]);
-        }
-    }
-
-    $("#attachments-list").html("");
-    for (const attachment of event['attachments']) {
-        add_editable_attachment(attachment);
-    }
-
-    $("#supervisors .bootstrap-tagsinput").show();
-    $("#supervisors .card").show();
-
-    $("#supervisors ul").hide();
-    $("#generate-tags-btn").show();
-
-    $("#external-employee-btn").show();
-    $("#recommendations").hide();
-    $("#recommendations-title").hide();
-}
-
-/**
- * This function provides functionality to save the modified content to the database.
- * @param {boolean} description_warning toggles the description warnings
- * @param {boolean} type_warning toggles the event type warning
- */
-function save_event(description_warning = true, type_warning = true, active_warning = true) {
-    event["title"] = $('#title').text();
-
-    let description = CKEDITOR.instances["description"].getData();
-
-    if (description == "") {
-        event["html_content_eng"] = "No description given";
-    } else {
-        event["html_content_eng"] = description;
-    }
-
-    const english_too_short = !event['html_content_eng'] || event['html_content_eng'].length < 50;
-
-    if (english_too_short && description_warning) {
-        const confirm_button = $(`<button class="btn btn-outline-success ml-2">Yes</button>`)
-            .click(function () {
-                save_event(false)
-            });
-
-        $("#error")
-            .show()
-            .text(`Your description has less than 50 characters and won't be saved, are you sure you want to continue?`)
-            .append(confirm_button);
-        return;
-    }
-
-    event['research_group'] = $("#edit-research-group").selectpicker("val");
-    event['types'] = $("#edit-type").selectpicker('val');
-
-    event["tags"] = $("#edit-tags").tagsinput("items");
-    event["max_students"] = $("#edit-students").val();
-
-    event['companys'] = $("#companys-input").tagsinput("items");
-    event['contact_persons'] = $("#contact_persons-input").tagsinput("items");
-
-    if (!event['research_group']) {
-        $("#error").show().text("Research Group cannot be empty");
-        return;
-    }
-
-    if (!event['types'].length) {
-        $("#error").show().text("Pick at least one type");
-        return;
-    }
-
-    if (!event['companys'].length) {
-        $("#error").show().text("No company selected");
-        return;
-    }
-
-    let active_types = type_still_active(event['types']);
-    if (active_types.length > 0 && type_warning) {
-        // console.log("in ")
-        let err_text;
-        if (active_types.length === 1) {
-            err_text = 'Type: \"' + active_types.join() + '\" is still used by a registration. The registration type for those registrations need to be changed by you. Are you sure you want to continue?'
-        } else {
-            err_text = 'Types: ' + active_types.join() + '  are still used by a registration. The registration types for those registrations need to be changed by you. Are you sure you want to continue?'
-        }
-        const confirm_button = $(`<button class="btn btn-outline-success ml-2">Yes</button>`)
-            .click(function () {
-                save_event(description_warning, false)
-            });
-
-        $("#error")
-            .show()
-            .text(err_text)
-            .append(confirm_button);
-        return;
-    }
-
-    if (!event['companys'].length && !event['co-companys'].length && !event['contact_persons'].length) {
-        $("#error").show().text("Add at least one guide");
-        return;
-    }
-
-    if (!event['is_active'] && active_warning) {
-        const confirm_button = $(`<button class="btn btn-outline-success ml-2">Yes</button>`)
-            .click(function () {
-                save_event(description_warning, type_warning, active_warning = false)
-            });
-
-        $("#error")
-            .show()
-            .text(`Your event is currently inactive, only the company can change the status to active. If you are not 
-            the company, the company will be notified. Are you sure you want to continue`)
-            .append(confirm_button);
-        return;
-    }
-
-    $("#modify-btn").prop("disabled", true).text("Saving...");
-
-    if ($.urlParam("new")) {
-        event["new"] = true;
-    }
-
-    $.ajax({
-        url: 'event-editor',
-        method: 'post',
-        contentType: 'application/json',
-        data: JSON.stringify(event),
-        success: function (response) {
-            window.location.href = "/event-page?event_id=" + response['event_id'] + "&success=true";
-        },
-        error: function (msg) {
-            $("#error").show().text(JSON.stringify(msg));
-        }
-    })
-}
-
-/**
- * This function initializes the editor.
- * @param {number} id the editor id
- */
-function init_editor(id) {
-    $("#" + id).attr("contenteditable", "true");
-    return CKEDITOR.inline(id);
-}
+// /**
+//  * This function provides functionality to save the modified content to the database.
+//  * @param {boolean} description_warning toggles the description warnings
+//  * @param {boolean} type_warning toggles the event type warning
+//  */
+// function save_event(description_warning = true, type_warning = true, active_warning = true) {
+//     event["title"] = $('#title').text();
+//
+//     let description = CKEDITOR.instances["description"].getData();
+//
+//     if (description == "") {
+//         event["html_content_eng"] = "No description given";
+//     } else {
+//         event["html_content_eng"] = description;
+//     }
+//
+//     const english_too_short = !event['html_content_eng'] || event['html_content_eng'].length < 50;
+//
+//     if (english_too_short && description_warning) {
+//         const confirm_button = $(`<button class="btn btn-outline-success ml-2">Yes</button>`)
+//             .click(function () {
+//                 save_event(false)
+//             });
+//
+//         $("#error")
+//             .show()
+//             .text(`Your description has less than 50 characters and won't be saved, are you sure you want to continue?`)
+//             .append(confirm_button);
+//         return;
+//     }
+//
+//     event['research_group'] = $("#edit-research-group").selectpicker("val");
+//     event['types'] = $("#edit-type").selectpicker('val');
+//
+//     event["tags"] = $("#edit-tags").tagsinput("items");
+//     event["max_students"] = $("#edit-students").val();
+//
+//     event['companys'] = $("#companys-input").tagsinput("items");
+//     event['contact_persons'] = $("#contact_persons-input").tagsinput("items");
+//
+//     if (!event['research_group']) {
+//         $("#error").show().text("Research Group cannot be empty");
+//         return;
+//     }
+//
+//     if (!event['types'].length) {
+//         $("#error").show().text("Pick at least one type");
+//         return;
+//     }
+//
+//     if (!event['companys'].length) {
+//         $("#error").show().text("No company selected");
+//         return;
+//     }
+//
+//     let active_types = type_still_active(event['types']);
+//     if (active_types.length > 0 && type_warning) {
+//         // console.log("in ")
+//         let err_text;
+//         if (active_types.length === 1) {
+//             err_text = 'Type: \"' + active_types.join() + '\" is still used by a registration. The registration type for those registrations need to be changed by you. Are you sure you want to continue?'
+//         } else {
+//             err_text = 'Types: ' + active_types.join() + '  are still used by a registration. The registration types for those registrations need to be changed by you. Are you sure you want to continue?'
+//         }
+//         const confirm_button = $(`<button class="btn btn-outline-success ml-2">Yes</button>`)
+//             .click(function () {
+//                 save_event(description_warning, false)
+//             });
+//
+//         $("#error")
+//             .show()
+//             .text(err_text)
+//             .append(confirm_button);
+//         return;
+//     }
+//
+//     if (!event['companys'].length && !event['co-companys'].length && !event['contact_persons'].length) {
+//         $("#error").show().text("Add at least one guide");
+//         return;
+//     }
+//
+//     if (!event['is_active'] && active_warning) {
+//         const confirm_button = $(`<button class="btn btn-outline-success ml-2">Yes</button>`)
+//             .click(function () {
+//                 save_event(description_warning, type_warning, active_warning = false)
+//             });
+//
+//         $("#error")
+//             .show()
+//             .text(`Your event is currently inactive, only the company can change the status to active. If you are not
+//             the company, the company will be notified. Are you sure you want to continue`)
+//             .append(confirm_button);
+//         return;
+//     }
+//
+//     $("#modify-btn").prop("disabled", true).text("Saving...");
+//
+//     if ($.urlParam("new")) {
+//         event["new"] = true;
+//     }
+//
+//     $.ajax({
+//         url: 'event-editor',
+//         method: 'post',
+//         contentType: 'application/json',
+//         data: JSON.stringify(event),
+//         success: function (response) {
+//             window.location.href = "/event-page?event_id=" + response['event_id'] + "&success=true";
+//         },
+//         error: function (msg) {
+//             $("#error").show().text(JSON.stringify(msg));
+//         }
+//     })
+// }
+//
+// /**
+//  * This function initializes the editor.
+//  * @param {number} id the editor id
+//  */
+// function init_editor(id) {
+//     $("#" + id).attr("contenteditable", "true");
+//     return CKEDITOR.inline(id);
+// }
 
 /**
  * Enables the popovers and sets default values.
@@ -674,6 +595,8 @@ function construct_event() {
             nr_students_badge.setAttribute("class", "badge badge-danger");
         }
         badges.appendChild(nr_students_badge);
+        // Show Promotor
+        $("#promotor-card").show();
     }
 
     if (is_occupied(event)) {
@@ -1182,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let isEditing = false;
 
     const editButton = document.getElementById("modify-btn");
-    if (!editButton) {
+    if (!editButton && role === "admin") {
         console.error("Element with ID 'modify-btn' not found in the DOM.");
         return;
     }
@@ -1191,27 +1114,64 @@ document.addEventListener("DOMContentLoaded", function () {
         const fields = document.querySelectorAll(".editable");
 
         if (!isEditing) {
+            document.getElementById("badges").style.display = "none";
+            document.getElementById("registrations").style.display = "none";
+            document.getElementById("edit-options").style.display = "block";
+            document.getElementById("max-student-edit").style.display = "block";
+            document.getElementById("type-edit").style.display = "block";
+
             // Switch to edit mode
             fields.forEach(field => {
-                const currentValue = field.innerText.trim();
-                field.dataset.originalContent = currentValue; // Optional: keep original
-                field.innerHTML = `<input type="text" class="form-control" value="${currentValue.replace(/"/g, '&quot;')}">`;
-            });
+                    if (field.id === "promotor-body") {
+                        field.innerHTML = `<select class="form-control">
+                            ${promotors.length === 0 ? `<option value="" selected>None</option>` : `<option value="">None</option>`}
+                            ${promotors.map(promotor => `<option value="${promotor}">${promotor}</option>`).join('')}
+                        </select>`;
+                    } else if (field.id === "max-student-edit") {
+                        field.innerHTML = `<label for="mse">Max Students</label><input id="mse" type="number" class="form-control" value="${event['max_students']}" min="1">
+`;
+                    } else if (field.id === "type-edit") {
+                        field.innerHTML = `<label for="te">Event Type</label>
+<select id="te" class="form-control">
+    ${types.map(type => `<option value="${type}" ${type === event["types"][0] ? "selected" : ""}>${type}</option>`).join('')}
+</select>`;
+                    } else {
+                        const currentValue = field.innerText.trim();
+                        field.dataset.originalContent = currentValue; // Optional: keep original
+                        field.innerHTML = `<input type="text" class="form-control" value="${currentValue.replace(/"/g, '&quot;')}">`;
+                    }
+                }
+            )
+            ;
             editButton.innerText = translate("Save");
             isEditing = true;
         } else {
+            document.getElementById("badges").style.display = "block";
+            document.getElementById("registrations").style.display = "block";
+
+
+
             // Save mode
             const updatedData = {};
 
             fields.forEach(field => {
-                const input = field.querySelector("input");
+                const input = field.querySelector("input, select");
                 if (input) {
                     const newValue = input.value;
                     const fieldId = field.id;
                     updatedData[fieldId] = newValue;
+                    console.log(input);
+                    console.log(field);
+                    if (input.id === "mse" || input.id === "te") {
+                        field.textContent = "";
+                        console.log("in");
+                    }
                     field.textContent = newValue;
                 }
             });
+            document.getElementById("edit-options").style.display = "none";
+            document.getElementById("max-student-edit").style.display = "none";
+            document.getElementById("type-edit").style.display = "none";
             console.log(updatedData);
 
             fetch(`/modify-event/${event["internship_id"]}`, {
@@ -1237,4 +1197,5 @@ document.addEventListener("DOMContentLoaded", function () {
             isEditing = false;
         }
     });
-});
+})
+;

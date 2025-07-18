@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify, render_template, current_app, sen
     redirect, url_for, flash
 from flask_login import current_user, login_required
 
+from src.models import EmployeeDataAccess
 from src.models.contact_person_company import Contact_person_company, Contact_person_companyDataAccess
 from src.models.internship import InternshipDataAccess
 from src.models.company import CompanyDataAccess
@@ -124,6 +125,7 @@ def get_events_page_additional_data():
 
     tags = TagDataAccess(connection).get_tags()
     types = TypeDataAccess(connection).get_internship_types(True)
+    promotors = EmployeeDataAccess(connection).get_promotors(True)
 
     # contact_person = Contact_person_companyDataAccess(connection).get_contact_person_companies()
 
@@ -132,6 +134,7 @@ def get_events_page_additional_data():
         # "tags": [tag for tag in tags],
         "types": [type.type_name for type in types],
         # "contact_person": [contact_person for contact_person in contact_person]
+        "promotors": sorted([promotor.name for promotor in promotors])
     }
     return jsonify(result)
 
