@@ -1,5 +1,7 @@
 import datetime
 from platform import mac_ver
+
+from src.models import EmployeeDataAccess
 from src.models.type import Type, TypeDataAccess
 from src.models.company import CompanyDataAccess, Company
 from src.models.contact_person_company import Contact_person_companyDataAccess, Contact_person_company
@@ -14,7 +16,7 @@ class Internship:
 
     def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, start_date,
                  end_date, address,
-                 contact_person, is_active, is_reviewed, is_accepted):
+                 contact_person, is_active, is_reviewed, is_accepted, promotor):
         self.internship_id = in_id
         self.title = title
         self.max_students = max_students
@@ -29,6 +31,7 @@ class Internship:
         self.is_active = is_active
         self.is_reviewed = is_reviewed
         self.is_accepted = is_accepted
+        self.promotor = promotor
         ### TODO: Add Last Updated ###
         self.last_updated = None
         """
@@ -99,7 +102,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE internship_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted, promotor FROM internship WHERE internship_id = %s',
             (internship_id,))
         row = cursor.fetchone()
         event = Internship(*row)
@@ -146,6 +149,9 @@ class InternshipDataAccess:
                 {"student": row[0], "name": row[1], "internship": row[2], "type": row[3], "status": row[4],
                  "date": row[5]})
         event.registrations = registrations
+        """Promotor"""
+        if event.promotor:
+            event.promotor = EmployeeDataAccess(self.dbconnect).get_employee(event.promotor).to_dict()
         return event
 
     def get_internships_by_company(self, company_id, active_only=False, accepted_only=False):
@@ -156,7 +162,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE company_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted, promotor FROM internship WHERE company_id = %s',
             (company_id,))
         internships = list()
         for row in cursor:
@@ -547,6 +553,34 @@ class InternshipDataAccess:
             self.dbconnect.rollback()
             raise
 
+    def update_type(self, eid, type):
+        """
+        Updates the type of an internship.
+        :param eid: The ID of the internship.
+        :param type: The new type of the internship.
+        """
+        TypeDataAccess(self.dbconnect).update_internship_has_type(eid, type)
+
+    def update_promotor(self, id, promotor):
+        cursor = self.dbconnect.get_cursor()
+        p = EmployeeDataAccess(self.dbconnect).get_employee_by_name(promotor)
+        try:
+            cursor.execute('UPDATE internship SET promotor = %s WHERE internship_id = %s', (p.e_id, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def update_max_students(self, id, max_students):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET max_students = %s WHERE internship_id = %s',
+                           (max_students, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
     def modify_event(self, id, data):
         """
         Modifies an existing internship.
@@ -554,8 +588,6 @@ class InternshipDataAccess:
         :param data: The new data for the internship.
         :raise: Exception if the database has to roll back.
         """
-        cursor = self.dbconnect.get_cursor()
-
         if 'title' in data:
             title = data['title']
             self.update_title(id, title)
@@ -565,18 +597,12 @@ class InternshipDataAccess:
         if 'address-body' in data:
             address = data['address-body']
             self.update_address(id, address)
-
-
-
-
-    # def update_website(self, id, website):
-    #     cursor = self.dbconnect.get_cursor()
-    #     company_id = self.get_company_id(id)
-    #     if company_id is None:
-    #         raise ValueError("Company ID not found for internship ID {}".format(id))
-    #     from src.models.company import CompanyDataAccess
-    #     company = CompanyDataAccess(self.dbconnect).get_company(company_id)
-    #     if company is None:
-    #         raise ValueError("Company not found for company ID {}".format(company_id))
-    #     # Update the company website
-    #     CompanyDataAccess(self.dbconnect).update_company(company_id, company.name, website)
+        if 'type-edit' in data:
+            type = data['type-edit']
+            self.update_type(id, type)
+        if 'promotor-body' in data:
+            promotor = data['promotor-body']
+            self.update_promotor(id, promotor)
+        if 'max-student-edit' in data:
+            max_students = data['max-student-edit']
+            self.update_max_students(id, max_students)

@@ -202,7 +202,8 @@ CREATE TABLE internship
     contact_person INT REFERENCES contact_person_company (contact_person_id) ON UPDATE CASCADE ON DELETE SET NULL,
     is_active BOOLEAN NOT NULL,
     is_reviewed BOOLEAN NOT NULL DEFAULT FALSE,
-    is_accepted BOOLEAN NOT NULL DEFAULT FALSE
+    is_accepted BOOLEAN NOT NULL DEFAULT FALSE,
+    promotor VARCHAR(255) REFERENCES Employee (id) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 CREATE TABLE internship_has_tag

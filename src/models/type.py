@@ -134,3 +134,18 @@ class TypeDataAccess:
         if row:
             return True
         return False
+
+    def update_internship_has_type(self, eid, type_name):
+        """
+        Updates the internship_has_type table with the given employee id and type name.
+        :param eid: Employee ID.
+        :param type_name: Type name to be associated with the employee.
+        :raise: Exception if the database has to roll back.
+        """
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship_has_type set type = %s WHERE internship = %s;', (type_name, eid))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise

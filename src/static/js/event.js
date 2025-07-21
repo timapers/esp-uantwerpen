@@ -760,6 +760,19 @@ function construct_event() {
 
     fill_cp_popover(html.children().first()[0], event['contact_person_name_email']);
 
+    //Promotor
+    if (event['promotor']) {
+        const promotor = event['promotor'];
+        const name = promotor['name'];
+        const title = promotor['title'] ? promotor['title'] + " " : "";
+        const badge_text = `${title} ${name}`;
+        const promotor_html = $(`<li><a><span class="badge employee-bg-color bigoverflow">${name}</span></a></li>`);
+        $("#promotors-list").append(promotor_html);
+        $("#promotor").css("display", "block");
+
+        fill_promotor_popover(promotor_html.children().first()[0], promotor);
+    }
+
 
 // Registrations
     if (edit_permissions && event["types"][0] === "Internship") {
@@ -783,6 +796,48 @@ function construct_event() {
         button.textContent = isActive ? "Make Inactive" : "Make Active";
     });
 
+}
+
+function fill_promotor_popover(popover, employee) {
+    popover.href = "#promotor-popover";
+    popover.setAttribute("data-toggle", "popover");
+
+    // Popover title
+    const status = employee["is_external"] ? "External" : "Internal";
+    const title = employee["title"] ? employee["title"] + " " : "";
+    const popover_title = `${title}${employee['name']} (${status})`;
+    console.log(popover_title)
+    popover.setAttribute("data-original-title", popover_title);
+
+    const img = employee['picture_location'] ?
+        `<div class='col-12 col-sm-4 text-center' id='employee_image'>
+                <img src=${employee['picture_location']} alt="No image found" width='100px' height='100px'>
+        </div>`
+        : "";
+    const email = employee["email"] ? `Email: <a href='mailto:${employee["email"]}'>${employee["email"]}</a><br>` : "";
+    const office = employee["office"] ? `Office: ${employee['office']}<br>` : "";
+    const extra_info = employee["extra_info"] ? `Extra Info: ${employee["extra_info"]}<br>` : "";
+    const research_group = employee["research_group"] ? `Research Group: ${employee["research_group"]}<br>` : "";
+
+    let html = `
+        <div class='row'>
+            ${img}
+            <div class='col-sm-8' id='employee_info'>
+                ${email}
+                ${office}                
+                ${extra_info}
+                ${research_group}
+            </div>
+        </div>
+    `;
+    popover.setAttribute("data-content", html);
+
+    // Enable it
+    $(popover).popover({
+        html: true,
+        placement: "top",
+        trigger: "focus"
+    });
 }
 
 
@@ -1123,10 +1178,17 @@ document.addEventListener("DOMContentLoaded", function () {
             // Switch to edit mode
             fields.forEach(field => {
                     if (field.id === "promotor-body") {
-                        field.innerHTML = `<select class="form-control">
-                            ${promotors.length === 0 ? `<option value="" selected>None</option>` : `<option value="">None</option>`}
-                            ${promotors.map(promotor => `<option value="${promotor}">${promotor}</option>`).join('')}
-                        </select>`;
+                        // Extract current promotor name from the existing DOM
+                        const currentPromotorElement = field.querySelector("span");
+                        const currentPromotor = currentPromotorElement ? currentPromotorElement.textContent.trim() : "";
+
+                        field.innerHTML = `<select class="form-control">` +
+                            `${promotors.length === 0 ? `<option value="" selected>None</option>` : `<option value="">None</option>`}` +
+                            `${promotors.map(promotor => `
+        <option value="${promotor}" ${promotor === currentPromotor ? "selected" : ""}>${promotor}</option>
+    `).join('')}
+</select>`;
+
                     } else if (field.id === "max-student-edit") {
                         field.innerHTML = `<label for="mse">Max Students</label><input id="mse" type="number" class="form-control" value="${event['max_students']}" min="1">
 `;
@@ -1148,7 +1210,6 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             document.getElementById("badges").style.display = "block";
             document.getElementById("registrations").style.display = "block";
-
 
 
             // Save mode
@@ -1189,12 +1250,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .then(data => {
                     console.log("Update successful:", data);
+                    alert("Changes Saved Successfully!");
                 })
                 .catch(error => {
                     console.error("Error updating:", error);
+                    alert("Error updating: " + error.message);
                 });
             editButton.innerText = translate("Modify");
             isEditing = false;
+            location.reload();
+            // Add a reload and message after changes are saved
         }
     });
 })
