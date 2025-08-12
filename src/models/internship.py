@@ -7,6 +7,7 @@ from src.models.company import CompanyDataAccess, Company
 from src.models.contact_person_company import Contact_person_companyDataAccess, Contact_person_company
 from src.models.document import Document, DocumentDataAccess
 from src.models.internship_registration import InternshipRegistration, InternshipRegistrationsDataAccess
+import datetime
 
 
 class Internship:
@@ -515,7 +516,6 @@ class InternshipDataAccess:
         row = cursor.fetchone()
         return row[0] if row else None
 
-
     def update_title(self, id, title):
         cursor = self.dbconnect.get_cursor()
         try:
@@ -563,9 +563,9 @@ class InternshipDataAccess:
 
     def update_promotor(self, id, promotor):
         cursor = self.dbconnect.get_cursor()
-        p = EmployeeDataAccess(self.dbconnect).get_employee_by_name(promotor)
+        p = None if promotor == "None" else EmployeeDataAccess(self.dbconnect).get_employee_by_name(promotor).e_id
         try:
-            cursor.execute('UPDATE internship SET promotor = %s WHERE internship_id = %s', (p.e_id, id))
+            cursor.execute('UPDATE internship SET promotor = %s WHERE internship_id = %s', (p, id))
             self.dbconnect.commit()
         except:
             self.dbconnect.rollback()
@@ -576,6 +576,26 @@ class InternshipDataAccess:
         try:
             cursor.execute('UPDATE internship SET max_students = %s WHERE internship_id = %s',
                            (max_students, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def update_start_date(self, id, start_date):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET start_date = %s WHERE internship_id = %s',
+                           (start_date, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def update_end_date(self, id, end_date):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET end_date = %s WHERE internship_id = %s',
+                           (end_date, id))
             self.dbconnect.commit()
         except:
             self.dbconnect.rollback()
@@ -606,3 +626,16 @@ class InternshipDataAccess:
         if 'max-student-edit' in data:
             max_students = data['max-student-edit']
             self.update_max_students(id, max_students)
+        if 'type-edit' in data and data['type-edit'] != 'Internship':
+            if 'start_date-body' in data:
+                if data['start_date-body'] == '':
+                    start_date = None
+                else:
+                    start_date = datetime.datetime.strptime(data['start_date-body'], '%Y-%m-%dT%H:%M')
+                self.update_start_date(id, start_date)
+            if 'end_date-body' in data:
+                if data['end_date-body'] == '':
+                    end_date = None
+                else:
+                    end_date = datetime.datetime.strptime(data['end_date-body'], '%Y-%m-%dT%H:%M')
+                self.update_end_date(id, end_date)

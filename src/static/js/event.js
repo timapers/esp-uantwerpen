@@ -713,40 +713,66 @@ function construct_event() {
     }
     const website_div = document.getElementById("website-body");
     website_div.innerHTML = `<a href="${website}" target="_blank" rel="noopener noreferrer" style="color: blue; text-decoration: underline;">${website}</a>`;
-    if (event['start_date'] != null) {
-        const start_date = event['start_date'];
+
+    //Dates
+    if (event['types'][0] != 'Internship') {
+        const start_date_bool = event['start_date'] != null && event['start_date'] !== "";
+        const end_date_bool = event['end_date'] != null && event['end_date'] !== "";
+        let start_date =  event['start_date'];
+        let end_date = event['end_date'];
+        if (start_date_bool) {
+            start_date = event["start_date"].replace(":00 GMT", "").trim();
+        } else {
+            start_date = '';
+        }
         const start_div = document.getElementById("start_date-body");
         start_div.innerHTML = start_date;
-        let date_div = document.getElementById("date");
-        date_div.style.display = "block";
-        if (event['end_date'] != null) {
-            const end_date = event['end_date'];
-            const end_div = document.getElementById("end_date-body");
-            end_div.innerHTML = end_date;
-            let date_div = document.getElementById("date");
-            date_div.style.display = "block";
+
+        if (end_date_bool) {
+            end_date = event['end_date'].replace(":00 GMT", "").trim();
         } else {
-            const end_div = document.getElementById("end");
-            end_div.style.display = "none";
+            end_date = '';
         }
-    }
-    if (event['end_date'] != null) {
-        const end_date = event['end_date'];
         const end_div = document.getElementById("end_date-body");
         end_div.innerHTML = end_date;
         let date_div = document.getElementById("date");
         date_div.style.display = "block";
-        if (event['start_date'] != null) {
-            const start_date = event['start_date'];
-            const start_div = document.getElementById("start_date-body");
-            start_div.innerHTML = start_date;
-            let date_div = document.getElementById("date");
-            date_div.style.display = "block";
-        } else {
-            const end_div = document.getElementById("start");
-            end_div.style.display = "none";
-        }
+
     }
+    // if (event['start_date'] != null) {
+    //     const start_date = event["start_date"].replace(":00 GMT", "").trim();
+    //     const start_div = document.getElementById("start_date-body");
+    //     start_div.innerHTML = start_date;
+    //     let date_div = document.getElementById("date");
+    //     date_div.style.display = "block";
+    //     if (event['end_date'] != null) {
+    //         const end_date = event['end_date'].replace(":00 GMT", "").trim();
+    //         const end_div = document.getElementById("end_date-body");
+    //         end_div.innerHTML = end_date;
+    //         let date_div = document.getElementById("date");
+    //         date_div.style.display = "block";
+    //     } else {
+    //         const end_div = document.getElementById("end");
+    //         end_div.style.display = "none";
+    //     }
+    // }
+    // if (event['end_date'] != null) {
+    //     const end_date = event['end_date'].replace(":00 GMT", "").trim();
+    //     const end_div = document.getElementById("end_date-body");
+    //     end_div.innerHTML = end_date;
+    //     let date_div = document.getElementById("date");
+    //     date_div.style.display = "block";
+    //     if (event['start_date'] != null) {
+    //         const start_date = event['start_date'].replace(":00 GMT", "").trim();
+    //         const start_div = document.getElementById("start_date-body");
+    //         start_div.innerHTML = start_date;
+    //         let date_div = document.getElementById("date");
+    //         date_div.style.display = "block";
+    //     } else {
+    //         const end_div = document.getElementById("start");
+    //         end_div.style.display = "none";
+    //     }
+    // }
     let edit_permissions = role === "admin";
 
 
@@ -1183,7 +1209,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         const currentPromotor = currentPromotorElement ? currentPromotorElement.textContent.trim() : "";
 
                         field.innerHTML = `<select class="form-control">` +
-                            `${promotors.length === 0 ? `<option value="" selected>None</option>` : `<option value="">None</option>`}` +
+                            `${promotors.length === 0 ? `<option value="None" selected>None</option>` : `<option value="None">None</option>`}` +
                             `${promotors.map(promotor => `
         <option value="${promotor}" ${promotor === currentPromotor ? "selected" : ""}>${promotor}</option>
     `).join('')}
@@ -1197,6 +1223,15 @@ document.addEventListener("DOMContentLoaded", function () {
 <select id="te" class="form-control">
     ${types.map(type => `<option value="${type}" ${type === event["types"][0] ? "selected" : ""}>${type}</option>`).join('')}
 </select>`;
+                    } else if (field.id === "start_date-body" || field.id === "end_date-body") {
+                        let currentValue = field.innerText.replace(/\s+/g, " ").trim();
+                        console.log("Original date:", currentValue);
+
+                        let formattedValue = formatDateForInput(currentValue);
+
+                        field.dataset.originalContent = currentValue;
+                        field.innerHTML = `<input type="datetime-local" class="form-control">`;
+                        field.querySelector("input").value = formattedValue;
                     } else {
                         const currentValue = field.innerText.trim();
                         field.dataset.originalContent = currentValue; // Optional: keep original
@@ -1215,6 +1250,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Save mode
             const updatedData = {};
 
+
             fields.forEach(field => {
                 const input = field.querySelector("input, select");
                 if (input) {
@@ -1225,7 +1261,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.log(field);
                     if (input.id === "mse" || input.id === "te") {
                         field.textContent = "";
-                        console.log("in");
                     }
                     field.textContent = newValue;
                 }
@@ -1264,3 +1299,17 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 })
 ;
+
+
+function formatDateForInput(dateString) {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
