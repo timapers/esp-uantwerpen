@@ -359,7 +359,7 @@ function refresh_active_button() {
         active_btn.text("Inactive");
     }
 
-    if (is_promotor) {
+    if (is_promotor || role === "admin") {
         active_btn.prop('disabled', false);
     } else {
         active_btn.prop('disabled', true);
