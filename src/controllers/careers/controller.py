@@ -454,7 +454,7 @@ def update_event(e_id):
     try:
         event_access.modify_event(e_id, data)
         flash('Event updated successfully!', 'success')
-        return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
+        return jsonify({'success': True}), 200, {'Content-Type': 'application/json'}
     except Exception as e:
         flash('Failed to update internship!', 'danger')
-        return jsonify({'success': False, 'message': str(e)}), 400, {'ContentType': 'application/json'}
+        return jsonify({'success': False, 'message': str(e)}), 400, {'Content-Type': 'application/json'}

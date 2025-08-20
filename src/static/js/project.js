@@ -217,16 +217,6 @@ function init_selectpickers() {
     $('.selectpicker').selectpicker('refresh');
 }
 
-let retval = [];
-
-for (let project of PROJECTS) {
-    if (!project["employees"].hasOwnProperty("Promotor")) {
-        retval.push(project);
-    }
-}
-
-console.log(retval);
-
 
 /**
  * This function initializes the supervisor input.
