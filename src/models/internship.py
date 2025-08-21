@@ -1,10 +1,13 @@
 import datetime
 from platform import mac_ver
+
+from src.models import EmployeeDataAccess
 from src.models.type import Type, TypeDataAccess
 from src.models.company import CompanyDataAccess, Company
 from src.models.contact_person_company import Contact_person_companyDataAccess, Contact_person_company
 from src.models.document import Document, DocumentDataAccess
 from src.models.internship_registration import InternshipRegistration, InternshipRegistrationsDataAccess
+import datetime
 
 
 class Internship:
@@ -14,7 +17,7 @@ class Internship:
 
     def __init__(self, in_id, title, max_students, description_id, company_id, view_count, creation_date, start_date,
                  end_date, address,
-                 contact_person, is_active, is_reviewed, is_accepted):
+                 contact_person, is_active, is_reviewed, is_accepted, promotor):
         self.internship_id = in_id
         self.title = title
         self.max_students = max_students
@@ -29,6 +32,7 @@ class Internship:
         self.is_active = is_active
         self.is_reviewed = is_reviewed
         self.is_accepted = is_accepted
+        self.promotor = promotor
         ### TODO: Add Last Updated ###
         self.last_updated = None
         """
@@ -99,7 +103,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE internship_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted, promotor FROM internship WHERE internship_id = %s',
             (internship_id,))
         row = cursor.fetchone()
         event = Internship(*row)
@@ -146,6 +150,9 @@ class InternshipDataAccess:
                 {"student": row[0], "name": row[1], "internship": row[2], "type": row[3], "status": row[4],
                  "date": row[5]})
         event.registrations = registrations
+        """Promotor"""
+        if event.promotor:
+            event.promotor = EmployeeDataAccess(self.dbconnect).get_employee(event.promotor).to_dict()
         return event
 
     def get_internships_by_company(self, company_id, active_only=False, accepted_only=False):
@@ -156,7 +163,7 @@ class InternshipDataAccess:
         """
         cursor = self.dbconnect.get_cursor()
         cursor.execute(
-            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted FROM internship WHERE company_id = %s',
+            'SELECT internship_id, title, max_students, description_id, company_id, view_count, creation_date, start_date, end_date, address, contact_person, is_active, is_reviewed, is_accepted, promotor FROM internship WHERE company_id = %s',
             (company_id,))
         internships = list()
         for row in cursor:
@@ -497,3 +504,138 @@ class InternshipDataAccess:
             return True
         else:
             return False
+
+    def get_document_id(self, internship_id):
+        """
+        Fetches the document ID for a given internship.
+        :param internship_id: The ID of the internship.
+        :return: The document ID.
+        """
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT description_id FROM internship WHERE internship_id = %s', (internship_id,))
+        row = cursor.fetchone()
+        return row[0] if row else None
+
+    def update_title(self, id, title):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET title = %s WHERE internship_id = %s', (title, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def get_company_id(self, internship_id):
+        """
+        Fetches the company ID for a given internship.
+        :param internship_id: The ID of the internship.
+        :return: The company ID.
+        """
+        cursor = self.dbconnect.get_cursor()
+        cursor.execute('SELECT company_id FROM internship WHERE internship_id = %s', (internship_id,))
+        row = cursor.fetchone()
+        return row[0] if row else None
+
+    def update_description(self, id, description):
+        cursor = self.dbconnect.get_cursor()
+        from src.models.document import DocumentDataAccess
+        # Copy doc twice in obj with html_content_eng and html_content_nl
+        doc_id = self.get_document_id(id)
+        document = Document(doc_id, description, description)
+        DocumentDataAccess(self.dbconnect).update_document(document)
+
+    def update_address(self, id, address):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET address = %s WHERE internship_id = %s', (address, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def update_type(self, eid, type):
+        """
+        Updates the type of an internship.
+        :param eid: The ID of the internship.
+        :param type: The new type of the internship.
+        """
+        TypeDataAccess(self.dbconnect).update_internship_has_type(eid, type)
+
+    def update_promotor(self, id, promotor):
+        cursor = self.dbconnect.get_cursor()
+        p = None if promotor == "None" else EmployeeDataAccess(self.dbconnect).get_employee_by_name(promotor).e_id
+        try:
+            cursor.execute('UPDATE internship SET promotor = %s WHERE internship_id = %s', (p, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def update_max_students(self, id, max_students):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET max_students = %s WHERE internship_id = %s',
+                           (max_students, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def update_start_date(self, id, start_date):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET start_date = %s WHERE internship_id = %s',
+                           (start_date, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def update_end_date(self, id, end_date):
+        cursor = self.dbconnect.get_cursor()
+        try:
+            cursor.execute('UPDATE internship SET end_date = %s WHERE internship_id = %s',
+                           (end_date, id))
+            self.dbconnect.commit()
+        except:
+            self.dbconnect.rollback()
+            raise
+
+    def modify_event(self, id, data):
+        """
+        Modifies an existing internship.
+        :param id: The ID of the internship to modify.
+        :param data: The new data for the internship.
+        :raise: Exception if the database has to roll back.
+        """
+        if 'title' in data:
+            title = data['title']
+            self.update_title(id, title)
+        if 'description' in data:
+            description = data['description']
+            self.update_description(id, description)
+        if 'address-body' in data:
+            address = data['address-body']
+            self.update_address(id, address)
+        if 'type-edit' in data:
+            type = data['type-edit']
+            self.update_type(id, type)
+        if 'promotor-body' in data:
+            promotor = data['promotor-body']
+            self.update_promotor(id, promotor)
+        if 'max-student-edit' in data:
+            max_students = data['max-student-edit']
+            self.update_max_students(id, max_students)
+        if 'type-edit' in data and data['type-edit'] != 'Internship':
+            if 'start_date-body' in data:
+                if data['start_date-body'] == '':
+                    start_date = None
+                else:
+                    start_date = datetime.datetime.strptime(data['start_date-body'], '%Y-%m-%dT%H:%M')
+                self.update_start_date(id, start_date)
+            if 'end_date-body' in data:
+                if data['end_date-body'] == '':
+                    end_date = None
+                else:
+                    end_date = datetime.datetime.strptime(data['end_date-body'], '%Y-%m-%dT%H:%M')
+                self.update_end_date(id, end_date)

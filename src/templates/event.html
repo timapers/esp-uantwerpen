@@ -19,6 +19,12 @@
 
 {% block content %}
     <div class="container" id="content">
+        {% if current_user.is_authenticated and current_user.role == "admin" %}
+
+        <div class="text-center" id="modify" style="display: none">
+            <button type="button" class="btn default-color my-2" id="modify-btn">{{ get_text("Modify") }}</button>
+        </div>
+        {% endif %}
         <div class="text-center" id="not-reviewed" style="display: none;">
             {% if current_user.is_authenticated and current_user.role == "admin" %}
                 After reviewing, please click one of the buttons below.
@@ -73,11 +79,19 @@
 
             {% endif %}
 
-            <h1 class="title text-center" id="title"></h1>
+            <h1 class="title text-center editable" id="title"></h1>
 
             <!-- Badges -->
             <div class="text-center" id="badges"></div>
+            <!-- Edit options -->
+<div class="d-flex justify-content-center align-items-center" id="edit-options" style="display: none">
+    <div class="form-group text-center editable" id="max-student-edit">
 
+    </div>
+    <div class="form-group text-center editable ms-3" id="type-edit">
+
+    </div>
+</div>
 
             <!-- Extra Info -->
             <div class="text-center" id="extra-info"></div>
@@ -88,7 +102,7 @@
 
             </div>
 
-            <div class="description mt-2" id="description"></div>
+            <div class="description mt-2 editable" id="description"></div>
 
             <div class="card" id="attachments" style="display: none;">
                 <div class="card-body">
@@ -103,7 +117,7 @@
 
                 <div class="card" id="address">
                     <div class="card-header"><h4 class="my-0"> {{ get_text("Address") }}</h4></div>
-                    <div class="card-body" id="address-body">
+                    <div class="card-body editable" id="address-body">
                     </div>
                 </div>
 
@@ -123,16 +137,27 @@
                 <div class="card-deck row justify-content-lg-between align-items-center">
                     <div class="card" id="start">
                         <div class="card-header"><h4 class="my-0">{{ get_text("Start Date") }}</h4></div>
-                        <div class="card-body" id="start_date-body">
+                        <div class="card-body editable" id="start_date-body">
                         </div>
                     </div>
                     <div class="card" id="end">
                         <div class="card-header"><h4 class="my-0">{{ get_text("End Date") }}</h4></div>
-                        <div class="card-body" id="end_date-body">
+                        <div class="card-body editable" id="end_date-body">
                         </div>
                     </div>
                 </div>
             </div>
+
+        <!-- Promotor -->
+        <div class="my-4 text-center card-deck justify-content-center" id="promotor">
+            <div class="card" id="promotor-card" style="display: none;">
+                <div class="card-header"><h4 class="my-0">Promotor</h4></div>
+                <div class="card-body editable" id="promotor-body">
+                    <ul class="list-unstyled" id="promotors-list"></ul>
+
+                </div>
+            </div>
+        </div>
 
             <!-- Contact Person -->
             <div class="my-4 text-center card-deck justify-content-center" id="contact_person_company">

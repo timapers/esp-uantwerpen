@@ -217,6 +217,7 @@ function init_selectpickers() {
     $('.selectpicker').selectpicker('refresh');
 }
 
+
 /**
  * This function initializes the supervisor input.
  */
@@ -224,7 +225,7 @@ function init_supervisors_input(promotor) {
     let supervisors_input;
     let list_source;
     if (promotor) {
-        supervisors_input = $("#promotors input");
+        supervisors_input = $("#promotors-input");
         list_source = promotors;
 
         supervisors_input.on('itemAdded', function(event) {
@@ -245,7 +246,7 @@ function init_supervisors_input(promotor) {
             refresh_active_button();
         });
     } else {
-        supervisors_input = $("#co-promotors input, #mentors input");
+        supervisors_input = $("#co-promotors-input, #mentors-input");
         list_source = employees;
     }
     //const supervisors_input = $("#supervisors input");
