@@ -552,6 +552,10 @@ language_dict = {
         "en": "Webinar",
         "nl": "Webinair"
     },
+    "Calendar": {
+        "en": "Calendar",
+        "nl": "Kalender"
+    },
 }
 
 

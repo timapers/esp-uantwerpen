@@ -718,7 +718,7 @@ function construct_event() {
     if (event['types'][0] != 'Internship') {
         const start_date_bool = event['start_date'] != null && event['start_date'] !== "";
         const end_date_bool = event['end_date'] != null && event['end_date'] !== "";
-        let start_date =  event['start_date'];
+        let start_date = event['start_date'];
         let end_date = event['end_date'];
         if (start_date_bool) {
             start_date = event["start_date"].replace(":00 GMT", "").trim();
@@ -1192,111 +1192,134 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     editButton.addEventListener("click", function () {
-        const fields = document.querySelectorAll(".editable");
+            const fields = document.querySelectorAll(".editable");
 
-        if (!isEditing) {
-            document.getElementById("badges").style.display = "none";
-            document.getElementById("registrations").style.display = "none";
-            document.getElementById("edit-options").style.display = "block";
-            document.getElementById("max-student-edit").style.display = "block";
-            document.getElementById("type-edit").style.display = "block";
+            if (!isEditing) {
+                document.getElementById("badges").style.display = "none";
+                document.getElementById("registrations").style.display = "none";
+                document.getElementById("edit-options").style.display = "block";
+                document.getElementById("max-student-edit").style.display = "block";
+                document.getElementById("type-edit").style.display = "block";
 
-            // Switch to edit mode
-            fields.forEach(field => {
-                    if (field.id === "promotor-body") {
-                        // Extract current promotor name from the existing DOM
-                        const currentPromotorElement = field.querySelector("span");
-                        const currentPromotor = currentPromotorElement ? currentPromotorElement.textContent.trim() : "";
+                // Switch to edit mode
+                fields.forEach(field => {
+                        if (field.id === "description") {
+                            // Store original content
+                            const currentValue = field.innerHTML.trim();
+                            field.dataset.originalContent = currentValue;
 
-                        field.innerHTML = `<select class="form-control">` +
-                            `${promotors.length === 0 ? `<option value="None" selected>None</option>` : `<option value="None">None</option>`}` +
-                            `${promotors.map(promotor => `
+                            // Replace with textarea
+                            field.innerHTML = `<textarea id="description-editor">${currentValue}</textarea>`;
+
+                            // Activate CKEditor
+                            CKEDITOR.replace("description-editor");
+                        } else if (field.id === "promotor-body") {
+                            // Extract current promotor name from the existing DOM
+                            const currentPromotorElement = field.querySelector("span");
+                            const currentPromotor = currentPromotorElement ? currentPromotorElement.textContent.trim() : "";
+
+                            field.innerHTML = `<select class="form-control">` +
+                                `${promotors.length === 0 ? `<option value="None" selected>None</option>` : `<option value="None">None</option>`}` +
+                                `${promotors.map(promotor => `
         <option value="${promotor}" ${promotor === currentPromotor ? "selected" : ""}>${promotor}</option>
     `).join('')}
 </select>`;
 
-                    } else if (field.id === "max-student-edit") {
-                        field.innerHTML = `<label for="mse">Max Students</label><input id="mse" type="number" class="form-control" value="${event['max_students']}" min="1">
+                        } else if (field.id === "max-student-edit") {
+                            field.innerHTML = `<label for="mse">Max Students</label><input id="mse" type="number" class="form-control" value="${event['max_students']}" min="1">
 `;
-                    } else if (field.id === "type-edit") {
-                        field.innerHTML = `<label for="te">Event Type</label>
+                        } else if (field.id === "type-edit") {
+                            field.innerHTML = `<label for="te">Event Type</label>
 <select id="te" class="form-control">
     ${types.map(type => `<option value="${type}" ${type === event["types"][0] ? "selected" : ""}>${type}</option>`).join('')}
 </select>`;
-                    } else if (field.id === "start_date-body" || field.id === "end_date-body") {
-                        let currentValue = field.innerText.replace(/\s+/g, " ").trim();
-                        console.log("Original date:", currentValue);
+                        } else if (field.id === "start_date-body" || field.id === "end_date-body") {
+                            let currentValue = field.innerText.replace(/\s+/g, " ").trim();
+                            console.log("Original date:", currentValue);
 
-                        let formattedValue = formatDateForInput(currentValue);
+                            let formattedValue = formatDateForInput(currentValue);
 
-                        field.dataset.originalContent = currentValue;
-                        field.innerHTML = `<input type="datetime-local" class="form-control">`;
-                        field.querySelector("input").value = formattedValue;
+                            field.dataset.originalContent = currentValue;
+                            field.innerHTML = `<input type="datetime-local" class="form-control">`;
+                            field.querySelector("input").value = formattedValue;
+                        } else {
+                            const currentValue = field.innerText.trim();
+                            field.dataset.originalContent = currentValue; // Optional: keep original
+                            field.innerHTML = `<input type="text" class="form-control" value="${currentValue.replace(/"/g, '&quot;')}">`;
+                        }
+                    }
+                )
+                ;
+                editButton.innerText = translate("Save");
+                isEditing = true;
+            } else {
+                document.getElementById("badges").style.display = "block";
+                document.getElementById("registrations").style.display = "block";
+
+
+                // Save mode
+                const updatedData = {};
+
+
+                fields.forEach(field => {
+                    if (field.id === "description") {
+                        const editorInstance = CKEDITOR.instances["description-editor"];
+                        const newValue = editorInstance.getData();
+                        updatedData["description"] = newValue;
+
+                        // Destroy CKEditor so the div can show updated content
+                        editorInstance.destroy();
+                        field.innerHTML = newValue;
                     } else {
-                        const currentValue = field.innerText.trim();
-                        field.dataset.originalContent = currentValue; // Optional: keep original
-                        field.innerHTML = `<input type="text" class="form-control" value="${currentValue.replace(/"/g, '&quot;')}">`;
+
+                        const input = field.querySelector("input, select");
+                        if (input) {
+                            const newValue = input.value;
+                            const fieldId = field.id;
+                            updatedData[fieldId] = newValue;
+                            console.log(input);
+                            console.log(field);
+                            if (input.id === "mse" || input.id === "te") {
+                                field.textContent = "";
+                            }
+                            field.textContent = newValue;
+                        }
                     }
-                }
-            )
-            ;
-            editButton.innerText = translate("Save");
-            isEditing = true;
-        } else {
-            document.getElementById("badges").style.display = "block";
-            document.getElementById("registrations").style.display = "block";
-
-
-            // Save mode
-            const updatedData = {};
-
-
-            fields.forEach(field => {
-                const input = field.querySelector("input, select");
-                if (input) {
-                    const newValue = input.value;
-                    const fieldId = field.id;
-                    updatedData[fieldId] = newValue;
-                    console.log(input);
-                    console.log(field);
-                    if (input.id === "mse" || input.id === "te") {
-                        field.textContent = "";
-                    }
-                    field.textContent = newValue;
-                }
-            });
-            document.getElementById("edit-options").style.display = "none";
-            document.getElementById("max-student-edit").style.display = "none";
-            document.getElementById("type-edit").style.display = "none";
-            console.log(updatedData);
-
-            fetch(`/modify-event/${event["internship_id"]}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to update');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("Update successful:", data);
-                    alert("Changes Saved Successfully!");
-                })
-                .catch(error => {
-                    console.error("Error updating:", error);
-                    alert("Error updating: " + error.message);
                 });
-            editButton.innerText = translate("Modify");
-            isEditing = false;
-            location.reload();
-            // Add a reload and message after changes are saved
+                document.getElementById("edit-options").style.display = "none";
+                document.getElementById("max-student-edit").style.display = "none";
+                document.getElementById("type-edit").style.display = "none";
+                console.log(updatedData);
+
+                fetch(`/modify-event/${event["internship_id"]}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedData)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to update');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("Update successful:", data);
+                        alert("Changes Saved Successfully!");
+                    })
+                    .catch(error => {
+                        console.error("Error updating:", error);
+                        alert("Error updating: " + error.message);
+                    });
+                editButton.innerText = translate("Modify");
+                isEditing = false;
+                location.reload();
+                // Add a reload and message after changes are saved
+            }
         }
-    });
+    )
+    ;
 })
 ;
 

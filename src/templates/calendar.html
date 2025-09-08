@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}event{% endblock %}
+
+{% block head %}
+
+    <script src="{{ url_for('static', filename='js/lib/dropzone.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/ckeditor/ckeditor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/bootstrap-tagsinput.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/bootstrap3-typeahead.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/bootstrap4-toggle.min.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap-tagsinput.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/bootstrap4-toggle.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/dropzone.css') }}">
+
+{% endblock %}
+
+{% block content %}
+
+
+
+        <div class="container-fluid text-center">
+        Calendar Soon
+        </div>
+
+{% endblock %}

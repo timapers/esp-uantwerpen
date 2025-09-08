@@ -17,6 +17,7 @@ from src.controllers.cookies import bp as cookies_blueprint
 from src.controllers.profile import bp as profile_blueprint
 from src.controllers.mails import bp as mails_blueprint
 from src.controllers.careers.controller import bp as careers_blueprint
+from src.controllers.calendar import bp as calendar_blueprint
 
 app = Flask(__name__)
 app.teardown_appcontext(close_db)
@@ -34,6 +35,7 @@ app.register_blueprint(profile_blueprint)
 app.register_blueprint(mails_blueprint)
 
 app.register_blueprint(careers_blueprint)
+app.register_blueprint(calendar_blueprint)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
