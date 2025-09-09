@@ -42,7 +42,7 @@ def parse_ics_to_dict(file_path):
     return events_dict
 
 file_path = "doc/events.ics"
-EVENTS = parse_ics_to_dict(file_path)
+# EVENTS = parse_ics_to_dict(file_path)
 
 def update_events_from_file():
     global EVENTS
