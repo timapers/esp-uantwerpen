@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify, render_template, current_app, sen
     redirect, url_for, flash
 from flask_login import current_user, login_required
 
-from src.models import EmployeeDataAccess
+from src.models import EmployeeDataAccess, DocumentDataAccess
 from src.models.contact_person_company import Contact_person_company, Contact_person_companyDataAccess
 from src.models.internship import InternshipDataAccess
 from src.models.company import CompanyDataAccess
@@ -289,7 +289,11 @@ def review_internship():
     connection = get_db()
     InternshipDataAccess(connection).review_internship(internship_id, approved)
     internship = InternshipDataAccess(connection).get_internship(internship_id, False)
+    # Need doc for calendar creation
+    doc_id = InternshipDataAccess(connection).get_document_id(internship_id)
+    doc = DocumentDataAccess(connection).get_document(doc_id)
     contact_person = Contact_person_companyDataAccess(connection).get_contact_person_company(internship.contact_person)
+
     cp_mail = contact_person.email
     if approved:
         msg = f"Dear,\n\n" \
@@ -297,6 +301,12 @@ def review_internship():
             f"Kind regards,\n" \
             f"UA Department of Computer science"
         send_mail(cp_mail, "ESP Internship review", msg)
+        # if approved we want to add to the calendar
+        if internship.types[0] != 'Internship':
+            from src.controllers.calendar import add_calendar_event
+            add_calendar_event(internship, description=doc.html_content_eng)
+
+
     else:
         msg = f"Dear,\n\n" \
             f"Your internship project '{internship.title}' has been rejected! Please contact our coordinator for more information at {config_data.get('contact-mail', 'fwet-informatica-stages@uantwerpen.be')}.\n\n" \
@@ -330,6 +340,16 @@ def remove_internship():
     # InternshipDataAccess(connection).remove_internship(internship_id)
     n_active = not active
     InternshipDataAccess(connection).set_internship_active(internship_id, n_active)
+    if n_active and i.types[0] != 'Internship':
+        from src.controllers.calendar import add_calendar_event
+        doc_id = InternshipDataAccess(connection).get_document_id(internship_id)
+        doc = DocumentDataAccess(connection).get_document(doc_id)
+        add_calendar_event(i, description=doc.html_content_eng)
+    else:
+        if i.types[0] != 'Internship':
+            from src.controllers.calendar import remove_calendar_event
+            remove_calendar_event(internship_id)
+
     return jsonify({'success': True, 'message': 'Internship has been put on ' + ('Inactive' if not n_active else 'Active') + '.'})
 
 
@@ -452,9 +472,15 @@ def update_event(e_id):
     data = request.json
     connection = get_db()
     event_access = InternshipDataAccess(connection)
-
+    doc_access = DocumentDataAccess(connection)
     try:
         event_access.modify_event(e_id, data)
+        event = event_access.get_internship(e_id, False)
+        if event.types[0] != 'Internship':
+            desc = doc_access.get_document(event.document_id)
+            from src.controllers.calendar import add_calendar_event, remove_calendar_event
+            remove_calendar_event(e_id)
+            add_calendar_event(event, description=desc)
         flash('Event updated successfully!', 'success')
         return jsonify({'success': True}), 200, {'Content-Type': 'application/json'}
     except Exception as e:

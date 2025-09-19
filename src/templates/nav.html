@@ -58,10 +58,10 @@
                         <a class="nav-link" href="{{ url_for("projects.my_projects", employee=current_user.name, edit="true") }}">{{ get_text("My Projects") }}</a>
                     </li>
                 {% endif %}
-{#                <li class="nav-item {{ nav_calendar }}">#}
-{#                    <a class="nav-link" href="{{ url_for("calendar.calendar") }}">{{ get_text("Calendar") }}</a>#}
-{##}
-{#                </li>#}
+                <li class="nav-item {{ nav_calendar }}">
+                    <a class="nav-link" href="{{ url_for("calendar.calendar") }}">{{ get_text("Calendar") }}</a>
+
+                </li>
 
             </ul>
 

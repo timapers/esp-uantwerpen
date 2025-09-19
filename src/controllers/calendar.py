@@ -1,9 +1,12 @@
 from flask import Blueprint, render_template, request, abort, Markup, jsonify, current_app, send_from_directory
+from src.config import calendar_file_path as file_path
 from flask_login import current_user
 from bs4 import BeautifulSoup
 import os
 from werkzeug.utils import secure_filename
 import pytz
+
+from src.models.internship import Internship
 
 bp = Blueprint('calendar', __name__)
 
@@ -41,8 +44,7 @@ def parse_ics_to_dict(file_path):
                 }
     return events_dict
 
-file_path = "doc/events.ics"
-# EVENTS = parse_ics_to_dict(file_path)
+EVENTS = parse_ics_to_dict(file_path)
 
 def update_events_from_file():
     global EVENTS
@@ -64,7 +66,7 @@ def generate_ics():
         e.end = event["end"]
         e.description = event.get("description", "")
         e.uid = str(event["uid"])
-        e.categories = event.get("category", "").split(",") if event.get("category") else []
+        e.categories = event["categories"]
         e.location = event.get("location", "")
         c.events.add(e)
     return str(c)
@@ -82,26 +84,52 @@ def calendar_feed():
     )
 
 
-# # Endpoint to add an event
-def add_calendar_event(data, id):
-    uid = id
 
-    start = LOCAL_TZ.localize(datetime.strptime(data["start_date"], "%Y-%m-%dT%H:%M"))
-    end = LOCAL_TZ.localize(datetime.strptime(data["end_date"], "%Y-%m-%dT%H:%M"))
-    EVENTS[uid] = {
-        "uid": uid,
-        "name": data["title"],
+# # Endpoint to add an event
+def add_calendar_event(internship: Internship, description: str):
+    # Internship
+    start = LOCAL_TZ.localize(internship.start_date)
+    end = LOCAL_TZ.localize(internship.end_date)
+
+    EVENTS[internship.internship_id] = {
+        "uid": internship.internship_id,
+        "name": internship.title,
         "start": start,
         "end": end,
-        "description": data['description'],
-        "location": data["address"],
-        "category": data["type"],
+        "description": description,
+        "location": internship.address,
+        "categories": internship.types,
     }
     ics_content = generate_ics()
     with open(file_path, "w", encoding="utf-8") as ics_file:
         ics_file.write(ics_content)
 
     update_events_from_file()
+
+
+from ics import Calendar
+import os
+
+
+def remove_calendar_event(event_uid):
+    """
+    Deletes an event from an .ics file by its UID.
+
+    :param event_uid: UID of the event to delete.
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"The file at {file_path} does not exist.")
+
+    # Load the calendar
+    with open(file_path, 'r', encoding='utf-8') as file:
+        calendar = Calendar(file.read())
+
+    # Remove the event with the specified UID
+    calendar.events = {event for event in calendar.events if event.uid != str(event_uid)}
+
+    # Save the updated calendar back to the file
+    with open(file_path, 'w', encoding='utf-8') as file:
+        file.writelines(calendar.serialize_iter())
 
 
 @app.route("/calendar_events")
