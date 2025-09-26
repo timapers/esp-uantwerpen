@@ -24,8 +24,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Clear existing options
     eventTypeDropdown.innerHTML = "";
 
+    const remove_internship_types = ["Research internship 2", "Research internship 1", "Master thesis"];
+    const types = TYPES.filter(type => !remove_internship_types.includes(type.type_name));
     // Filter and add options dynamically
-    TYPES.filter(type => type.is_active && type.type_name)
+    types.filter(type => type.is_active && type.type_name)
         .forEach(type => {
             const option = document.createElement("option");
             console.log(type.type_name)
