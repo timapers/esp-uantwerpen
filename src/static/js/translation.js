@@ -3,24 +3,28 @@ let loaded = false;
 
 // Fetch the dictionary when the page loads
 function loadTranslationDict() {
-    // Check if the dictionary is already loaded
-    if (loaded) {
-        return;
-    }
-    fetch('/get-translation-dict')
+    if (loaded) return Promise.resolve();
+
+    return fetch('/get-translation-dict')
         .then(response => response.json())
         .then(data => {
             translationDict = Object.freeze(data);
             loaded = true;
-            // console.log("Translation Dictionary Loaded:", translationDict);
         })
         .catch(error => console.error("Error fetching dictionary:", error));
 }
 
-// Call the function to load the dictionary
-loadTranslationDict();
+// Usage:
+async function initializeTranslation() {
+    await loadTranslationDict()
+}
+
+initializeTranslation();
 
 // Function to translate a key
 function translate(key) {
+    if (!translationDict || !translationDict[key]) {
+        return key; // fallback: return original key
+    }
     return translationDict[key][language] || key;
 }
