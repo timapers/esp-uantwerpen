@@ -125,6 +125,9 @@ def add_type(data):
         dao = TypeDataAccess(get_db())
         new_type = Type(data["string"], True)
         dao.add_type(new_type)
+        from src.models.translation import TranslationDataAccess, Translation
+        translationAccess = TranslationDataAccess(get_db())
+        translationAccess.add_translation(Translation(data["string"], data["english"], data["dutch"]))
         return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
 
     except Exception as e:
@@ -235,6 +238,9 @@ def update_type(data):
         dao = TypeDataAccess(get_db())
         updated_type = Type(data["string"], True)
         dao.update_type(data["key"], updated_type)
+        from src.models.translation import TranslationDataAccess, Translation
+        translationAccess = TranslationDataAccess(get_db())
+        translationAccess.update_translation(data["key"], Translation(data["string"], data["english"], data["dutch"]))
         return jsonify({'success': True}), 200, {'ContentType': 'application/json'}
 
     except Exception as e:

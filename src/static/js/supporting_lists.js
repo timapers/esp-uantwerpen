@@ -192,6 +192,7 @@ function refreshContent(type = currentTab) {
             trigger: "focus"
         });
     }
+    refreshTranslationDict();
 }
 
 /**
@@ -262,6 +263,7 @@ function activationModal() {
             success: function (message) {
                 $("#modal-info").text("Successfully saved!");
                 refreshData();
+                refreshTranslationDict();
             },
             error: function (message) {
                 $("#modal-info").text("Error occurred: " + message["responseJSON"]["message"])
@@ -390,6 +392,8 @@ function editModal(item) {
     }
     else if (currentTab === tab.TYPES) {
         $("#modal-input").val(item["type_name"]);
+        $("#dutch-input").val(item["translation_nl"]);
+        $("#english-input").val(item["translation_eng"]);
     }
     else {
         $("#modal-input").val(item);
@@ -458,6 +462,8 @@ function getEditData() {
     } else if (currentTab === tab.TYPES) {
         data["object"] = "type";
         data["string"] = $("#modal-input").val();
+        data["dutch"] = $("#dutch-input").val();
+        data["english"] = $("#english-input").val();
     } else if (currentTab === tab.TAGS) {
         data["object"] = "tag";
         data["string"] = $("#modal-input").val();
@@ -686,7 +692,14 @@ function getEditHTML() {
         output += options;
         output += `</select>`;
         return output;
-    }   else {
+    } else if (currentTab === tab.TYPES){
+      return `
+    <input id="modal-input" class="form-control">
+    <input id="dutch-input" class="form-control" placeholder="Dutch translation">
+    <input id="english-input" class="form-control" placeholder="English translation">
+`;
+    }
+    else {
         return `<input id="modal-input" class="form-control">`;
     }
 }

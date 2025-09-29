@@ -14,6 +14,14 @@ function loadTranslationDict() {
         .catch(error => console.error("Error fetching dictionary:", error));
 }
 
+function refreshTranslationDict() {
+    return fetch('/get-translation-dict')
+        .then(response => response.json())
+        .then(data => {
+            translationDict = Object.freeze(data);
+        })
+        .catch(error => console.error("Error refreshing dictionary:", error));
+}
 // Usage:
 async function initializeTranslation() {
     await loadTranslationDict()

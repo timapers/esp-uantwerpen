@@ -230,6 +230,14 @@ CREATE TABLE internship_registration
   date          date                NOT NULL DEFAULT CURRENT_DATE,
   PRIMARY KEY (student, internship)
 );
+
+
+CREATE TABLE translation
+(
+    key VARCHAR(255) PRIMARY KEY,
+    english VARCHAR(255) NOT NULL,
+    dutch VARCHAR(255) NOT NULL
+);
 -----------------------------------------------------------------------------------------------------------------
 
 CREATE MATERIALIZED VIEW search_index
