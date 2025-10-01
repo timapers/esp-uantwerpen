@@ -1,27 +1,21 @@
-from flask import Blueprint, render_template, request, abort, Markup, jsonify, current_app, send_from_directory
+from src.models.internship import Internship
 from src.config import calendar_file_path as file_path
-from flask_login import current_user
-from bs4 import BeautifulSoup
+from flask import Blueprint, render_template, jsonify
+from flask import Flask, Response, request
+from ics import Calendar, Event
 import os
-from werkzeug.utils import secure_filename
 import pytz
 
-from src.models.internship import Internship
-
 bp = Blueprint('calendar', __name__)
+
 
 @bp.route('/calendar', methods=['GET'])
 def calendar():
     return render_template('calendar.html', new_user=request.args.get("new"))
 
 
-from flask import Flask, Response, request, redirect, url_for
-from ics import Calendar, Event
-from datetime import datetime
-import uuid
-
-app = Flask(__name__)
 LOCAL_TZ = pytz.timezone("Europe/Brussels")  # Set your local timezone here
+
 
 def parse_ics_to_dict(file_path):
     if not os.path.exists(file_path):
@@ -44,7 +38,9 @@ def parse_ics_to_dict(file_path):
                 }
     return events_dict
 
+
 EVENTS = parse_ics_to_dict(file_path)
+
 
 def update_events_from_file():
     global EVENTS
@@ -52,8 +48,6 @@ def update_events_from_file():
         EVENTS = parse_ics_to_dict(file_path)
     except FileNotFoundError:
         EVENTS = {}
-
-
 
 
 # # Helper to generate ICS content
@@ -71,7 +65,8 @@ def generate_ics():
         c.events.add(e)
     return str(c)
 
-@app.route("/calendar.ics")
+
+@bp.route("/calendar.ics")
 def calendar_feed():
     ics_content = generate_ics()
     return Response(
@@ -82,7 +77,6 @@ def calendar_feed():
             "Cache-Control": "no-cache"
         }
     )
-
 
 
 # # Endpoint to add an event
@@ -107,10 +101,6 @@ def add_calendar_event(internship: Internship, description: str):
     update_events_from_file()
 
 
-from ics import Calendar
-import os
-
-
 def remove_calendar_event(event_uid):
     """
     Deletes an event from an .ics file by its UID.
@@ -132,17 +122,11 @@ def remove_calendar_event(event_uid):
         file.writelines(calendar.serialize_iter())
 
 
-@app.route("/calendar_events")
+@bp.route("/calendar_events")
 def get_events():
     """Return all events in JSON for FullCalendar"""
     return jsonify(list(EVENTS.values()))
-#
-# # Endpoint to delete an event
-# def delete_calendar_event(uid):
-#     if uid in EVENTS:
-#         del EVENTS[uid]
-#         return {"status": "deleted"}
-#     return {"status": "not found"}, 404
+
 
 if __name__ == "__main__":
     app.run(debug=True)
